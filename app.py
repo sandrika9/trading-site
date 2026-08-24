@@ -4,7 +4,7 @@ from functools import wraps
 
 import psycopg2
 import psycopg2.extras
-from flask import Flask, flash, redirect, render_template, request, session, url_for
+from flask import Flask, flash, jsonify, redirect, render_template, request, session, url_for
 from werkzeug.security import check_password_hash, generate_password_hash
 
 app = Flask(__name__)
@@ -168,6 +168,31 @@ def pending_approval():
     return render_template("pending.html", discord_tag="cs2sacc")
 
 
+# --- Paddle Webhook (ავტომატურად ააქტიურებს იუზერს გადახდის შემდეგ) ---
+@app.route("/paddle-webhook", methods=["POST"])
+def paddle_webhook():
+    data = request.get_json()
+    if not data:
+        return jsonify(success=False), 0
+        
+    event_type = data.get("event_type")
+    
+    # როდესაც ტრანზაქცია წარმატებით დასრულდება
+    if event_type == "transaction.completed":
+        data_obj = data.get("data", {})
+        customer_email = data_obj.get("customer", {}).get("email")
+        
+        if customer_email:
+            conn = get_db_connection()
+            cursor = conn.cursor()
+            cursor.execute("UPDATE users SET is_paid = 1 WHERE email = %s", (customer_email,))
+            conn.commit()
+            cursor.close()
+            conn.close()
+            
+    return jsonify(success=True), 200
+
+
 @app.route("/logout")
 def logout():
     session.clear()
@@ -180,7 +205,6 @@ def index():
     conn = get_db_connection()
     cursor = conn.cursor()
     
-    # ვამოწმებთ არსებობს თუ არა user_settings ცხრილი, თუ არადა ვქმნით ავტომატურად
     try:
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS user_settings (
@@ -366,7 +390,6 @@ def add_trade():
             )
             conn.commit()
         except Exception:
-            # თუ ცხრილში emotion ან screenshot სვეტები არ არსებობს, ვცდილობთ ძველი სტრუქტურის მიხედვით ჩაწერას, რომ 500 error არ აგდოს
             conn.rollback()
             cursor.execute(
                 """
@@ -519,7 +542,7 @@ def update_settings():
             INSERT INTO user_settings (user_id, initial_balance, target_balance, max_loss_limit)
             VALUES (%s, %s, %s, %s)
             ON CONFLICT (user_id) 
-            DO UPDATE SET initial_balance = %s, target_balance = %s, max_loss_limit = %s
+            UPDATE SET initial_balance = %s, target_balance = %s, max_loss_limit = %s
             """,
             (session["user_id"], initial_balance, target_balance, max_loss_limit, initial_balance, target_balance, max_loss_limit)
         )
