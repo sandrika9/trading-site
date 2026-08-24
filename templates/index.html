@@ -118,7 +118,6 @@
             </div>
 
             <div class="flex items-center gap-4">
-                <!-- ენების არჩევანი -->
                 <div class="relative z-30">
                     <button id="langMenuButton" onclick="toggleLangMenu()" class="glass-panel px-3 py-2 rounded-lg text-sm font-medium text-gray-300 hover:text-white flex items-center gap-2 transition">
                         <i data-lucide="globe" class="w-4 h-4 text-indigo-400"></i>
@@ -150,6 +149,16 @@
 </nav>
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 animate-fade-in">
+        
+        <!-- Jinja2 Safe Variables: თავიდან ავიცილებთ 500 ერორს თუ მონაცემები არ არსებობს -->
+        {% set l_count = long_stats.count if long_stats else 0 %}
+        {% set l_pnl = long_stats.pnl if long_stats and long_stats.pnl else 0.0 %}
+        {% set l_wr = long_stats.win_rate if long_stats and long_stats.win_rate else 0 %}
+        
+        {% set s_count = short_stats.count if short_stats else 0 %}
+        {% set s_pnl = short_stats.pnl if short_stats and short_stats.pnl else 0.0 %}
+        {% set s_wr = short_stats.win_rate if short_stats and short_stats.win_rate else 0 %}
+
         <div>
             <h1 class="text-2xl font-bold text-white" data-i18n="page_heading">Trading Analytics</h1>
             <p class="text-sm text-gray-400 mt-1" data-i18n="page_subtitle">Deep statistical analysis and distribution of your results.</p>
@@ -163,20 +172,20 @@
                         <div class="p-2.5 bg-success/10 rounded-xl text-success border border-success/20"><i data-lucide="trending-up" class="w-5 h-5"></i></div>
                         <div>
                             <h3 class="text-white font-bold text-base" data-i18n="long_positions">LONG Positions</h3>
-                            <span class="text-xs text-gray-400"><span data-i18n="total_label">Total</span>: <span class="text-white font-semibold">{{ long_stats.count }}</span></span>
+                            <span class="text-xs text-gray-400"><span data-i18n="total_label">Total</span>: <span class="text-white font-semibold">{{ l_count }}</span></span>
                         </div>
                     </div>
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div class="bg-black/30 p-4 rounded-xl border border-white/5">
                         <span class="text-xs text-gray-400 block mb-1" data-i18n="total_pnl">Total PnL</span>
-                        <span class="text-xl font-bold {% if long_stats.pnl >= 0 %} text-success {% else %} text-danger {% endif %}">
-                            {% if long_stats.pnl > 0 %}+{% endif %}${{ "{:,.2f}".format(long_stats.pnl) }}
+                        <span class="text-xl font-bold {% if l_pnl >= 0 %} text-success {% else %} text-danger {% endif %}">
+                            {% if l_pnl > 0 %}+{% endif %}${{ "{:,.2f}".format(l_pnl) }}
                         </span>
                     </div>
                     <div class="bg-black/30 p-4 rounded-xl border border-white/5">
                         <span class="text-xs text-gray-400 block mb-1" data-i18n="win_rate">Win Rate</span>
-                        <span class="text-xl font-bold text-white">{{ long_stats.win_rate }}%</span>
+                        <span class="text-xl font-bold text-white">{{ l_wr }}%</span>
                     </div>
                 </div>
             </div>
@@ -188,20 +197,20 @@
                         <div class="p-2.5 bg-danger/10 rounded-xl text-danger border border-danger/20"><i data-lucide="trending-down" class="w-5 h-5"></i></div>
                         <div>
                             <h3 class="text-white font-bold text-base" data-i18n="short_positions">SHORT Positions</h3>
-                            <span class="text-xs text-gray-400"><span data-i18n="total_label">Total</span>: <span class="text-white font-semibold">{{ short_stats.count }}</span></span>
+                            <span class="text-xs text-gray-400"><span data-i18n="total_label">Total</span>: <span class="text-white font-semibold">{{ s_count }}</span></span>
                         </div>
                     </div>
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div class="bg-black/30 p-4 rounded-xl border border-white/5">
                         <span class="text-xs text-gray-400 block mb-1" data-i18n="total_pnl">Total PnL</span>
-                        <span class="text-xl font-bold {% if short_stats.pnl >= 0 %} text-success {% else %} text-danger {% endif %}">
-                            {% if short_stats.pnl > 0 %}+{% endif %}${{ "{:,.2f}".format(short_stats.pnl) }}
+                        <span class="text-xl font-bold {% if s_pnl >= 0 %} text-success {% else %} text-danger {% endif %}">
+                            {% if s_pnl > 0 %}+{% endif %}${{ "{:,.2f}".format(s_pnl) }}
                         </span>
                     </div>
                     <div class="bg-black/30 p-4 rounded-xl border border-white/5">
                         <span class="text-xs text-gray-400 block mb-1" data-i18n="win_rate">Win Rate</span>
-                        <span class="text-xl font-bold text-white">{{ short_stats.win_rate }}%</span>
+                        <span class="text-xl font-bold text-white">{{ s_wr }}%</span>
                     </div>
                 </div>
             </div>
@@ -223,23 +232,26 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-white/5">
-                        {% for emo, data in emotion_stats.items() %}
-                        <tr class="hover:bg-white/[0.03] transition">
-                            <td class="px-6 py-4"><span class="font-semibold text-white bg-white/5 px-3 py-1.5 rounded-lg">{{ emo }}</span></td>
-                            <td class="px-6 py-4 text-gray-300 font-medium">{{ data.count }}</td>
-                            <td class="px-6 py-4 text-right">
-                                <span class="font-bold text-base {% if data.pnl > 0 %} text-success {% elif data.pnl < 0 %} text-danger {% else %} text-gray-400 {% endif %}">
-                                    {% if data.pnl > 0 %}+{% endif %}${{ "{:,.2f}".format(data.pnl) }}
-                                </span>
-                            </td>
-                        </tr>
+                        {% if emotion_stats %}
+                            {% for emo, data in emotion_stats.items() %}
+                            <tr class="hover:bg-white/[0.03] transition">
+                                <td class="px-6 py-4"><span class="font-semibold text-white bg-white/5 px-3 py-1.5 rounded-lg">{{ emo }}</span></td>
+                                <td class="px-6 py-4 text-gray-300 font-medium">{{ data.count if data and data.count else 0 }}</td>
+                                <td class="px-6 py-4 text-right">
+                                    {% set e_pnl = data.pnl if data and data.pnl else 0.0 %}
+                                    <span class="font-bold text-base {% if e_pnl > 0 %} text-success {% elif e_pnl < 0 %} text-danger {% else %} text-gray-400 {% endif %}">
+                                        {% if e_pnl > 0 %}+{% endif %}${{ "{:,.2f}".format(e_pnl) }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
                         {% else %}
-                        <tr>
-                            <td colspan="3" class="px-6 py-12 text-center text-gray-500" data-i18n="no_data">
-                                No data available yet.
-                            </td>
-                        </tr>
-                        {% endfor %}
+                            <tr>
+                                <td colspan="3" class="px-6 py-12 text-center text-gray-500" data-i18n="no_data">
+                                    No data available yet.
+                                </td>
+                            </tr>
+                        {% endif %}
                     </tbody>
                 </table>
             </div>
@@ -249,7 +261,6 @@
     <script>
         lucide.createIcons();
 
-        // ენების ლექსიკონი
         const translations = {
             en: {
                 page_title: "YourStats - Analytics",
@@ -368,7 +379,6 @@
             });
         }
 
-        // ნაგულისხმევად (Default) დაყენებულია ინგლისური (en)
         window.addEventListener('DOMContentLoaded', () => {
             const savedLang = localStorage.getItem('selected_language') || 'en';
             const labels = {
