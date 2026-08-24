@@ -521,27 +521,28 @@
                 th_side: "Lado",
                 th_entry_exit: "Entrada → Salida",
                 th_pnl: "PnL",
-                empty_trades: "Aún no se han añadido operaciones.",
-                modal_settings_title: "Ajustes de la cuenta",
+                empty_trades: "Aún no hay operaciones añadidas.",
+                modal_settings_title: "Ajustes de cuenta",
                 label_initial_balance: "Balance inicial ($)",
                 label_target_balance: "Objetivo de beneficio ($)",
-                label_max_loss: "Límite máximo de pérdida ($)",
+                label_max_loss: "Límite de pérdida máx. ($)",
                 btn_cancel: "Cancelar",
                 btn_save: "Guardar"
             }
         };
 
         function changeLanguage(lang) {
-            document.documentElement.lang = lang;
+            localStorage.setItem('preferred_language', lang);
             
-            const elements = document.querySelectorAll('[data-i18n]');
-            elements.forEach(el => {
+            // ტექსტების განახლება
+            document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
                 if (translations[lang] && translations[lang][key]) {
                     el.textContent = translations[lang][key];
                 }
             });
 
+            // აქტიური ღილაკების ვიზუალის მართვა
             document.querySelectorAll('.lang-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
@@ -549,111 +550,26 @@
             if (activeBtn) {
                 activeBtn.classList.add('active');
             }
-
-            localStorage.setItem('selected_lang', lang);
         }
 
-        window.addEventListener('DOMContentLoaded', () => {
-            const savedLang = localStorage.getItem('selected_lang') || 'en';
+        // გვერდის ჩატვირთვისას წინა არჩეული ენის აღდგენა
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedLang = localStorage.getItem('preferred_language') || 'ka';
             changeLanguage(savedLang);
         });
 
-        function openSettingsModal() {
-            document.getElementById('settingsModal').classList.remove('hidden');
-        }
-        function closeSettingsModal() {
-            document.getElementById('settingsModal').classList.add('hidden');
-        }
+        // მობილური მენიუსა და მოდალების დამხმარე ფუნქციები
         function toggleMobileMenu() {
             const menu = document.getElementById('mobileMenu');
             menu.classList.toggle('hidden');
         }
 
-        const chartRawData = {{ chart_data | tojson }};
-        const chartLabels = chartRawData.map(item => item.time);
-        const chartValues = chartRawData.map(item => item.value);
+        function openSettingsModal() {
+            document.getElementById('settingsModal').classList.remove('hidden');
+        }
 
-        const ctx = document.getElementById('equityChart').getContext('2d');
-        const equityChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: chartLabels.length > 0 ? chartLabels : ['საწყისი'],
-                datasets: [{
-                    label: 'ბალანსი ($)',
-                    data: chartValues.length > 0 ? chartValues : [{{ initial_balance }}],
-                    borderColor: '#6366F1',
-                    backgroundColor: 'rgba(99, 102, 241, 0.1)',
-                    borderWidth: 2.5,
-                    fill: true,
-                    tension: 0.35,
-                    pointRadius: 4,
-                    pointBackgroundColor: '#6366F1'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: {
-                    x: { grid: { color: 'rgba(255, 255, 255, 0.03)' }, ticks: { color: '#9CA3AF', font: { size: 10 } } },
-                    y: { grid: { color: 'rgba(255, 255, 255, 0.03)' }, ticks: { color: '#9CA3AF', font: { size: 10 } } }
-                }
-            }
-        });
-
-        const dailyPnlData = {{ daily_pnl | tojson }};
-        const calendarContainer = document.getElementById('calendarContainer');
-        
-        if (calendarContainer) {
-            calendarContainer.innerHTML = '';
-            
-            const daysOfWeek = ['ორშ', 'სამ', 'ოთხ', 'ხუთ', 'პარ', 'შაბ', 'კვ'];
-            daysOfWeek.forEach(day => {
-                const div = document.createElement('div');
-                div.className = 'text-gray-500 font-medium py-1 text-center text-[10px] sm:text-xs';
-                div.innerText = day;
-                calendarContainer.appendChild(div);
-            });
-
-            const now = new Date();
-            const year = now.getFullYear();
-            const month = now.getMonth();
-            
-            const firstDayIndex = new Date(year, month, 1).getDay();
-            const adjustedFirstDay = (firstDayIndex === 0) ? 6 : firstDayIndex - 1;
-            const totalDays = new Date(year, month + 1, 0).getDate();
-
-            for (let i = 0; i < adjustedFirstDay; i++) {
-                const emptyDiv = document.createElement('div');
-                calendarContainer.appendChild(emptyDiv);
-            }
-
-            for (let i = 1; i <= totalDays; i++) {
-                const dayDiv = document.createElement('div');
-                
-                const formattedMonth = String(month + 1).padStart(2, '0');
-                const formattedDay = String(i).padStart(2, '0');
-                const dateStr = `${year}-${formattedMonth}-${formattedDay}`;
-
-                let bgClass = 'bg-white/[0.02] text-gray-400 border-white/5';
-                if (dailyPnlData.hasOwnProperty(dateStr)) {
-                    const pnl = dailyPnlData[dateStr];
-                    if (pnl > 0) {
-                        bgClass = 'bg-success/20 text-success border-success/40 font-bold shadow-[0_0_10px_rgba(16,185,129,0.2)]';
-                    } else if (pnl < 0) {
-                        bgClass = 'bg-danger/20 text-danger border-danger/40 font-bold shadow-[0_0_10px_rgba(239,68,68,0.2)]';
-                    }
-                }
-
-                dayDiv.className = `py-1.5 sm:py-2 rounded-lg font-mono text-[10px] sm:text-[11px] border flex items-center justify-center transition-all ${bgClass}`;
-                dayDiv.innerText = i;
-                
-                if (dailyPnlData.hasOwnProperty(dateStr)) {
-                    dayDiv.title = `PnL: $${dailyPnlData[dateStr].toFixed(2)}`;
-                }
-
-                calendarContainer.appendChild(dayDiv);
-            }
+        function closeSettingsModal() {
+            document.getElementById('settingsModal').classList.add('hidden');
         }
     </script>
 </body>
