@@ -10,21 +10,19 @@ from werkzeug.security import check_password_hash, generate_password_hash
 app = Flask(__name__)
 app.secret_key = "your_secret_key_here"
 
-# Supabase PostgreSQL ბაზის მისამართი
-# როდესაც Render-ზე ატვირთავ, შეგიძლია Environment Variables-ში ჩაწერო DATABASE_URL
+# Supabase PostgreSQL ბაზის მისამართი (Transaction Pooler - 6543 პორტი Render-ისთვის)
 DATABASE_URL = os.environ.get(
     "DATABASE_URL", 
     "postgresql://postgres.rnktcgfknokfdktfxjkb:Sandrika789@aws-0-eu-central-1.pooler.supabase.com:6543/postgres"
 )
 
 
-# ბაზასთან კავშირის დამხმარე ფუნქცია (ტაიმაუტისგან დამცავი Retry მექანიზმით)
+# ბაზასთან კავშირის დამხმარე ფუნქცია (Retry მექანიზმით და DictConnection-ით)
 def get_db_connection():
     retries = 3
     delay = 2
     for i in range(retries):
         try:
-            # ვიყენებთ DATABASE_URL-ს და DictConnection-ს, რათა cursor() პირდაპირ ამოიცნოს ლექსიკონის სახით
             conn = psycopg2.connect(
                 DATABASE_URL, 
                 sslmode="require", 
