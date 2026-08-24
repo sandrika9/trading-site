@@ -525,24 +525,28 @@
                 modal_settings_title: "Ajustes de cuenta",
                 label_initial_balance: "Balance inicial ($)",
                 label_target_balance: "Objetivo de beneficio ($)",
-                label_max_loss: "Límite de pérdida máx. ($)",
+                label_max_loss: "Límite máximo de pérdida ($)",
                 btn_cancel: "Cancelar",
                 btn_save: "Guardar"
             }
         };
 
         function changeLanguage(lang) {
-            localStorage.setItem('preferred_language', lang);
-            
-            // ტექსტების განახლება
+            localStorage.setItem('preferred_lang', lang);
+            updatePageLanguage(lang);
+        }
+
+        function updatePageLanguage(lang) {
+            const t = translations[lang];
+            if (!t) return;
+
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
-                if (translations[lang] && translations[lang][key]) {
-                    el.textContent = translations[lang][key];
+                if (t[key]) {
+                    el.innerText = t[key];
                 }
             });
 
-            // აქტიური ღილაკების ვიზუალის მართვა
             document.querySelectorAll('.lang-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
@@ -552,18 +556,6 @@
             }
         }
 
-        // გვერდის ჩატვირთვისას წინა არჩეული ენის აღდგენა
-        document.addEventListener('DOMContentLoaded', () => {
-            const savedLang = localStorage.getItem('preferred_language') || 'ka';
-            changeLanguage(savedLang);
-        });
-
-        // მობილური მენიუსა და მოდალების დამხმარე ფუნქციები
-        function toggleMobileMenu() {
-            const menu = document.getElementById('mobileMenu');
-            menu.classList.toggle('hidden');
-        }
-
         function openSettingsModal() {
             document.getElementById('settingsModal').classList.remove('hidden');
         }
@@ -571,6 +563,16 @@
         function closeSettingsModal() {
             document.getElementById('settingsModal').classList.add('hidden');
         }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            menu.classList.toggle('hidden');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedLang = localStorage.getItem('preferred_lang') || 'ka';
+            updatePageLanguage(savedLang);
+        });
     </script>
 </body>
 </html>
