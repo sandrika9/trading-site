@@ -77,6 +77,10 @@
             mask-image: radial-gradient(circle at 50% 20%, black 40%, transparent 80%);
             pointer-events: none;
         }
+        /* Google Translate ვიჯეტის დამალვა/კასტომიზაცია, რომ სუფთად ჩანდეს */
+        .goog-te-banner-frame { display: none !important; }
+        body { top: 0px !important; }
+        #google_translate_element { display: none; }
     </style>
 </head>
 <body class="bg-transparent text-gray-300 min-h-screen font-sans antialiased selection:bg-primary/30 selection:text-white">
@@ -104,46 +108,44 @@
                 <!-- დესკტოპ მენიუ -->
                 <div class="hidden md:flex items-center gap-6">
                     <a href="{{ url_for('index') }}" class="text-white flex items-center gap-2 font-medium transition hover:text-indigo-400">
-                        <i data-lucide="layout-dashboard" class="w-4 h-4"></i> <span data-i18n="dashboard">Dashboard</span>
+                        <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard
                     </a>
                     <a href="{{ url_for('trades_list') }}" class="text-gray-400 flex items-center gap-2 font-medium transition hover:text-white">
-                        <i data-lucide="list" class="w-4 h-4"></i> <span data-i18n="history">History</span>
+                        <i data-lucide="list" class="w-4 h-4"></i> History
                     </a>
                     <a href="{{ url_for('analytics') }}" class="text-gray-400 flex items-center gap-2 font-medium transition hover:text-white">
-                        <i data-lucide="pie-chart" class="w-4 h-4"></i> <span data-i18n="analytics">Analytics</span>
+                        <i data-lucide="pie-chart" class="w-4 h-4"></i> Analytics
                     </a>
                 </div>
 
-                <div class="flex items-center gap-2 sm:gap-4">
-                    <!-- ენების ამორჩევა -->
-                    <div class="relative">
-                        <select id="langSwitch" onchange="changeLanguage(this.value)" class="bg-white/5 border border-white/10 text-gray-300 text-xs sm:text-sm rounded-xl px-2.5 py-2 focus:outline-none focus:border-indigo-500 transition cursor-pointer">
-                            <option value="en" class="bg-[#11151F] text-white">English</option>
-                            <option value="ka" class="bg-[#11151F] text-white">ქართული</option>
-                            <option value="ru" class="bg-[#11151F] text-white">Русский</option>
-                            <option value="es" class="bg-[#11151F] text-white">Español</option>
-                        </select>
-                    </div>
-
+                <div class="flex items-center gap-2 sm:gap-3">
                     <button onclick="openSettingsModal()" class="text-gray-400 hover:text-white p-2 rounded-xl bg-white/5 hover:bg-white/10 transition flex items-center gap-1.5 text-sm font-medium" title="პარამეტრები">
                         <i data-lucide="sliders" class="w-4 h-4 text-indigo-400"></i>
-                        <span class="hidden sm:inline" data-i18n="settingsBtn">პარამეტრები</span>
+                        <span class="hidden sm:inline">პარამეტრები</span>
                     </button>
 
-                    <a href="{{ url_for('add_trade') }}" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 sm:px-5 py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-300 flex items-center gap-1.5 sm:gap-2 shadow-[0_0_15px_rgba(79,70,229,0.3)] hover:scale-[1.02]">
-                        <i data-lucide="plus" class="w-4 h-4"></i> <span data-i18n="newTrade">ახალი ტრეიდი</span>
+                    <a href="{{ url_for('add_trade') }}" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-300 flex items-center gap-1.5 shadow-[0_0_15px_rgba(79,70,229,0.3)] hover:scale-[1.02]">
+                        <i data-lucide="plus" class="w-4 h-4"></i> <span>ახალი ტრეიდი</span>
                     </a>
 
                     {% if session.get('username') == 'sandrika' %}
                         <a href="{{ url_for('admin_users') }}" class="hidden sm:flex px-3 py-2 rounded-xl bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 text-xs font-semibold transition items-center gap-1.5 border border-indigo-500/20" title="ადმინ პანელი">
                             <i data-lucide="shield-check" class="w-4 h-4"></i>
-                            <span data-i18n="admin">ადმინი</span>
+                            <span>ადმინი</span>
                         </a>
                     {% endif %}
 
                     <div class="h-6 w-[1px] bg-white/10 hidden sm:block"></div>
+
+                    <!-- კომპაქტური ენების გადამრთველი (დროშები) -->
+                    <div class="flex items-center gap-1 bg-black/40 p-1 rounded-xl border border-white/5">
+                        <button onclick="changeLanguage('ka')" id="lang-ka" class="w-7 h-7 rounded-lg flex items-center justify-center hover:bg-white/10 transition text-sm grayscale opacity-60" title="ქართული">🇬🇪</button>
+                        <button onclick="changeLanguage('en')" id="lang-en" class="w-7 h-7 rounded-lg flex items-center justify-center hover:bg-white/10 transition text-sm grayscale opacity-60" title="English">🇬🇧</button>
+                        <button onclick="changeLanguage('ru')" id="lang-ru" class="w-7 h-7 rounded-lg flex items-center justify-center hover:bg-white/10 transition text-sm grayscale opacity-60" title="Русский">🇷🇺</button>
+                        <button onclick="changeLanguage('es')" id="lang-es" class="w-7 h-7 rounded-lg flex items-center justify-center hover:bg-white/10 transition text-sm grayscale opacity-60" title="Español">🇪🇸</button>
+                    </div>
                     
-                    <a href="{{ url_for('logout') }}" class="text-gray-500 hover:text-rose-400 transition p-1" title="გასვლა">
+                    <a href="{{ url_for('logout') }}" class="text-gray-500 hover:text-rose-400 transition p-1 ml-1" title="გასვლა">
                         <i data-lucide="log-out" class="w-5 h-5"></i>
                     </a>
 
@@ -168,23 +170,26 @@
             </a>
             {% if session.get('username') == 'sandrika' %}
             <a href="{{ url_for('admin_users') }}" class="block px-3 py-2 rounded-lg text-indigo-400 hover:bg-white/5 font-medium flex items-center gap-2">
-                <i data-lucide="shield-check" class="w-4 h-4"></i> <span data-i18n="adminPanel">ადმინ პანელი</span>
+                <i data-lucide="shield-check" class="w-4 h-4"></i> ადმინ პანელი
             </a>
             {% endif %}
         </div>
     </nav>
 
+    <!-- ფარული Google Translate ელემენტი თარგმნის მექანიზმისთვის -->
+    <div id="google_translate_element"></div>
+
     <!-- მთავარი კონტენტი -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 sm:space-y-8 animate-fade-in">
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
-                <h1 class="text-xl sm:text-2xl font-bold text-white"><span data-i18n="welcome">მოგესალმები,</span> <span class="text-indigo-400">{{ session.get('username', 'ტრეიდერო') }}</span> 👋</h1>
-                <p class="text-xs sm:text-sm text-gray-400 mt-1" data-i18n="subtitle">აქ არის შენი სავაჭრო ანგარიშის დეტალური მიმოხილვა.</p>
+                <h1 class="text-xl sm:text-2xl font-bold text-white">მოგესალმები, <span class="text-indigo-400">{{ session.get('username', 'ტრეიდერო') }}</span> 👋</h1>
+                <p class="text-xs sm:text-sm text-gray-400 mt-1">აქ არის შენი სავაჭრო ანგარიშის დეტალური მიმოხილვა.</p>
             </div>
             
             <div class="glass-panel px-4 sm:px-5 py-3.5 rounded-xl w-full md:w-[320px]">
                 <div class="flex justify-between text-xs mb-2">
-                    <span class="text-gray-400 flex items-center gap-1.5"><i data-lucide="trending-up" class="w-3.5 h-3.5 text-indigo-400"></i> <span data-i18n="progressText">პროგრესი (მიზანი:</span> ${{ "{:,.0f}".format(target_balance) }})</span>
+                    <span class="text-gray-400 flex items-center gap-1.5"><i data-lucide="trending-up" class="w-3.5 h-3.5 text-indigo-400"></i> პროგრესი (მიზანი: ${{ "{:,.0f}".format(target_balance) }})</span>
                     <span class="font-bold text-white">{{ progress_pct }}%</span>
                 </div>
                 <div class="w-full bg-black/60 rounded-full h-2.5 overflow-hidden p-[1px] border border-white/5">
@@ -200,9 +205,9 @@
                 <div class="flex justify-between items-start mb-3 sm:mb-4">
                     <div class="p-2 bg-indigo-500/10 rounded-lg text-indigo-400"><i data-lucide="wallet" class="w-5 h-5"></i></div>
                 </div>
-                <h3 class="text-gray-400 text-xs sm:text-sm font-medium" data-i18n="currentBalance">მიმდინარე ბალანსი</h3>
+                <h3 class="text-gray-400 text-xs sm:text-sm font-medium">მიმდინარე ბალანსი</h3>
                 <p class="text-2xl sm:text-3xl font-bold text-white mt-1">${{ "{:,.2f}".format(current_balance) }}</p>
-                <p class="text-xs text-gray-500 mt-1"><span data-i18n="initial">საწყისი:</span> ${{ "{:,.2f}".format(initial_balance) }}</p>
+                <p class="text-xs text-gray-500 mt-1">საწყისი: ${{ "{:,.2f}".format(initial_balance) }}</p>
             </div>
 
             <div class="glass-panel p-5 sm:p-6 rounded-2xl relative overflow-hidden group">
@@ -212,7 +217,7 @@
                         <i data-lucide="{% if total_pnl >= 0 %}trending-up{% else %}trending-down{% endif %}" class="w-5 h-5"></i>
                     </div>
                 </div>
-                <h3 class="text-gray-400 text-xs sm:text-sm font-medium" data-i18n="totalPnl">მთლიანი PnL</h3>
+                <h3 class="text-gray-400 text-xs sm:text-sm font-medium">მთლიანი PnL</h3>
                 <p class="text-2xl sm:text-3xl font-bold mt-1 {% if total_pnl > 0 %} text-success {% elif total_pnl < 0 %} text-danger {% else %} text-white {% endif %}">
                     {% if total_pnl > 0 %}+{% endif %}${{ "{:,.2f}".format(total_pnl) }}
                 </p>
@@ -244,7 +249,7 @@
                         <i data-lucide="sliders" class="w-4 h-4"></i>
                     </button>
                 </div>
-                <h3 class="text-gray-400 text-xs sm:text-sm font-medium" data-i18n="maxLossLimit">წაგების ლიმიტი</h3>
+                <h3 class="text-gray-400 text-xs sm:text-sm font-medium">წაგების ლიმიტი</h3>
                 <p class="text-2xl sm:text-3xl font-bold text-white mt-1">${{ "{:,.2f}".format(max_loss_limit) }}</p>
             </div>
         </div>
@@ -254,7 +259,7 @@
             <div class="glass-panel p-5 sm:p-6 rounded-2xl lg:col-span-2 flex flex-col justify-between !transform-none">
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="text-sm sm:text-base font-semibold text-white flex items-center gap-2">
-                        <i data-lucide="activity" class="w-5 h-5 text-indigo-400"></i> <span data-i18n="equityChart">კაპიტალის ზრდის მაჩვენებელი</span>
+                        <i data-lucide="activity" class="w-5 h-5 text-indigo-400"></i> კაპიტალის ზრდის მაჩვენებელი
                     </h3>
                 </div>
                 <div class="h-[240px] sm:h-[280px] w-full relative">
@@ -265,15 +270,15 @@
             <div class="glass-panel p-5 sm:p-6 rounded-2xl flex flex-col justify-between !transform-none">
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="text-sm sm:text-base font-semibold text-white flex items-center gap-2">
-                        <i data-lucide="calendar" class="w-5 h-5 text-indigo-400"></i> <span data-i18n="calendar">სავაჭრო კალენდარი</span>
+                        <i data-lucide="calendar" class="w-5 h-5 text-indigo-400"></i> სავაჭრო კალენდარი
                     </h3>
                 </div>
                 <div class="flex-1 flex flex-col justify-center">
                     <div id="calendarContainer" class="grid grid-cols-7 gap-1.5 text-center text-xs"></div>
                 </div>
                 <div class="mt-4 pt-3 border-t border-white/5 flex justify-between text-xs text-gray-400">
-                    <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-success"></span> <span data-i18n="profitable">მოგებიანი</span></span>
-                    <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-danger"></span> <span data-i18n="loss">წამგებიანი</span></span>
+                    <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-success"></span> მოგებიანი</span>
+                    <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-danger"></span> წამგებიანი</span>
                 </div>
             </div>
         </div>
@@ -282,19 +287,19 @@
         <div class="glass-panel rounded-2xl overflow-hidden flex flex-col !transform-none">
             <div class="p-5 sm:p-6 border-b border-white/5 flex justify-between items-center bg-surface/50">
                 <h2 class="text-base sm:text-lg font-semibold text-white flex items-center gap-2">
-                    <i data-lucide="history" class="w-5 h-5 text-indigo-400"></i> <span data-i18n="recentTrades">ბოლო ტრეიდები</span>
+                    <i data-lucide="history" class="w-5 h-5 text-indigo-400"></i> ბოლო ტრეიდები
                 </h2>
-                <a href="{{ url_for('trades_list') }}" class="text-xs sm:text-sm text-indigo-400 hover:text-indigo-300 transition" data-i18n="viewAll">ყველას ნახვა &rarr;</a>
+                <a href="{{ url_for('trades_list') }}" class="text-xs sm:text-sm text-indigo-400 hover:text-indigo-300 transition">ყველას ნახვა &rarr;</a>
             </div>
             
             <div class="overflow-x-auto w-full">
                 <table class="w-full text-left text-sm whitespace-nowrap">
                     <thead class="bg-black/20 text-gray-400 text-xs sm:text-sm">
                         <tr>
-                            <th class="px-4 sm:px-6 py-3.5 font-medium" data-i18n="pair">წყვილი</th>
-                            <th class="px-4 sm:px-6 py-3.5 font-medium" data-i18n="date">თარიღი</th>
-                            <th class="px-4 sm:px-6 py-3.5 font-medium" data-i18n="side">მხარე</th>
-                            <th class="px-4 sm:px-6 py-3.5 font-medium" data-i18n="entryExit">შესვლა &rarr; გასვლა</th>
+                            <th class="px-4 sm:px-6 py-3.5 font-medium">წყვილი</th>
+                            <th class="px-4 sm:px-6 py-3.5 font-medium">თარიღი</th>
+                            <th class="px-4 sm:px-6 py-3.5 font-medium">მხარე</th>
+                            <th class="px-4 sm:px-6 py-3.5 font-medium">შესვლა &rarr; გასვლა</th>
                             <th class="px-4 sm:px-6 py-3.5 font-medium text-right">PnL</th>
                         </tr>
                     </thead>
@@ -326,7 +331,7 @@
                             <td colspan="5" class="px-6 py-10 text-center text-gray-500">
                                 <div class="flex flex-col items-center justify-center">
                                     <i data-lucide="inbox" class="w-10 h-10 mb-2 text-gray-600"></i>
-                                    <p class="text-xs sm:text-sm" data-i18n="noTrades">ჯერ ტრეიდები არ არის დამატებული.</p>
+                                    <p class="text-xs sm:text-sm">ჯერ ტრეიდები არ არის დამატებული.</p>
                                 </div>
                             </td>
                         </tr>
@@ -342,251 +347,195 @@
         <div class="glass-panel bg-[#11151F] border border-white/10 p-5 sm:p-6 rounded-2xl w-full max-w-md shadow-2xl animate-fade-in">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-base sm:text-lg font-bold text-white flex items-center gap-2">
-                    <i data-lucide="sliders" class="w-5 h-5 text-indigo-400"></i> <span data-i18n="modalTitle">ანგარიშის პარამეტრები</span>
+                    <i data-lucide="sliders" class="w-5 h-5 text-indigo-400"></i> ანგარიშის პარამეტრები
                 </h3>
                 <button onclick="closeSettingsModal()" class="text-gray-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
             
             <form action="{{ url_for('update_settings') }}" method="POST" class="space-y-4">
                 <div>
-                    <label class="block text-xs font-medium text-gray-400 mb-1.5" data-i18n="initialBalanceLabel">საწყისი ბალანსი ($)</label>
+                    <label class="block text-xs font-medium text-gray-400 mb-1.5">საწყისი ბალანსი ($)</label>
                     <input type="number" step="0.01" name="initial_balance" value="{{ initial_balance }}" required class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 sm:py-3 text-white text-sm font-mono focus:outline-none focus:border-indigo-500 transition">
                 </div>
 
                 <div>
-                    <label class="block text-xs font-medium text-gray-400 mb-1.5" data-i18n="targetBalanceLabel">მოგების მიზანი ($)</label>
+                    <label class="block text-xs font-medium text-gray-400 mb-1.5">მოგების მიზანი ($)</label>
                     <input type="number" step="0.01" name="target_balance" value="{{ target_balance }}" required class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 sm:py-3 text-white text-sm font-mono focus:outline-none focus:border-indigo-500 transition">
                 </div>
 
                 <div>
-                    <label class="block text-xs font-medium text-gray-400 mb-1.5" data-i18n="maxLossLimitLabel">მაქსიმალური წაგების ლიმიტი ($)</label>
+                    <label class="block text-xs font-medium text-gray-400 mb-1.5">მაქსიმალური წაგების ლიმიტი ($)</label>
                     <input type="number" step="0.01" name="max_loss_limit" value="{{ max_loss_limit }}" required class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 sm:py-3 text-white text-sm font-mono focus:outline-none focus:border-indigo-500 transition">
                 </div>
 
                 <div class="flex justify-end gap-3 mt-6">
-                    <button type="button" onclick="closeSettingsModal()" class="px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-gray-300 text-xs sm:text-sm font-medium transition" data-i18n="cancel">გაუქმება</button>
-                    <button type="submit" class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs sm:text-sm font-semibold shadow-lg shadow-indigo-600/30 transition" data-i18n="save">შენახვა</button>
+                    <button type="button" onclick="closeSettingsModal()" class="px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-gray-300 text-xs sm:text-sm font-medium transition">გაუქმება</button>
+                    <button type="submit" class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs sm:text-sm font-semibold shadow-lg shadow-indigo-600/30 transition">შენახვა</button>
                 </div>
             </form>
         </div>
     </div>
 
+    <!-- Google Translate სკრიპტი რეალური თარგმნისთვის -->
+    <script type="text/javascript">
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({
+                pageLanguage: 'ka',
+                includedLanguages: 'ka,en,ru,es',
+                autoDisplay: false
+            }, 'google_translate_element');
+        }
+    </script>
+    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
     <!-- სკრიპტები -->
     <script>
         lucide.createIcons();
 
-        // ტექსტების ლექსიკონი ენების მიხედვით
-        const translations = {
-            en: {
-                dashboard: "Dashboard",
-                history: "History",
-                analytics: "Analytics",
-                settingsBtn: "Settings",
-                newTrade: "New Trade",
-                admin: "Admin",
-                adminPanel: "Admin Panel",
-                welcome: "Welcome back,",
-                subtitle: "Here is a detailed overview of your trading account.",
-                progressText: "Progress (Target:",
-                currentBalance: "Current Balance",
-                initial: "Initial:",
-                totalPnl: "Total PnL",
-                maxLossLimit: "Max Loss Limit",
-                equityChart: "Equity Growth Chart",
-                calendar: "Trading Calendar",
-                profitable: "Profitable",
-                loss: "Loss",
-                recentTrades: "Recent Trades",
-                viewAll: "View all &rarr;",
-                pair: "Pair",
-                date: "Date",
-                side: "Side",
-                entryExit: "Entry &rarr; Exit",
-                noTrades: "No trades added yet.",
-                modalTitle: "Account Settings",
-                initialBalanceLabel: "Initial Balance ($)",
-                targetBalanceLabel: "Profit Target ($)",
-                maxLossLimitLabel: "Max Loss Limit ($)",
-                cancel: "Cancel",
-                save: "Save"
-            },
-            ka: {
-                dashboard: "Dashboard",
-                history: "History",
-                analytics: "Analytics",
-                settingsBtn: "პარამეტრები",
-                newTrade: "ახალი ტრეიდი",
-                admin: "ადმინი",
-                adminPanel: "ადმინ პანელი",
-                welcome: "მოგესალმები,",
-                subtitle: "აქ არის შენი სავაჭრო ანგარიშის დეტალური მიმოხილვა.",
-                progressText: "პროგრესი (მიზანი:",
-                currentBalance: "მიმდინარე ბალანსი",
-                initial: "საწყისი:",
-                totalPnl: "მთლიანი PnL",
-                maxLossLimit: "წაგების ლიმიტი",
-                equityChart: "კაპიტალის ზრდის მაჩვენებელი",
-                calendar: "სავაჭრო კალენდარი",
-                profitable: "მოგებიანი",
-                loss: "წამგებიანი",
-                recentTrades: "ბოლო ტრეიდები",
-                viewAll: "ყველას ნახვა &rarr;",
-                pair: "წყვილი",
-                date: "თარიღი",
-                side: "მხარე",
-                entryExit: "შესვლა &rarr; გასვლა",
-                noTrades: "ჯერ ტრეიდები არ არის დამატებული.",
-                modalTitle: "ანგარიშის პარამეტრები",
-                initialBalanceLabel: "საწყისი ბალანსი ($)",
-                targetBalanceLabel: "მოგების მიზანი ($)",
-                maxLossLimitLabel: "მაქსიმალური წაგების ლიმიტი ($)",
-                cancel: "გაუქმება",
-                save: "შენახვა"
-            },
-            ru: {
-                dashboard: "Dashboard",
-                history: "History",
-                analytics: "Analytics",
-                settingsBtn: "Настройки",
-                newTrade: "Новая сделка",
-                admin: "Админ",
-                adminPanel: "Админ панель",
-                welcome: "Добро пожаловать,",
-                subtitle: "Здесь представлен подробный обзор вашего торгового счета.",
-                progressText: "Прогресс (Цель:",
-                currentBalance: "Текущий баланс",
-                initial: "Начальный:",
-                totalPnl: "Общий PnL",
-                maxLossLimit: "Лимит потерь",
-                equityChart: "График роста капитала",
-                calendar: "Торговый календарь",
-                profitable: "Прибыльный",
-                loss: "Убыточный",
-                recentTrades: "Последние сделки",
-                viewAll: "Смотреть все &rarr;",
-                pair: "Пара",
-                date: "Дата",
-                side: "Сторона",
-                entryExit: "Вход &rarr; Выход",
-                noTrades: "Сделки еще не добавлены.",
-                modalTitle: "Настройки аккаунта",
-                initialBalanceLabel: "Начальный баланс ($)",
-                targetBalanceLabel: "Цель по прибыли ($)",
-                maxLossLimitLabel: "Максимальный лимит потерь ($)",
-                cancel: "Отмена",
-                save: "Сохранить"
-            },
-            es: {
-                dashboard: "Dashboard",
-                history: "History",
-                analytics: "Analytics",
-                settingsBtn: "Ajustes",
-                newTrade: "Nueva operación",
-                admin: "Admin",
-                adminPanel: "Panel de Admin",
-                welcome: "Bienvenido,",
-                subtitle: "Aquí tienes un resumen detallado de tu cuenta de trading.",
-                progressText: "Progreso (Objetivo:",
-                currentBalance: "Balance Actual",
-                initial: "Inicial:",
-                totalPnl: "PnL Total",
-                maxLossLimit: "Límite de Pérdida",
-                equityChart: "Gráfico de Crecimiento de Capital",
-                calendar: "Calendario de Trading",
-                profitable: "Rentable",
-                loss: "Pérdida",
-                recentTrades: "Operaciones Recientes",
-                viewAll: "Ver todo &rarr;",
-                pair: "Par",
-                date: "Fecha",
-                side: "Lado",
-                entryExit: "Entrada &rarr; Salida",
-                noTrades: "No hay operaciones añadidas.",
-                modalTitle: "Ajustes de Cuenta",
-                initialBalanceLabel: "Balance Inicial ($)",
-                targetBalanceLabel: "Objetivo de Beneficio ($)",
-                maxLossLimitLabel: "Límite Máximo de Pérdida ($)",
-                cancel: "Cancelar",
-                save: "Guardar"
-            }
-        };
-
-        function changeLanguage(lang) {
-            localStorage.setItem('selected_language', lang);
-            applyTranslations(lang);
+        function openSettingsModal() {
+            document.getElementById('settingsModal').classList.remove('hidden');
+        }
+        function closeSettingsModal() {
+            document.getElementById('settingsModal').classList.add('hidden');
+        }
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            menu.classList.toggle('hidden');
         }
 
-        function applyTranslations(lang) {
-            const t = translations[lang] || translations['en'];
-            
-            document.querySelectorAll('[data-i18n]').forEach(element => {
-                const key = element.getAttribute('data-i18n');
-                if (t[key]) {
-                    element.innerHTML = t[key];
+        // ენის შეცვლის და დამახსოვრების (localStorage) ლოგიკა
+        function changeLanguage(lang) {
+            // ვინახავთ არჩევანს
+            localStorage.setItem('selected_lang', lang);
+            updateLangUI(lang);
+
+            // ვეძებთ Google Translate-ის კუკის ან სელექტორის მეშვეობით თარგმნას
+            const combo = document.querySelector('.goog-te-combo');
+            if (combo) {
+                combo.value = lang;
+                combo.dispatchEvent(new Event('change'));
+            } else {
+                // თუ ვიჯეტი ჯერ არ ჩატვირთულა, ვცდილობთ კუკის დაყენებით გადართვას
+                document.cookie = `googtrans=/ka/${lang}; path=/;`;
+                location.reload();
+            }
+        }
+
+        function updateLangUI(lang) {
+            ['ka', 'en', 'ru', 'es'].forEach(l => {
+                const btn = document.getElementById(`lang-${l}`);
+                if (btn) {
+                    if (l === lang) {
+                        btn.classList.remove('grayscale', 'opacity-60');
+                        btn.classList.add('bg-white/15', 'shadow-sm', 'scale-105');
+                    } else {
+                        btn.classList.add('grayscale', 'opacity-60');
+                        btn.classList.remove('bg-white/15', 'shadow-sm', 'scale-105');
+                    }
                 }
             });
-
-            const select = document.getElementById('langSwitch');
-            if (select) select.value = lang;
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            const savedLang = localStorage.getItem('selected_language') || 'en';
-            applyTranslations(savedLang);
+        // გვერდის ჩატვირთვისას შენახული ენის აღდგენა
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedLang = localStorage.getItem('selected_lang') || 'ka';
+            updateLangUI(savedLang);
+            
+            // მცირე დაყოვნება Google ვიჯეტის ჩატვირთვის მერე ავტომატურად რომ მორგდეს
+            setTimeout(() => {
+                const combo = document.querySelector('.goog-te-combo');
+                if (combo && combo.value !== savedLang) {
+                    combo.value = savedLang;
+                    combo.dispatchEvent(new Event('change'));
+                }
+            }, 1000);
+        });
 
-            // Equity Chart-ის ინიციალიზაცია
-            const ctx = document.getElementById('equityChart');
-            if (ctx) {
-                new Chart(ctx.getContext('2d'), {
-                    type: 'line',
-                    data: {
-                        labels: ['Start', 'Day 1', 'Day 2', 'Day 3', 'Day 4', 'Today'],
-                        datasets: [{
-                            label: 'Balance ($)',
-                            data: [{{ initial_balance }}, {{ initial_balance }}, {{ initial_balance }}, {{ initial_balance }}, {{ initial_balance }}, {{ current_balance }}],
-                            borderColor: '#6366F1',
-                            backgroundColor: 'rgba(99, 102, 241, 0.1)',
-                            borderWidth: 2,
-                            fill: true,
-                            tension: 0.3
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: { legend: { display: false } },
-                        scales: {
-                            x: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#9CA3AF' } },
-                            y: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#9CA3AF' } }
-                        }
-                    }
-                });
-            }
+        const chartRawData = {{ chart_data | tojson }};
+        const chartLabels = chartRawData.map(item => item.time);
+        const chartValues = chartRawData.map(item => item.value);
 
-            // კალენდრის გენერაცია
-            const calContainer = document.getElementById('calendarContainer');
-            if (calContainer) {
-                const daysOfWeek = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
-                daysOfWeek.forEach(d => {
-                    calContainer.innerHTML += `<div class="text-gray-500 font-semibold py-1">${d}</div>`;
-                });
-                for (let i = 1; i <= 28; i++) {
-                    calContainer.innerHTML += `<div class="bg-white/5 hover:bg-white/10 rounded p-1.5 text-gray-400 transition">${i}</div>`;
+        const ctx = document.getElementById('equityChart').getContext('2d');
+        const equityChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: chartLabels.length > 0 ? chartLabels : ['საწყისი'],
+                datasets: [{
+                    label: 'ბალანსი ($)',
+                    data: chartValues.length > 0 ? chartValues : [{{ initial_balance }}],
+                    borderColor: '#6366F1',
+                    backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                    borderWidth: 2.5,
+                    fill: true,
+                    tension: 0.35,
+                    pointRadius: 4,
+                    pointBackgroundColor: '#6366F1'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { grid: { color: 'rgba(255, 255, 255, 0.03)' }, ticks: { color: '#9CA3AF', font: { size: 10 } } },
+                    y: { grid: { color: 'rgba(255, 255, 255, 0.03)' }, ticks: { color: '#9CA3AF', font: { size: 10 } } }
                 }
             }
         });
 
-        function openSettingsModal() {
-            document.getElementById('settingsModal').classList.remove('hidden');
-        }
+        const dailyPnlData = {{ daily_pnl | tojson }};
+        const calendarContainer = document.getElementById('calendarContainer');
+        
+        if (calendarContainer) {
+            calendarContainer.innerHTML = '';
+            
+            const daysOfWeek = ['ორშ', 'სამ', 'ოთხ', 'ხუთ', 'პარ', 'შაბ', 'კვ'];
+            daysOfWeek.forEach(day => {
+                const div = document.createElement('div');
+                div.className = 'text-gray-500 font-medium py-1 text-center text-[10px] sm:text-xs';
+                div.innerText = day;
+                calendarContainer.appendChild(div);
+            });
 
-        function closeSettingsModal() {
-            document.getElementById('settingsModal').classList.add('hidden');
-        }
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = now.getMonth();
+            
+            const firstDayIndex = new Date(year, month, 1).getDay();
+            const adjustedFirstDay = (firstDayIndex === 0) ? 6 : firstDayIndex - 1;
+            const totalDays = new Date(year, month + 1, 0).getDate();
 
-        function toggleMobileMenu() {
-            const menu = document.getElementById('mobileMenu');
-            menu.classList.toggle('hidden');
+            for (let i = 0; i < adjustedFirstDay; i++) {
+                const emptyDiv = document.createElement('div');
+                calendarContainer.appendChild(emptyDiv);
+            }
+
+            for (let i = 1; i <= totalDays; i++) {
+                const dayDiv = document.createElement('div');
+                
+                const formattedMonth = String(month + 1).padStart(2, '0');
+                const formattedDay = String(i).padStart(2, '0');
+                const dateStr = `${year}-${formattedMonth}-${formattedDay}`;
+
+                let bgClass = 'bg-white/[0.02] text-gray-400 border-white/5';
+                if (dailyPnlData.hasOwnProperty(dateStr)) {
+                    const pnl = dailyPnlData[dateStr];
+                    if (pnl > 0) {
+                        bgClass = 'bg-success/20 text-success border-success/40 font-bold shadow-[0_0_10px_rgba(16,185,129,0.2)]';
+                    } else if (pnl < 0) {
+                        bgClass = 'bg-danger/20 text-danger border-danger/40 font-bold shadow-[0_0_10px_rgba(239,68,68,0.2)]';
+                    }
+                }
+
+                dayDiv.className = `py-1.5 sm:py-2 rounded-lg font-mono text-[10px] sm:text-[11px] border flex items-center justify-center transition-all ${bgClass}`;
+                dayDiv.innerText = i;
+                
+                if (dailyPnlData.hasOwnProperty(dateStr)) {
+                    dayDiv.title = `PnL: $${dailyPnlData[dateStr].toFixed(2)}`;
+                }
+
+                calendarContainer.appendChild(dayDiv);
+            }
         }
     </script>
 </body>
