@@ -56,18 +56,24 @@
             background: radial-gradient(circle, rgba(99, 102, 241, 0.08) 0%, rgba(79, 70, 229, 0.02) 50%, transparent 70%);
             border-radius: 50%; pointer-events: none; filter: blur(60px);
         }
+        .lang-btn {
+            transition: all 0.2s ease;
+        }
+        .lang-btn.active {
+            background-color: #6366F1;
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
     </style>
 </head>
 <body class="bg-transparent text-gray-300 min-h-screen font-sans antialiased flex flex-col items-center justify-center p-4 selection:bg-indigo-500/30 selection:text-white relative">
 
-    <!-- ენების ამორჩეველი ზედა მარჯვენა კუთხეში -->
-    <div class="absolute top-6 right-6 z-10">
-        <select id="langSelect" onchange="changeLanguage(this.value)" class="bg-surface border border-indigo-500/20 text-gray-300 text-xs rounded-xl px-3 py-2 outline-none focus:border-indigo-500 transition cursor-pointer">
-            <option value="en" selected>English</option>
-            <option value="ka">ქართული</option>
-            <option value="ru">Русский</option>
-            <option value="es">Español</option>
-        </select>
+    <!-- განახლებული ენების ასარჩევი პანელი ზედა მარჯვენა კუთხეში -->
+    <div class="absolute top-6 right-6 z-10 flex items-center gap-1 bg-surface/80 border border-indigo-500/20 p-1 rounded-xl backdrop-blur-md shadow-lg">
+        <button onclick="changeLanguage('en')" id="btn-en" class="lang-btn px-2.5 py-1 text-xs font-medium rounded-lg text-gray-400 hover:text-white">EN</button>
+        <button onclick="changeLanguage('ka')" id="btn-ka" class="lang-btn px-2.5 py-1 text-xs font-medium rounded-lg text-gray-400 hover:text-white">KA</button>
+        <button onclick="changeLanguage('ru')" id="btn-ru" class="lang-btn px-2.5 py-1 text-xs font-medium rounded-lg text-gray-400 hover:text-white">RU</button>
+        <button onclick="changeLanguage('es')" id="btn-es" class="lang-btn px-2.5 py-1 text-xs font-medium rounded-lg text-gray-400 hover:text-white">ES</button>
     </div>
 
     <div class="app-background">
@@ -182,6 +188,8 @@
 
         function changeLanguage(lang) {
             document.documentElement.lang = lang;
+            
+            // ტექსტების განახლება
             const elements = document.querySelectorAll('[data-i18n]');
             elements.forEach(el => {
                 const key = el.getAttribute('data-i18n');
@@ -189,14 +197,23 @@
                     el.textContent = translations[lang][key];
                 }
             });
-            // შევინახოთ არჩევანი ბრაუზერში, რომ გვერდის განახლებისას არ დაიკარგოს
+
+            // ღილაკების ვიზუალური აქტივაცია (Active სტილის მინიჭება)
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            const activeBtn = document.getElementById(`btn-${lang}`);
+            if (activeBtn) {
+                activeBtn.classList.add('active');
+            }
+
+            // შენახვა LocalStorage-ში
             localStorage.setItem('selected_lang', lang);
         }
 
-        // გვერდის ჩატვირთვისას შევამოწმოთ შენახული ენა
+        // გვერდის ჩატვირთვისას
         window.addEventListener('DOMContentLoaded', () => {
             const savedLang = localStorage.getItem('selected_lang') || 'en';
-            document.getElementById('langSelect').value = savedLang;
             changeLanguage(savedLang);
         });
 
