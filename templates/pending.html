@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>წვდომის მოლოდინში - YourStats</title>
+    <title>პრემიუმ წვდომა - YourStats</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -64,32 +64,55 @@
         <div class="bg-glow"></div>
     </div>
 
+    <!-- ლოგო -->
     <div class="flex flex-col items-center mb-6 animate-fade-in">
         <div class="bg-gradient-to-br from-indigo-500 to-indigo-700 p-3 rounded-2xl shadow-lg shadow-indigo-500/30 mb-3 border border-indigo-400/20">
             <i data-lucide="line-chart" class="w-8 h-8 text-white"></i>
         </div>
         <div class="font-bold text-2xl text-white tracking-tight">Your<span class="gradient-text">Stats</span></div>
-        <div class="text-xs text-gray-400 font-medium tracking-wide mt-0.5">Created by Sandrika</div>
+        <div class="text-xs text-gray-400 font-medium tracking-wide mt-0.5">Professional Trading Journal</div>
     </div>
 
+    <!-- მთავარი ბარათი -->
     <div class="glass-panel p-8 rounded-2xl max-w-md w-full text-center animate-fade-in relative overflow-hidden">
+        
+        <!-- ზედა აიქონი -->
         <div class="w-12 h-12 bg-indigo-500/10 rounded-xl border border-indigo-500/20 flex items-center justify-center mx-auto mb-5 text-indigo-400 shadow-inner">
-            <i data-lucide="clock" class="w-6 h-6"></i>
+            <i data-lucide="shield-check" class="w-6 h-6"></i>
         </div>
         
-        <h1 class="text-xl font-bold text-white mb-3">წვდომის მოლოდინში</h1>
+        <h1 class="text-xl font-bold text-white mb-2">საჭიროა პრემიუმ წვდომა</h1>
         <p class="text-sm text-gray-400 leading-relaxed mb-6">
-            შენი ანგარიში წარმატებით შეიქმნა! სერვისით სარგებლობისთვის და შესაძენად (ღირებულება: <span class="text-white font-semibold">$4.99</span>) შეგიძლია გადაიხადო ავტომატურად ქვემოთ მოცემული ღილაკით, ან დაუკავშირდეთ ადმინისტრატორს დისქორდში: <span class="text-indigo-400 font-semibold">{{ discord_tag | default('cs2sacc') }}</span>.
+            გაააქტიურეთ თქვენი ანგარიში, რომ მიიღოთ სრული წვდომა ტრეიდინგის ანალიტიკაზე, რისკების მენეჯმენტსა და პროფესიონალურ ინსტრუმენტებზე.
         </p>
 
-        <!-- ავტომატური გადახდის ღილაკი Paddle-ით -->
-        <button onclick="openCheckout()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2.5 px-4 rounded-xl transition duration-200 shadow-lg shadow-indigo-600/30 mb-4 flex items-center justify-center gap-2">
-            <i data-lucide="credit-card" class="w-4 h-4"></i> პაკეტის ყიდვა / გადახდა
+        <!-- ფასის ბლოკი -->
+        <div class="bg-surface/60 border border-white/5 rounded-xl p-4 mb-6 flex items-center justify-between">
+            <div class="text-left">
+                <div class="text-xs text-gray-400 font-medium">სრული პაკეტი</div>
+                <div class="text-sm font-semibold text-white">Lifetime Access</div>
+            </div>
+            <div class="text-right">
+                <div class="text-lg font-bold text-indigo-400">$4.99</div>
+                <div class="text-[10px] text-gray-500">ერთჯერადი გადახდა</div>
+            </div>
+        </div>
+
+        <!-- ყიდვის მთავარი ღილაკი -->
+        <button onclick="openCheckout()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-3 px-4 rounded-xl transition duration-200 shadow-lg shadow-indigo-600/30 mb-4 flex items-center justify-center gap-2 cursor-pointer">
+            <i data-lucide="lock-open" class="w-4 h-4"></i> პაკეტის გააქტიურება
         </button>
 
+        <!-- ალტერნატიული დახმარება (Discord) -->
+        <div class="text-xs text-gray-500 mb-6 flex items-center justify-center gap-1.5">
+            <span>გაქვთ კითხვები? მოგვწერეთ Discord-ში:</span>
+            <span class="text-indigo-400 font-medium">{{ discord_tag | default('cs2sacc') }}</span>
+        </div>
+
+        <!-- გასვლა -->
         <div class="border-t border-white/5 pt-4">
             <a href="{{ url_for('logout') }}" class="text-sm font-medium text-rose-400 hover:text-rose-300 transition inline-flex items-center gap-2">
-                <i data-lucide="log-out" class="w-4 h-4"></i> გასვლა
+                <i data-lucide="log-out" class="w-4 h-4"></i> ანგარიშიდან გასვლა
             </a>
         </div>
     </div>
@@ -97,21 +120,21 @@
     <script>
         lucide.createIcons();
 
-        // 1. ინიციალიზაცია შენი Paddle Client Token-ით
+        // Paddle-ის ინიციალიზაცია
         Paddle.Initialize({ 
-            token: 'test_148661da13f33f0d9437ed24bfd' // <-- აქ ჩასვი შენი რეალური/ტესტური Paddle Client-side Token
+            token: 'live_148661da13f33f0d9437ed24bfd' // <-- აქ ჩასვი შენი ტოკენი
         });
 
         function openCheckout() {
             Paddle.Checkout.open({
                 items: [
                     {
-                        priceId: 'pri_01m0t4w57zap9tma4qw27cfnta', // <-- აქ ჩასვი Paddle-ის პანელიდან მიღებული Price ID
+                        priceId: 'pri_01m0t4w57zap9tma4qw27cfnta', // <-- აქ ჩასვი შენი Price ID
                         quantity: 1
                     }
                 ],
                 custom_data: {
-                    user_id: "{{ session.get('user_id') }}" // ავტომატურად გადასცემს მიმდინარე იუზერის අიდს ვებჰუკს
+                    user_id: "{{ session.get('user_id') }}"
                 }
             });
         }
