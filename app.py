@@ -1,5 +1,7 @@
-from functools import wraps
 import os
+import time
+from functools import wraps
+
 import psycopg2
 import psycopg2.extras
 from flask import Flask, flash, redirect, render_template, request, session, url_for
@@ -16,11 +18,25 @@ DATABASE_URL = os.environ.get(
 )
 
 
-# ბაზასთან კავშირის დამხმარე ფუნქცია
+# ბაზასთან კავშირის დამხმარე ფუნქცია (ტაიმაუტისგან დამცავი Retry მექანიზმით)
 def get_db_connection():
-    conn = psycopg2.connect(postgresql://postgres:Sandrika789@db.rnktcgfknokfdktfxjkb.supabase.co:5432/postgres, sslmode="require")
-    conn.row_factory = psycopg2.extras.DictCursor
-    return conn
+    retries = 3
+    delay = 2
+    for i in range(retries):
+        try:
+            # ვიყენებთ DATABASE_URL-ს და DictConnection-ს, რათა cursor() პირდაპირ ამოიცნოს ლექსიკონის სახით
+            conn = psycopg2.connect(
+                DATABASE_URL, 
+                sslmode="require", 
+                connection_factory=psycopg2.extras.DictConnection
+            )
+            return conn
+        except Exception as e:
+            if i < retries - 1:
+                time.sleep(delay)
+                continue
+            else:
+                raise e
 
 
 # ბაზის ინიციალიზაცია (PostgreSQL სინტაქსით)
