@@ -99,14 +99,14 @@
 
         // 1. ინიციალიზაცია შენი Paddle Client Token-ით
         Paddle.Initialize({ 
-            token: 'test_your_paddle_client_token_here' // <-- აქ ჩასვი შენი რეალური/ტესტური Paddle Client-side Token
+            token: 'live_148661da13f33f0d9437ed24bfd' // <-- აქ ჩასვი შენი რეალური/ტესტური Paddle Client-side Token
         });
 
         function openCheckout() {
             Paddle.Checkout.open({
                 items: [
                     {
-                        priceId: 'pri_01h...შენი_პროდუქტის_ფასის_აიდი', // <-- აქ ჩასვი Paddle-ის პანელიდან მიღებული Price ID
+                        priceId: 'pri_01m0t4w57zap9tma4qw27cfnta', // <-- აქ ჩასვი Paddle-ის პანელიდან მიღებული Price ID
                         quantity: 1
                     }
                 ],
