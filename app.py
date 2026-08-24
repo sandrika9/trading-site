@@ -1,4 +1,3 @@
-
 import os
 import time
 from functools import wraps
@@ -14,7 +13,7 @@ app.secret_key = "your_secret_key_here"
 # Supabase PostgreSQL ბაზის მისამართი (Transaction Pooler - 6543 პორტი Render-ისთვის)
 DATABASE_URL = os.environ.get(
     "DATABASE_URL", 
-    "postgresql://postgres.rnktcgfknokfdktfxjkb:Sandrika789@aws-0-ap-northeast-2.pooler.supabase.com:6543/postgres"
+    "postgresql://postgres.rnktcgfknokfdktfxjkb:Sandrika123solo@aws-0-ap-northeast-2.pooler.supabase.com:6543/postgres"
 )
 
 
