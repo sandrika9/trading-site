@@ -37,58 +37,6 @@ def get_db_connection():
                 raise e
 
 
-# ბაზის ინიციალიზაცია (PostgreSQL სინტაქსით)
-def init_db():
-    conn = get_db_connection()
-    cursor = conn.cursor()
-
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS users (
-            id SERIAL PRIMARY KEY,
-            username TEXT UNIQUE NOT NULL,
-            password TEXT NOT NULL,
-            is_paid INTEGER DEFAULT 0
-        )
-    """)
-
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS trades (
-            id SERIAL PRIMARY KEY,
-            user_id INTEGER,
-            date TEXT,
-            pair TEXT,
-            direction TEXT,
-            entry_price REAL,
-            exit_price REAL,
-            pnl REAL,
-            emotion TEXT,
-            screenshot TEXT,
-            FOREIGN KEY (user_id) REFERENCES users (id)
-        )
-    """)
-
-    # ვამოწმებთ სვეტებს trades ცხრილში (თუ ძველი სტრუქტურაა)
-    cursor.execute("""
-        SELECT column_name 
-        FROM information_schema.columns 
-        WHERE table_name = 'trades'
-    """)
-    columns = [row["column_name"] for row in cursor.fetchall()]
-
-    if "emotion" not in columns:
-        cursor.execute("ALTER TABLE trades ADD COLUMN emotion TEXT")
-    
-    if "screenshot" not in columns:
-        cursor.execute("ALTER TABLE trades ADD COLUMN screenshot TEXT")
-
-    conn.commit()
-    cursor.close()
-    conn.close()
-
-
-init_db()
-
-
 # --- დეკორატორები ---
 def paid_required(f):
     @wraps(f)
@@ -535,5 +483,4 @@ def toggle_user(user_id):
 
 
 if __name__ == "__main__":
-    init_db()
     app.run(debug=True)
