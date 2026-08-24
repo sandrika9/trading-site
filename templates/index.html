@@ -77,12 +77,9 @@
             mask-image: radial-gradient(circle at 50% 20%, black 40%, transparent 80%);
             pointer-events: none;
         }
-        .goog-te-banner-frame { display: none !important; }
-        body { top: 0px !important; }
-        #google_translate_element { display: none; }
     </style>
 </head>
-<body class="bg-transparent text-gray-300 min-h-screen font-sans antialiased selection:bg-primary/30 selection:text-white">
+<body class="bg-transparent text-gray-300 min-h-screen font-sans antialiased selection:bg-primary/30 selection:text-white" translate="no">
 
     <div class="app-background">
         <div class="bg-glow-1"></div>
@@ -136,7 +133,7 @@
 
                     <div class="h-6 w-[1px] bg-white/10 hidden sm:block"></div>
 
-                    <!-- კომპაქტური ენების გადამრთველი (დროშები) -->
+                    <!-- ენების გადამრთველი დროშები (მუშაობს ვიზუალურად, ბრაუზერი აღარ იჭედება) -->
                     <div class="flex items-center gap-1 bg-black/40 p-1 rounded-xl border border-white/5">
                         <button onclick="changeLanguage('ka')" id="lang-ka" class="w-7 h-7 rounded-lg flex items-center justify-center hover:bg-white/10 transition text-sm grayscale opacity-60" title="ქართული">🇬🇪</button>
                         <button onclick="changeLanguage('en')" id="lang-en" class="w-7 h-7 rounded-lg flex items-center justify-center hover:bg-white/10 transition text-sm grayscale opacity-60" title="English">🇬🇧</button>
@@ -174,9 +171,6 @@
             {% endif %}
         </div>
     </nav>
-
-    <!-- ფარული Google Translate ელემენტი თარგმნის მექანიზმისთვის -->
-    <div id="google_translate_element"></div>
 
     <!-- მთავარი კონტენტი -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 sm:space-y-8 animate-fade-in">
@@ -368,24 +362,12 @@
                 </div>
 
                 <div class="flex justify-end gap-3 mt-6">
-                    <button type="button" onclick="closeSettingsModal()" class="px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-gray-300 text-xs sm:text-sm font-medium transition">გაუქმება</button>
+                    <button type="button" onclick="closeSettingsModal()" class="px-4 py.2.5 rounded-xl bg-white/5 hover:bg-white/10 text-gray-300 text-xs sm:text-sm font-medium transition">გაუქმება</button>
                     <button type="submit" class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs sm:text-sm font-semibold shadow-lg shadow-indigo-600/30 transition">შენახვა</button>
                 </div>
             </form>
         </div>
     </div>
-
-    <!-- Google Translate სკრიპტი რეალური თარგმნისთვის -->
-    <script type="text/javascript">
-        function googleTranslateElementInit() {
-            new google.translate.TranslateElement({
-                pageLanguage: 'ka',
-                includedLanguages: 'ka,en,ru,es',
-                autoDisplay: false
-            }, 'google_translate_element');
-        }
-    </script>
-    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
     <!-- სკრიპტები -->
     <script>
@@ -402,19 +384,12 @@
             menu.classList.toggle('hidden');
         }
 
-        // ენის შეცვლის და დამახსოვრების (localStorage) ლოგიკა
+        // ენის არჩევის უსაფრთხო ლოგიკა (მხოლოდ მეხსიერებაში ინახავს, ბრაუზერი ვეღარ შემოგთავაზებს ზოლს)
         function changeLanguage(lang) {
             localStorage.setItem('selected_lang', lang);
             updateLangUI(lang);
-
-            const combo = document.querySelector('.goog-te-combo');
-            if (combo) {
-                combo.value = lang;
-                combo.dispatchEvent(new Event('change'));
-            } else {
-                document.cookie = `googtrans=/ka/${lang}; path=/;`;
-                location.reload();
-            }
+            // საჭიროებისამებր აქ შეგიძლია დაამატო გვერდის გადამისამართება სხვა ენოვან გვერდზე, 
+            // ან უბრალოდ დატოვო, რომ დროშები ინიშნებოდეს.
         }
 
         function updateLangUI(lang) {
@@ -435,14 +410,6 @@
         window.addEventListener('DOMContentLoaded', () => {
             const savedLang = localStorage.getItem('selected_lang') || 'ka';
             updateLangUI(savedLang);
-            
-            setTimeout(() => {
-                const combo = document.querySelector('.goog-te-combo');
-                if (combo && combo.value !== savedLang) {
-                    combo.value = savedLang;
-                    combo.dispatchEvent(new Event('change'));
-                }
-            }, 1000);
         });
 
         const chartRawData = {{ chart_data | tojson }};
