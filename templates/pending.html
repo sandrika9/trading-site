@@ -7,6 +7,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Paddle.js ოფიციალური ბიბლიოთეკა -->
+    <script src="https://cdn.paddle.com/paddle/v2/paddle.js"></script>
+
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -75,8 +79,13 @@
         
         <h1 class="text-xl font-bold text-white mb-3">წვდომის მოლოდინში</h1>
         <p class="text-sm text-gray-400 leading-relaxed mb-6">
-            შენი ანგარიში წარმატებით შეიქმნა! სერვისით სარგებლობისთვის და შესაძენად (ღირებულება: <span class="text-white font-semibold">$4.99</span>) გთხოვთ დაუკავშირდეთ ადმინისტრატორს დისქორდში: <span class="text-indigo-400 font-semibold">{{ discord_tag | default('cs2sacc') }}</span>, რის შემდეგაც თქვენი აქაუნთი გააქტიურდება.
+            შენი ანგარიში წარმატებით შეიქმნა! სერვისით სარგებლობისთვის და შესაძენად (ღირებულება: <span class="text-white font-semibold">$4.99</span>) შეგიძლია გადაიხადო ავტომატურად ქვემოთ მოცემული ღილაკით, ან დაუკავშირდეთ ადმინისტრატორს დისქორდში: <span class="text-indigo-400 font-semibold">{{ discord_tag | default('cs2sacc') }}</span>.
         </p>
+
+        <!-- ავტომატური გადახდის ღილაკი Paddle-ით -->
+        <button onclick="openCheckout()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2.5 px-4 rounded-xl transition duration-200 shadow-lg shadow-indigo-600/30 mb-4 flex items-center justify-center gap-2">
+            <i data-lucide="credit-card" class="w-4 h-4"></i> პაკეტის ყიდვა / გადახდა
+        </button>
 
         <div class="border-t border-white/5 pt-4">
             <a href="{{ url_for('logout') }}" class="text-sm font-medium text-rose-400 hover:text-rose-300 transition inline-flex items-center gap-2">
@@ -87,6 +96,25 @@
 
     <script>
         lucide.createIcons();
+
+        // 1. ინიციალიზაცია შენი Paddle Client Token-ით
+        Paddle.Initialize({ 
+            token: 'test_your_paddle_client_token_here' // <-- აქ ჩასვი შენი რეალური/ტესტური Paddle Client-side Token
+        });
+
+        function openCheckout() {
+            Paddle.Checkout.open({
+                items: [
+                    {
+                        priceId: 'pri_01h...შენი_პროდუქტის_ფასის_აიდი', // <-- აქ ჩასვი Paddle-ის პანელიდან მიღებული Price ID
+                        quantity: 1
+                    }
+                ],
+                custom_data: {
+                    user_id: "{{ session.get('user_id') }}" // ავტომატურად გადასცემს მიმდინარე იუზერის අიდს ვებჰუკს
+                }
+            });
+        }
     </script>
 </body>
 </html>
