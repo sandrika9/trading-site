@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ტრეიდის დამატება</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-dark text-light">
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card bg-secondary text-light p-4 shadow">
+                    <h3 class="mb-4 text-center">ახალი ტრეიდის დამატება</h3>
+                    
+                    <form action="/add_trade" method="POST">
+                        <div class="mb-3">
+                            <label for="date" class="form-label">თარიღი</label>
+                            <input type="date" class="form-control" id="date" name="date" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="pair" class="form-label">სავალუტო წყვილი / აქტივი</label>
+                            <input type="text" class="form-control" id="pair" name="pair" placeholder="მაგ: EURUSD, BTCUSD" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="direction" class="form-label">მიმართულება (Direction)</label>
+                            <select class="form-control" id="direction" name="direction">
+                                <option value="LONG">LONG (ლონგი)</option>
+                                <option value="SHORT">SHORT (შორთი)</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="entry_price" class="form-label">შესვლის ფასი</label>
+                            <input type="number" step="any" class="form-control" id="entry_price" name="entry_price" placeholder="0.00">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="exit_price" class="form-label">გასვლის ფასი</label>
+                            <input type="number" step="any" class="form-control" id="exit_price" name="exit_price" placeholder="0.00">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="pnl" class="form-label">მოგება / ზარალი (PnL)</label>
+                            <input type="number" step="any" class="form-control" id="pnl" name="pnl" placeholder="მაგ: 150 ან -50" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="emotion" class="form-label">ემოცია / ფსიქოლოგია</label>
+                            <input type="text" class="form-control" id="emotion" name="emotion" placeholder="მაგ: მშვიდი, აზარტული, ფოკუსირებული">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="screenshot" class="form-label">სქრინის ლინკი ან Base64 (არასავალდებულო)</label>
+                            <input type="text" class="form-control" id="screenshot" name="screenshot" placeholder="სურათის ბმული">
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success">ტრეიდის შენახვა</button>
+                            <a href="/" class="btn btn-outline-light">უკან დაბრუნება</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
