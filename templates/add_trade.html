@@ -1,125 +1,259 @@
 <!DOCTYPE html>
-<html lang="ka">
+<html lang="ka" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ტრეიდის დამატება</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>YourStats - ტრეიდის დამატება</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        appBg: '#05070B',
+                        surface: '#11151F',
+                        surfaceHover: '#181E2C',
+                        primary: '#6366F1',
+                        success: '#10B981',
+                        danger: '#EF4444',
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        body {
-            background-color: #0f172a; /* საიტის მუქი ფონი */
-            color: #f8fafc;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #05070B; }
+        ::-webkit-scrollbar-thumb { background: #1F2937; border-radius: 4px; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-        .card-custom {
-            background-color: #1e293b; /* ქარდის ფერი */
-            border: 1px solid #334155;
-            border-radius: 12px;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+        .animate-fade-in {
+            animation: fadeIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
-        .form-control, .form-select {
-            background-color: #0f172a;
-            border: 1px solid #475569;
-            color: #f8fafc;
+        .glass-panel {
+            background: rgba(17, 21, 31, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
         }
-        .form-control:focus, .form-select:focus {
-            background-color: #0f172a;
-            border-color: #3b82f6;
-            color: #f8fafc;
-            box-shadow: 0 0 0 0.25rem rgba(59, 130, 246, 0.25);
+        .glass-panel:hover {
+            border-color: rgba(99, 102, 241, 0.2);
+            box-shadow: 0 12px 35px -10px rgba(99, 102, 241, 0.15);
         }
-        .form-label {
-            color: #cbd5e1;
-            font-weight: 500;
+        .gradient-text {
+            background: linear-gradient(135deg, #818CF8 0%, #C084FC 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
-        .btn-primary-custom {
-            background-color: #2563eb;
-            border: none;
-            color: white;
-            font-weight: 600;
-            transition: background-color 0.2s;
+        .app-background {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: -1; overflow: hidden; background-color: #05070B;
         }
-        .btn-primary-custom:hover {
-            background-color: #1d4ed8;
-            color: white;
+        .bg-glow-1 {
+            position: absolute; top: -10%; left: 20%; width: 600px; height: 600px;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.12) 0%, rgba(139, 92, 246, 0.05) 40%, transparent 70%);
+            border-radius: 50%; pointer-events: none; filter: blur(60px);
         }
-        .btn-outline-custom {
-            border: 1px solid #475569;
-            color: #cbd5e1;
-            background-color: transparent;
-            transition: all 0.2s;
+        .bg-glow-2 {
+            position: absolute; bottom: -15%; right: 10%; width: 700px; height: 700px;
+            background: radial-gradient(circle, rgba(168, 85, 247, 0.08) 0%, rgba(59, 130, 246, 0.03) 50%, transparent 70%);
+            border-radius: 50%; pointer-events: none; filter: blur(80px);
         }
-        .btn-outline-custom:hover {
-            background-color: #334155;
-            color: white;
-            border-color: #64748b;
+        .bg-grid {
+            position: absolute; inset: 0;
+            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            background-size: 32px 32px;
+            mask-image: radial-gradient(circle at 50% 20%, black 40%, transparent 80%);
+            pointer-events: none;
         }
     </style>
 </head>
-<body>
-    <div class="container mt-5 mb-5">
-        <div class="row justify-content-center">
-            <div class="col-md-7 col-lg-6">
-                <div class="card card-custom p-4 p-md-5">
-                    <h3 class="mb-4 text-center fw-bold text-white">ახალი ტრეიდის დამატება</h3>
+<body class="bg-transparent text-gray-300 min-h-screen font-sans antialiased selection:bg-primary/30 selection:text-white">
+
+    <div class="app-background">
+        <div class="bg-glow-1"></div>
+        <div class="bg-glow-2"></div>
+        <div class="bg-grid"></div>
+    </div>
+
+    <!-- ნავიგაცია -->
+    <nav class="glass-panel sticky top-0 z-50 border-b border-white/5 !transform-none !shadow-none">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <a href="{{ url_for('index') }}" class="flex items-center gap-3 group focus:outline-none">
+                    <div class="bg-gradient-to-br from-indigo-500 to-purple-600 p-2 rounded-xl shadow-lg shadow-indigo-500/20 group-hover:scale-105 transition-transform">
+                        <i data-lucide="line-chart" class="w-6 h-6 text-white"></i>
+                    </div>
+                    <div>
+                        <span class="font-bold text-xl text-white tracking-tight group-hover:text-indigo-300 transition-colors">Your<span class="gradient-text">Stats</span></span>
+                        <div class="text-[10px] text-gray-400 font-medium tracking-wide -mt-1">Created by Sandrika</div>
+                    </div>
+                </a>
+                
+                <!-- დესკტოპ მენიუ -->
+                <div class="hidden md:flex items-center gap-6">
+                    <a href="{{ url_for('index') }}" class="text-gray-400 flex items-center gap-2 font-medium transition hover:text-white">
+                        <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard
+                    </a>
+                    <a href="{{ url_for('trades_list') }}" class="text-gray-400 flex items-center gap-2 font-medium transition hover:text-white">
+                        <i data-lucide="list" class="w-4 h-4"></i> History
+                    </a>
+                    <a href="{{ url_for('analytics') }}" class="text-gray-400 flex items-center gap-2 font-medium transition hover:text-white">
+                        <i data-lucide="pie-chart" class="w-4 h-4"></i> Analytics
+                    </a>
+                </div>
+
+                <div class="flex items-center gap-2 sm:gap-4">
+                    <a href="{{ url_for('index') }}" class="text-gray-400 hover:text-white p-2 rounded-xl bg-white/5 hover:bg-white/10 transition flex items-center gap-1.5 text-sm font-medium">
+                        <i data-lucide="arrow-left" class="w-4 h-4 text-indigo-400"></i>
+                        <span class="hidden sm:inline">უკან</span>
+                    </a>
+
+                    <div class="h-6 w-[1px] bg-white/10 hidden sm:block"></div>
                     
-                    <!-- მნიშვნელოვანია enctype="multipart/form-data" ფაილის ასატვირთად -->
-                    <form action="/add_trade" method="POST" enctype="multipart/form-data">
-                        
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="date" class="form-label">თარიღი</label>
-                                <input type="date" class="form-control" id="date" name="date" required>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="pair" class="form-label">სავალუტო წყვილი / აქტივი</label>
-                                <input type="text" class="form-control" id="pair" name="pair" placeholder="მაგ: EURUSD, BTC" required>
-                            </div>
-                        </div>
+                    <a href="{{ url_for('logout') }}" class="text-gray-500 hover:text-rose-400 transition p-1" title="გასვლა">
+                        <i data-lucide="log-out" class="w-5 h-5"></i>
+                    </a>
 
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="direction" class="form-label">მიმართულება</label>
-                                <select class="form-select" id="direction" name="direction">
-                                    <option value="LONG">LONG (ლონგი)</option>
-                                    <option value="SHORT">SHORT (შორთი)</option>
-                                </select>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="pnl" class="form-label">მოგება / ზარალი (PnL)</label>
-                                <input type="number" step="any" class="form-control" id="pnl" name="pnl" placeholder="მაგ: 150 ან -50" required>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="entry_price" class="form-label">შესვლის ფასი</label>
-                                <input type="number" step="any" class="form-control" id="entry_price" name="entry_price" placeholder="0.00">
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="exit_price" class="form-label">გასვლის ფასი</label>
-                                <input type="number" step="any" class="form-control" id="exit_price" name="exit_price" placeholder="0.00">
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="emotion" class="form-label">ემოცია / ფსიქოლოგია</label>
-                            <input type="text" class="form-control" id="emotion" name="emotion" placeholder="მაგ: მშვიდი, ფოკუსირებული">
-                        </div>
-
-                        <div class="mb-4">
-                            <label for="screenshot" class="form-label">სქრინის ატვირთვა (კომპიუტერიდან)</label>
-                            <input type="file" class="form-control" id="screenshot" name="screenshot" accept="image/*">
-                        </div>
-
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary-custom py-2">ტრეიდის შენახვა</button>
-                            <a href="/" class="btn btn-outline-custom py-2">უკან დაბრუნება</a>
-                        </div>
-                    </form>
+                    <!-- მობილური მენიუს ჰამბურგერ ღილაკი -->
+                    <button onclick="toggleMobileMenu()" class="md:hidden text-gray-400 hover:text-white p-2 rounded-xl bg-white/5">
+                        <i data-lucide="menu" class="w-6 h-6"></i>
+                    </button>
                 </div>
             </div>
         </div>
-    </div>
+
+        <!-- მობილური ჩამოსაშლელი მენიუ -->
+        <div id="mobileMenu" class="hidden md:hidden px-4 pt-2 pb-4 border-t border-white/5 space-y-2 bg-surface">
+            <a href="{{ url_for('index') }}" class="block px-3 py-2 rounded-lg text-gray-300 hover:bg-white/5 font-medium flex items-center gap-2">
+                <i data-lucide="layout-dashboard" class="w-4 h-4 text-indigo-400"></i> Dashboard
+            </a>
+            <a href="{{ url_for('trades_list') }}" class="block px-3 py-2 rounded-lg text-gray-300 hover:bg-white/5 font-medium flex items-center gap-2">
+                <i data-lucide="list" class="w-4 h-4 text-indigo-400"></i> History
+            </a>
+            <a href="{{ url_for('analytics') }}" class="block px-3 py-2 rounded-lg text-gray-300 hover:bg-white/5 font-medium flex items-center gap-2">
+                <i data-lucide="pie-chart" class="w-4 h-4 text-indigo-400"></i> Analytics
+            </a>
+        </div>
+    </nav>
+
+    <!-- მთავარი კონტენტი - ტრეიდის დამატების ფორმა -->
+    <main class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6 animate-fade-in">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-xl sm:text-2xl font-bold text-white flex items-center gap-2">
+                    <i data-lucide="plus-circle" class="w-6 h-6 text-indigo-400"></i> ახალი ტრეიდის დამატება
+                </h1>
+                <p class="text-xs sm:text-sm text-gray-400 mt-1">შეიყვანეთ სავაჭრო ოპერაციის დეტალები აღმოსაჩენად.</p>
+            </div>
+        </div>
+
+        <div class="glass-panel p-6 sm:p-8 rounded-2xl">
+            <form action="{{ url_for('add_trade') }}" method="POST" enctype="multipart/form-data" class="space-y-5">
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <!-- თარიღი -->
+                    <div>
+                        <label class="block text-xs font-medium text-gray-400 mb-1.5">თარიღი</label>
+                        <input type="date" name="date" required class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white text-sm font-mono focus:outline-none focus:border-indigo-500 transition">
+                    </div>
+
+                    <!-- სავაჭრო წყვილი -->
+                    <div>
+                        <label class="block text-xs font-medium text-gray-400 mb-1.5">სავაჭრო წყვილი (მაგ: EURUSD, BTCUSD)</label>
+                        <input type="text" name="pair" placeholder="EURUSD" required class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white text-sm font-mono uppercase focus:outline-none focus:border-indigo-500 transition">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+                    <!-- მხარე (LONG/SHORT) -->
+                    <div>
+                        <label class="block text-xs font-medium text-gray-400 mb-1.5">მხარე</label>
+                        <select name="direction" required class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-indigo-500 transition">
+                            <option value="LONG" class="bg-surface text-success font-semibold">LONG</option>
+                            <option value="SHORT" class="bg-surface text-danger font-semibold">SHORT</option>
+                        </select>
+                    </div>
+
+                    <!-- შესვლის ფასი -->
+                    <div>
+                        <label class="block text-xs font-medium text-gray-400 mb-1.5">შესვლის ფასი</label>
+                        <input type="number" step="any" name="entry_price" placeholder="0.00" required class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white text-sm font-mono focus:outline-none focus:border-indigo-500 transition">
+                    </div>
+
+                    <!-- გასვლის ფასი -->
+                    <div>
+                        <label class="block text-xs font-medium text-gray-400 mb-1.5">გასვლის ფასი</label>
+                        <input type="number" step="any" name="exit_price" placeholder="0.00" required class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white text-sm font-mono focus:outline-none focus:border-indigo-500 transition">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <!-- PnL ($) -->
+                    <div>
+                        <label class="block text-xs font-medium text-gray-400 mb-1.5">მოგება / წაგება ($)</label>
+                        <input type="number" step="0.01" name="pnl" placeholder="მოგებისთვის პლუსი, წაგებისთვის მინუსი (მაგ: 150 ან -50)" required class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white text-sm font-mono focus:outline-none focus:border-indigo-500 transition">
+                    </div>
+
+                    <!-- სქრინშოტი -->
+                    <div>
+                        <label class="block text-xs font-medium text-gray-400 mb-1.5">სქრინშოტი (სურათი)</label>
+                        <label class="flex flex-col items-center justify-center w-full h-[46px] border border-white/10 border-dashed rounded-xl cursor-pointer bg-black/40 hover:bg-white/[0.04] transition">
+                            <div class="flex items-center gap-2 text-gray-400 text-xs px-3">
+                                <i data-lucide="upload" class="w-4 h-4 text-indigo-400"></i>
+                                <span id="fileName" class="truncate">აირჩიეთ ფაილი...</span>
+                            </div>
+                            <input type="file" name="screenshot" accept="image/*" class="hidden" onchange="updateFileName(this)">
+                        </label>
+                    </div>
+                </div>
+
+                <!-- ნოტები / კომენტარი -->
+                <div>
+                    <label class="block text-xs font-medium text-gray-400 mb-1.5">კომენტარი / სტრატეგია</label>
+                    <textarea name="notes" rows="3" placeholder="რატომ გახსენი ტრეიდი? რა დასკვნა გამოიტანე?" class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-indigo-500 transition"></textarea>
+                </div>
+
+                <!-- ღილაკები -->
+                <div class="flex items-center justify-end gap-3 pt-4 border-t border-white/5">
+                    <a href="{{ url_for('index') }}" class="px-5 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-gray-300 text-xs sm:text-sm font-medium transition">გაუქმება</a>
+                    <button type="submit" class="px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs sm:text-sm font-semibold shadow-lg shadow-indigo-600/30 transition flex items-center gap-2">
+                        <i data-lucide="check" class="w-4 h-4"></i> ტრეიდის შენახვა
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </main>
+
+    <!-- სკრიპტები -->
+    <script>
+        lucide.createIcons();
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            menu.classList.toggle('hidden');
+        }
+
+        function updateFileName(input) {
+            const fileNameSpan = document.getElementById('fileName');
+            if (input.files && input.files[0]) {
+                fileNameSpan.textContent = input.files[0].name;
+                fileNameSpan.classList.add('text-white');
+            } else {
+                fileNameSpan.textContent = 'აირჩიეთ ფაილი...';
+                fileNameSpan.classList.remove('text-white');
+            }
+        }
+    </script>
 </body>
 </html>
