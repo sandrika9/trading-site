@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ka" class="dark">
+<html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>პრემიუმ წვდომა - YourStats</title>
+    <title data-i18n="page_title">Premium Access - YourStats</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -58,7 +58,17 @@
         }
     </style>
 </head>
-<body class="bg-transparent text-gray-300 min-h-screen font-sans antialiased flex flex-col items-center justify-center p-4 selection:bg-indigo-500/30 selection:text-white">
+<body class="bg-transparent text-gray-300 min-h-screen font-sans antialiased flex flex-col items-center justify-center p-4 selection:bg-indigo-500/30 selection:text-white relative">
+
+    <!-- ენების ამორჩეველი ზედა მარჯვენა კუთხეში -->
+    <div class="absolute top-6 right-6 z-10">
+        <select id="langSelect" onchange="changeLanguage(this.value)" class="bg-surface border border-indigo-500/20 text-gray-300 text-xs rounded-xl px-3 py-2 outline-none focus:border-indigo-500 transition cursor-pointer">
+            <option value="en" selected>English</option>
+            <option value="ka">ქართული</option>
+            <option value="ru">Русский</option>
+            <option value="es">Español</option>
+        </select>
+    </div>
 
     <div class="app-background">
         <div class="bg-glow"></div>
@@ -81,46 +91,114 @@
             <i data-lucide="shield-check" class="w-6 h-6"></i>
         </div>
         
-        <h1 class="text-xl font-bold text-white mb-2">საჭიროა პრემიუმ წვდომა</h1>
-        <p class="text-sm text-gray-400 leading-relaxed mb-6">
-            გაააქტიურეთ თქვენი ანგარიში, რომ მიიღოთ სრული წვდომა ტრეიდინგის ანალიტიკაზე, რისკების მენეჯმენტსა და პროფესიონალურ ინსტრუმენტებზე.
+        <h1 class="text-xl font-bold text-white mb-2" data-i18n="title">Premium Access Required</h1>
+        <p class="text-sm text-gray-400 leading-relaxed mb-6" data-i18n="description">
+            Activate your account to get full access to trading analytics, risk management, and professional tools.
         </p>
 
-        <!-- ფასის ბლოკი (ყოველთვიური) -->
+        <!-- ფასის ბლოკი -->
         <div class="bg-surface/60 border border-white/5 rounded-xl p-4 mb-6 flex items-center justify-between">
             <div class="text-left">
-                <div class="text-xs text-gray-400 font-medium">სრული პაკეტი</div>
+                <div class="text-xs text-gray-400 font-medium" data-i18n="package_title">Full Package</div>
                 <div class="text-sm font-semibold text-white">Monthly Subscription</div>
             </div>
             <div class="text-right">
                 <div class="text-lg font-bold text-indigo-400">$6.99</div>
-                <div class="text-[10px] text-gray-500">თვეში ერთხელ</div>
+                <div class="text-[10px] text-gray-500" data-i18n="billing_period">Per month</div>
             </div>
         </div>
 
         <!-- ყიდვის მთავარი ღილაკი -->
         <button onclick="openCheckout()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-3 px-4 rounded-xl transition duration-200 shadow-lg shadow-indigo-600/30 mb-4 flex items-center justify-center gap-2 cursor-pointer">
-            <i data-lucide="lock-open" class="w-4 h-4"></i> გამოწერის გააქტიურება
+            <i data-lucide="lock-open" class="w-4 h-4"></i> <span data-i18n="btn_activate">Activate Subscription</span>
         </button>
 
-        <!-- ალტერნატიული დახმარება (Discord პროფილით) -->
+        <!-- ალტერნატიული დახმარება (Discord) -->
         <div class="text-xs text-gray-500 mb-6 flex items-center justify-center gap-1.5">
-            <span>გაქვთ კითხვები? მოგვწერეთ</span>
+            <span data-i18n="questions">Have questions? Contact us on</span>
             <a href="https://discord.com/users/1145380954639192285" target="_blank" class="text-indigo-400 font-medium hover:underline inline-flex items-center gap-1">
-                Discord-ზე <i data-lucide="external-link" class="w-3 h-3"></i>
+                <span data-i18n="discord_link">Discord</span> <i data-lucide="external-link" class="w-3 h-3"></i>
             </a>
         </div>
 
         <!-- გასვლა -->
         <div class="border-t border-white/5 pt-4">
             <a href="{{ url_for('logout') }}" class="text-sm font-medium text-rose-400 hover:text-rose-300 transition inline-flex items-center gap-2">
-                <i data-lucide="log-out" class="w-4 h-4"></i> ანგარიშიდან გასვლა
+                <i data-lucide="log-out" class="w-4 h-4"></i> <span data-i18n="logout">Log Out</span>
             </a>
         </div>
     </div>
 
     <script>
         lucide.createIcons();
+
+        // ენების ლექსიკონი
+        const translations = {
+            en: {
+                page_title: "Premium Access - YourStats",
+                title: "Premium Access Required",
+                description: "Activate your account to get full access to trading analytics, risk management, and professional tools.",
+                package_title: "Full Package",
+                billing_period: "Per month",
+                btn_activate: "Activate Subscription",
+                questions: "Have questions? Contact us on",
+                discord_link: "Discord",
+                logout: "Log Out"
+            },
+            ka: {
+                page_title: "პრემიუმ წვდომა - YourStats",
+                title: "საჭიროა პრემიუმ წვდომა",
+                description: "გაააქტიურეთ თქვენი ანგარიში, რომ მიიღოთ სრული წვდომა ტრეიდინგის ანალიტიკაზე, რისკების მენეჯმენტსა და პროფესიონალურ ინსტრუმენტებზე.",
+                package_title: "სრული პაკეტი",
+                billing_period: "თვეში ერთხელ",
+                btn_activate: "გამოწერის გააქტიურება",
+                questions: "გაქვთ კითხვები? მოგვწერეთ",
+                discord_link: "Discord-ზე",
+                logout: "ანგარიშიდან გასვლა"
+            },
+            ru: {
+                page_title: "Премиум доступ - YourStats",
+                title: "Требуется премиум доступ",
+                description: "Активируйте свой аккаунт, чтобы получить полный доступ к торговой аналитике, управлению рисками и профессиональным инструментам.",
+                package_title: "Полный пакет",
+                billing_period: "В месяц",
+                btn_activate: "Активировать подписку",
+                questions: "Есть вопросы? Напишите нам в",
+                discord_link: "Discord",
+                logout: "Выйти из аккаунта"
+            },
+            es: {
+                page_title: "Acceso Premium - YourStats",
+                title: "Se requiere acceso Premium",
+                description: "Active su cuenta para obtener acceso completo a análisis de trading, gestión de riesgos y herramientas profesionales.",
+                package_title: "Paquete Completo",
+                billing_period: "Por mes",
+                btn_activate: "Activar Suscripción",
+                questions: "¿Tiene preguntas? Contáctenos en",
+                discord_link: "Discord",
+                logout: "Cerrar sesión"
+            }
+        };
+
+        function changeLanguage(lang) {
+            document.documentElement.lang = lang;
+            const elements = document.querySelectorAll('[data-i18n]');
+            elements.forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[lang] && translations[lang][key]) {
+                    el.textContent = translations[lang][key];
+                }
+            });
+            // შევინახოთ არჩევანი ბრაუზერში, რომ გვერდის განახლებისას არ დაიკარგოს
+            localStorage.setItem('selected_lang', lang);
+        }
+
+        // გვერდის ჩატვირთვისას შევამოწმოთ შენახული ენა
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedLang = localStorage.getItem('selected_lang') || 'en';
+            document.getElementById('langSelect').value = savedLang;
+            changeLanguage(savedLang);
+        });
 
         // Paddle-ის ინიციალიზაცია
         Paddle.Initialize({ 
@@ -131,7 +209,7 @@
             Paddle.Checkout.open({
                 items: [
                     {
-                        priceId: 'pri_01m0t4w57zap9tma4qw27cfnta', // დარწმუნდი რომ Paddle-შიც ყოველთვიური ფასის ID გიწერია
+                        priceId: 'pri_01m0t4w57zap9tma4qw27cfnta',
                         quantity: 1
                     }
                 ],
