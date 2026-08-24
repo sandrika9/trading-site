@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ka" class="dark">
+<html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title id="pageTitle">YourStats - ანალიტიკა</title>
+    <title id="pageTitle">YourStats - Analytics</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -122,24 +122,27 @@
                 <div class="relative z-30">
                     <button id="langMenuButton" onclick="toggleLangMenu()" class="glass-panel px-3 py-2 rounded-lg text-sm font-medium text-gray-300 hover:text-white flex items-center gap-2 transition">
                         <i data-lucide="globe" class="w-4 h-4 text-indigo-400"></i>
-                        <span id="currentLangLabel">ქართული</span>
+                        <span id="currentLangLabel">English</span>
                         <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-gray-400"></i>
                     </button>
-                    <div id="langDropdown" class="hidden absolute right-0 mt-2 w-36 glass-panel rounded-xl shadow-xl overflow-hidden border border-white/10 py-1">
-                        <button onclick="changeLanguage('ka')" class="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-white flex items-center gap-2 transition">
-                            🇬🇪 ქართული
-                        </button>
+                    <div id="langDropdown" class="hidden absolute right-0 mt-2 w-40 glass-panel rounded-xl shadow-xl overflow-hidden border border-white/10 py-1">
                         <button onclick="changeLanguage('en')" class="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-white flex items-center gap-2 transition">
                             🇬🇧 English
                         </button>
-                        <button onclick="changeLanguage('hy')" class="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-white flex items-center gap-2 transition">
-                            🇦🇲 Հայերեն
+                        <button onclick="changeLanguage('ka')" class="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-white flex items-center gap-2 transition">
+                            🇬🇪 ქართული
+                        </button>
+                        <button onclick="changeLanguage('ru')" class="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-white flex items-center gap-2 transition">
+                            🇷🇺 Русский
+                        </button>
+                        <button onclick="changeLanguage('es')" class="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-white flex items-center gap-2 transition">
+                            🇪🇸 Español
                         </button>
                     </div>
                 </div>
 
                 <a href="{{ url_for('add_trade') }}" class="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-300 flex items-center gap-2 shadow-[0_0_15px_rgba(79,70,229,0.3)] hover:scale-[1.02] relative z-30">
-                    <i data-lucide="plus" class="w-4 h-4"></i> <span data-i18n="btn_new_trade">ახალი ტრეიდი</span>
+                    <i data-lucide="plus" class="w-4 h-4"></i> <span data-i18n="btn_new_trade">New Trade</span>
                 </a>
             </div>
         </div>
@@ -148,8 +151,8 @@
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 animate-fade-in">
         <div>
-            <h1 class="text-2xl font-bold text-white" data-i18n="page_title">სავაჭრო ანალიტიკა</h1>
-            <p class="text-sm text-gray-400 mt-1" data-i18n="page_subtitle">თქვენი შედეგების ღრმა სტატისტიკური ანალიზი და განაწილება.</p>
+            <h1 class="text-2xl font-bold text-white" data-i18n="page_heading">Trading Analytics</h1>
+            <p class="text-sm text-gray-400 mt-1" data-i18n="page_subtitle">Deep statistical analysis and distribution of your results.</p>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -159,14 +162,14 @@
                     <div class="flex items-center gap-3">
                         <div class="p-2.5 bg-success/10 rounded-xl text-success border border-success/20"><i data-lucide="trending-up" class="w-5 h-5"></i></div>
                         <div>
-                            <h3 class="text-white font-bold text-base" data-i18n="long_positions">LONG პოზიციები</h3>
-                            <span class="text-xs text-gray-400"><span data-i18n="total_label">სულ</span>: <span class="text-white font-semibold">{{ long_stats.count }}</span></span>
+                            <h3 class="text-white font-bold text-base" data-i18n="long_positions">LONG Positions</h3>
+                            <span class="text-xs text-gray-400"><span data-i18n="total_label">Total</span>: <span class="text-white font-semibold">{{ long_stats.count }}</span></span>
                         </div>
                     </div>
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div class="bg-black/30 p-4 rounded-xl border border-white/5">
-                        <span class="text-xs text-gray-400 block mb-1" data-i18n="total_pnl">მთლიანი PnL</span>
+                        <span class="text-xs text-gray-400 block mb-1" data-i18n="total_pnl">Total PnL</span>
                         <span class="text-xl font-bold {% if long_stats.pnl >= 0 %} text-success {% else %} text-danger {% endif %}">
                             {% if long_stats.pnl > 0 %}+{% endif %}${{ "{:,.2f}".format(long_stats.pnl) }}
                         </span>
@@ -184,14 +187,14 @@
                     <div class="flex items-center gap-3">
                         <div class="p-2.5 bg-danger/10 rounded-xl text-danger border border-danger/20"><i data-lucide="trending-down" class="w-5 h-5"></i></div>
                         <div>
-                            <h3 class="text-white font-bold text-base" data-i18n="short_positions">SHORT პოზიციები</h3>
-                            <span class="text-xs text-gray-400"><span data-i18n="total_label">სულ</span>: <span class="text-white font-semibold">{{ short_stats.count }}</span></span>
+                            <h3 class="text-white font-bold text-base" data-i18n="short_positions">SHORT Positions</h3>
+                            <span class="text-xs text-gray-400"><span data-i18n="total_label">Total</span>: <span class="text-white font-semibold">{{ short_stats.count }}</span></span>
                         </div>
                     </div>
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div class="bg-black/30 p-4 rounded-xl border border-white/5">
-                        <span class="text-xs text-gray-400 block mb-1" data-i18n="total_pnl">მთლიანი PnL</span>
+                        <span class="text-xs text-gray-400 block mb-1" data-i18n="total_pnl">Total PnL</span>
                         <span class="text-xl font-bold {% if short_stats.pnl >= 0 %} text-success {% else %} text-danger {% endif %}">
                             {% if short_stats.pnl > 0 %}+{% endif %}${{ "{:,.2f}".format(short_stats.pnl) }}
                         </span>
@@ -207,16 +210,16 @@
         <div class="glass-panel rounded-2xl overflow-hidden shadow-2xl !transform-none">
             <div class="p-6 border-b border-white/5 bg-surface/50">
                 <h2 class="text-lg font-semibold text-white flex items-center gap-2">
-                    <i data-lucide="brain" class="w-5 h-5 text-indigo-400"></i> <span data-i18n="psychology_title">ფსიქოლოგიური და ემოციური ანალიზი</span>
+                    <i data-lucide="brain" class="w-5 h-5 text-indigo-400"></i> <span data-i18n="psychology_title">Psychological & Emotional Analysis</span>
                 </h2>
             </div>
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-sm whitespace-nowrap">
                     <thead class="bg-black/20 text-gray-400">
                         <tr>
-                            <th class="px-6 py-4 font-medium" data-i18n="th_emotion">ემოცია / მდგომარეობა</th>
-                            <th class="px-6 py-4 font-medium" data-i18n="th_trades_count">ტრეიდების რაოდენობა</th>
-                            <th class="px-6 py-4 font-medium text-right" data-i18n="th_total_pnl">ჯამური PnL</th>
+                            <th class="px-6 py-4 font-medium" data-i18n="th_emotion">Emotion / State</th>
+                            <th class="px-6 py-4 font-medium" data-i18n="th_trades_count">Trade Count</th>
+                            <th class="px-6 py-4 font-medium text-right" data-i18n="th_total_pnl">Total PnL</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-white/5">
@@ -233,7 +236,7 @@
                         {% else %}
                         <tr>
                             <td colspan="3" class="px-6 py-12 text-center text-gray-500" data-i18n="no_data">
-                                მონაცემები ჯერ არ არის.
+                                No data available yet.
                             </td>
                         </tr>
                         {% endfor %}
@@ -246,27 +249,8 @@
     <script>
         lucide.createIcons();
 
-        // ენების ლექსიკონი
+        // ენების ლექსიკონი (English, Georgian, Russian, Spanish)
         const translations = {
-            ka: {
-                page_title: "YourStats - ანალიტიკა",
-                nav_dashboard: "Dashboard",
-                nav_history: "History",
-                nav_analytics: "Analytics",
-                btn_new_trade: "ახალი ტრეიდი",
-                page_heading: "სავაჭრო ანალიტიკა",
-                page_subtitle: "თქვენი შედეგების ღრმა სტატისტიკური ანალიზი და განაწილება.",
-                long_positions: "LONG პოზიციები",
-                short_positions: "SHORT პოზიციები",
-                total_label: "სულ",
-                total_pnl: "მთლიანი PnL",
-                win_rate: "Win Rate",
-                psychology_title: "ფსიქოლოგიური და ემოციური ანალიზი",
-                th_emotion: "ემოცია / მდგომარეობა",
-                th_trades_count: "ტრეიდების რაოდენობა",
-                th_total_pnl: "ჯამური PnL",
-                no_data: "მონაცემები ჯერ არ არის."
-            },
             en: {
                 page_title: "YourStats - Analytics",
                 nav_dashboard: "Dashboard",
@@ -286,24 +270,62 @@
                 th_total_pnl: "Total PnL",
                 no_data: "No data available yet."
             },
-            hy: {
-                page_title: "YourStats - Վերլուծություն",
+            ka: {
+                page_title: "YourStats - ანალიტიკა",
                 nav_dashboard: "Dashboard",
                 nav_history: "History",
                 nav_analytics: "Analytics",
-                btn_new_trade: "Նոր գործարք",
-                page_heading: "Առևտրային վերլուծություն",
-                page_subtitle: "Ձեր արդյունքների խորը վիճակագրական վերլուծություն և բաշխում:",
-                long_positions: "LONG դիրքեր",
-                short_positions: "SHORT դիրքեր",
-                total_label: "Ընդամենը",
-                total_pnl: "Ընդհանուր PnL",
+                btn_new_trade: "ახალი ტრეიდი",
+                page_heading: "სავაჭრო ანალიტიკა",
+                page_subtitle: "თქვენი შედეგების ღრმა სტატისტიკური ანალიზი და განაწილება.",
+                long_positions: "LONG პოზიციები",
+                short_positions: "SHORT პოზიციები",
+                total_label: "სულ",
+                total_pnl: "მთლიანი PnL",
                 win_rate: "Win Rate",
-                psychology_title: "Հոգեբանական և հուզական վերլուծություն",
-                th_emotion: "Հույզ / Վիճակ",
-                th_trades_count: "Գործարքների քանակ",
-                th_total_pnl: "Ընդհանուր PnL",
-                no_data: "Տվյալներ դեռևս չկան:"
+                psychology_title: "ფსიქოლოგიური და ემოციური ანალიზი",
+                th_emotion: "ემოცია / მდგომარეობა",
+                th_trades_count: "ტრეიდების რაოდენობა",
+                th_total_pnl: "ჯამური PnL",
+                no_data: "მონაცემები ჯერ არ არის."
+            },
+            ru: {
+                page_title: "YourStats - Аналитика",
+                nav_dashboard: "Dashboard",
+                nav_history: "History",
+                nav_analytics: "Analytics",
+                btn_new_trade: "Новая сделка",
+                page_heading: "Торговая аналитика",
+                page_subtitle: "Глубокий статистический анализ и распределение ваших результатов.",
+                long_positions: "LONG позиции",
+                short_positions: "SHORT позиции",
+                total_label: "Всего",
+                total_pnl: "Общий PnL",
+                win_rate: "Win Rate",
+                psychology_title: "Психологический и эмоциональный анализ",
+                th_emotion: "Эмоция / Состояние",
+                th_trades_count: "Количество сделок",
+                th_total_pnl: "Общий PnL",
+                no_data: "Данные пока отсутствуют."
+            },
+            es: {
+                page_title: "YourStats - Analítica",
+                nav_dashboard: "Dashboard",
+                nav_history: "History",
+                nav_analytics: "Analytics",
+                btn_new_trade: "Nueva operación",
+                page_heading: "Analítica de Trading",
+                page_subtitle: "Análisis estadístico profundo y distribución de tus resultados.",
+                long_positions: "Posiciones LONG",
+                short_positions: "Posiciones SHORT",
+                total_label: "Total",
+                total_pnl: "PnL Total",
+                win_rate: "Win Rate",
+                psychology_title: "Análisis Psicológico y Emocional",
+                th_emotion: "Emoción / Estado",
+                th_trades_count: "Nº de operaciones",
+                th_total_pnl: "PnL Total",
+                no_data: "No hay datos disponibles todavía."
             }
         };
 
@@ -322,11 +344,12 @@
 
         function changeLanguage(lang) {
             const labels = {
-                'ka': 'ქართული',
                 'en': 'English',
-                'hy': 'Հայերեն'
+                'ka': 'ქართული',
+                'ru': 'Русский',
+                'es': 'Español'
             };
-            document.getElementById('currentLangLabel').innerText = labels[lang] || 'ქართული';
+            document.getElementById('currentLangLabel').innerText = labels[lang] || 'English';
             document.getElementById('langDropdown').classList.add('hidden');
             
             localStorage.setItem('selected_language', lang);
@@ -344,7 +367,6 @@
                 }
             });
 
-            // მთავარი სათაურის ტექსტის შეცვლა
             const h1 = document.querySelector('main h1');
             if (h1) h1.innerText = t.page_heading;
             
@@ -354,9 +376,15 @@
             document.title = t.page_title;
         }
 
+        // ნაგულისხმევად (Default) დაყენებულია ინგლისური (en)
         window.addEventListener('DOMContentLoaded', () => {
-            const savedLang = localStorage.getItem('selected_language') || 'ka';
-            const labels = { 'ka': 'ქართული', 'en': 'English', 'hy': 'Հայերեն' };
+            const savedLang = localStorage.getItem('selected_language') || 'en';
+            const labels = {
+                'en': 'English',
+                'ka': 'ქართული',
+                'ru': 'Русский',
+                'es': 'Español'
+            };
             if (labels[savedLang]) {
                 document.getElementById('currentLangLabel').innerText = labels[savedLang];
             }
