@@ -89,6 +89,7 @@
     <nav class="glass-panel sticky top-0 z-50 border-b border-white/5 !transform-none !shadow-none">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16 items-center">
+                <!-- YourStats ლოგო უცვლელია და არ გადაითარგმნება -->
                 <a href="{{ url_for('index') }}" class="flex items-center gap-3 group focus:outline-none">
                     <div class="bg-gradient-to-br from-indigo-500 to-purple-600 p-2 rounded-xl shadow-lg shadow-indigo-500/20 group-hover:scale-105 transition-transform">
                         <i data-lucide="line-chart" class="w-6 h-6 text-white"></i>
@@ -113,11 +114,11 @@
                 </div>
 
                 <div class="flex items-center gap-2 sm:gap-4">
-                    <!-- ენის სელექტორი -->
+                    <!-- ენის არჩევის Dropdown -->
                     <div class="relative z-30">
                         <button id="langMenuButton" onclick="toggleLangMenu()" class="glass-panel px-3 py-2 rounded-lg text-sm font-medium text-gray-300 hover:text-white flex items-center gap-2 transition">
                             <i data-lucide="globe" class="w-4 h-4 text-indigo-400"></i>
-                            <span id="currentLangLabel">English</span>
+                            <span id="currentLangLabel">ქართული</span>
                             <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-gray-400"></i>
                         </button>
                         <div id="langDropdown" class="hidden absolute right-0 mt-2 w-40 glass-panel rounded-xl shadow-xl overflow-hidden border border-white/10 py-1">
