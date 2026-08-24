@@ -75,6 +75,21 @@ def admin_required(f):
     return decorated_function
 
 
+# --- დამხმარე ფუნქცია იუზერის პარამეტრების შესამოწმებლად/შესაქმნელად ---
+def get_or_create_user_settings(cursor, user_id):
+    cursor.execute("SELECT * FROM user_settings WHERE user_id = %s", (user_id,))
+    settings = cursor.fetchone()
+    if not settings:
+        cursor.execute(
+            "INSERT INTO user_settings (user_id, initial_balance, target_balance, max_loss_limit) VALUES (%s, %s, %s, %s)",
+            (user_id, 50000.0, 53000.0, 1000.0)
+        )
+        cursor.connection.commit()
+        cursor.execute("SELECT * FROM user_settings WHERE user_id = %s", (user_id,))
+        settings = cursor.fetchone()
+    return settings
+
+
 # --- მარშრუტები ---
 
 @app.route("/login", methods=["GET", "POST"])
@@ -164,6 +179,26 @@ def logout():
 def index():
     conn = get_db_connection()
     cursor = conn.cursor()
+    
+    # ვამოწმებთ არსებობს თუ არა user_settings ცხრილი, თუ არადა ვქმნით ავტომატურად
+    try:
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS user_settings (
+                user_id INT PRIMARY KEY,
+                initial_balance FLOAT DEFAULT 50000.0,
+                target_balance FLOAT DEFAULT 53000.0,
+                max_loss_limit FLOAT DEFAULT 1000.0
+            )
+        """)
+        conn.commit()
+    except Exception:
+        conn.rollback()
+
+    settings = get_or_create_user_settings(cursor, session["user_id"])
+    initial_balance = float(settings["initial_balance"])
+    target_balance = float(settings["target_balance"])
+    max_loss_limit = float(settings["max_loss_limit"])
+
     cursor.execute(
         "SELECT * FROM trades WHERE user_id = %s ORDER BY id DESC",
         (session["user_id"],),
@@ -172,7 +207,6 @@ def index():
     cursor.close()
     conn.close()
 
-    initial_balance = 50000.0
     current_balance = initial_balance
     total_pnl = 0.0
     wins = 0
@@ -181,8 +215,6 @@ def index():
 
     gross_profit = 0.0
     gross_loss = 0.0
-
-    max_loss_limit = 1000.0
     current_max_loss = max_loss_limit
 
     chart_data = []
@@ -200,7 +232,7 @@ def index():
             gross_loss += abs(pnl)
             current_max_loss -= abs(pnl)
 
-        chart_data.append({"time": t["date"], "value": current_balance})
+        chart_data.append({"time": str(t["date"]), "value": current_balance})
 
     for t in dataSource_trades:
         trade_date = str(t["date"])  
@@ -223,7 +255,6 @@ def index():
     else:
         profit_factor = 0.0
 
-    target_balance = 53000.0
     progress_pct = (
         round(
             (
@@ -314,28 +345,50 @@ def add_trade():
 
         conn = get_db_connection()
         cursor = conn.cursor()
-        cursor.execute(
-            """
-                INSERT INTO trades (user_id, date, pair, direction, entry_price, exit_price, pnl, emotion, screenshot)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-            """,
-            (
-                session["user_id"],
-                date,
-                pair,
-                direction,
-                entry_price,
-                exit_price,
-                pnl,
-                emotion,
-                screenshot_base64,
-            ),
-        )
-        conn.commit()
-        cursor.close()
-        conn.close()
+        
+        try:
+            cursor.execute(
+                """
+                    INSERT INTO trades (user_id, date, pair, direction, entry_price, exit_price, pnl, emotion, screenshot)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                """,
+                (
+                    session["user_id"],
+                    date,
+                    pair,
+                    direction,
+                    entry_price,
+                    exit_price,
+                    pnl,
+                    emotion,
+                    screenshot_base64,
+                ),
+            )
+            conn.commit()
+        except Exception:
+            # თუ ცხრილში emotion ან screenshot სვეტები არ არსებობს, ვცდილობთ ძველი სტრუქტურის მიხედვით ჩაწერას, რომ 500 error არ აგდოს
+            conn.rollback()
+            cursor.execute(
+                """
+                    INSERT INTO trades (user_id, date, pair, direction, entry_price, exit_price, pnl)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s)
+                """,
+                (
+                    session["user_id"],
+                    date,
+                    pair,
+                    direction,
+                    entry_price,
+                    exit_price,
+                    pnl,
+                ),
+            )
+            conn.commit()
+        finally:
+            cursor.close()
+            conn.close()
 
-        flash("ტრეიდი და სურათი წარმატებით დაემატა!", "success")
+        flash("ტრეიდი წარმატებით დაემატა!", "success")
         return redirect(url_for("index"))
 
     return render_template("add_trade.html")
@@ -443,7 +496,43 @@ def analytics():
 @app.route("/update_settings", methods=["POST"])
 @paid_required
 def update_settings():
-    flash("პარამეტრები განახლდა!", "success")
+    initial_balance = float(request.form.get("initial_balance", 50000.0) or 50000.0)
+    target_balance = float(request.form.get("target_balance", 53000.0) or 53000.0)
+    max_loss_limit = float(request.form.get("max_loss_limit", 1000.0) or 1000.0)
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    try:
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS user_settings (
+                user_id INT PRIMARY KEY,
+                initial_balance FLOAT DEFAULT 50000.0,
+                target_balance FLOAT DEFAULT 53000.0,
+                max_loss_limit FLOAT DEFAULT 1000.0
+            )
+        """)
+        conn.commit()
+
+        cursor.execute(
+            """
+            INSERT INTO user_settings (user_id, initial_balance, target_balance, max_loss_limit)
+            VALUES (%s, %s, %s, %s)
+            ON CONFLICT (user_id) 
+            DO UPDATE SET initial_balance = %s, target_balance = %s, max_loss_limit = %s
+            """,
+            (session["user_id"], initial_balance, target_balance, max_loss_limit, initial_balance, target_balance, max_loss_limit)
+        )
+        conn.commit()
+    except Exception as e:
+        conn.rollback()
+        flash("შეცდომა პარამეტრების შენახვისას.", "error")
+        print(e)
+    finally:
+        cursor.close()
+        conn.close()
+
+    flash("პარამეტრები წარმატებით განახლდა!", "success")
     return redirect(url_for("index"))
 
 
