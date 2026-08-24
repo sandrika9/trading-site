@@ -11,6 +11,7 @@
         .glass-panel {
             background: rgba(17, 21, 31, 0.75);
             backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.07);
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
         }
@@ -131,6 +132,7 @@
 
         function changeLanguage(lang) {
             document.documentElement.lang = lang;
+            localStorage.setItem('preferred_language', lang);
             
             const elements = document.querySelectorAll('[data-i18n]');
             elements.forEach(el => {
@@ -147,12 +149,10 @@
             if (activeBtn) {
                 activeBtn.classList.add('active');
             }
-
-            localStorage.setItem('selected_lang', lang);
         }
 
         window.addEventListener('DOMContentLoaded', () => {
-            const savedLang = localStorage.getItem('selected_lang') || 'en';
+            const savedLang = localStorage.getItem('preferred_language') || 'ka';
             changeLanguage(savedLang);
         });
     </script>
