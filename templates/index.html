@@ -533,6 +533,47 @@
         document.addEventListener('DOMContentLoaded', () => {
             const savedLang = localStorage.getItem('selected_language') || 'en';
             applyTranslations(savedLang);
+
+            // Equity Chart-ის ინიციალიზაცია
+            const ctx = document.getElementById('equityChart');
+            if (ctx) {
+                new Chart(ctx.getContext('2d'), {
+                    type: 'line',
+                    data: {
+                        labels: ['Start', 'Day 1', 'Day 2', 'Day 3', 'Day 4', 'Today'],
+                        datasets: [{
+                            label: 'Balance ($)',
+                            data: [{{ initial_balance }}, {{ initial_balance }}, {{ initial_balance }}, {{ initial_balance }}, {{ initial_balance }}, {{ current_balance }}],
+                            borderColor: '#6366F1',
+                            backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.3
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            x: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#9CA3AF' } },
+                            y: { grid: { color: 'rgba(255, 255, 255, 0.05)' }, ticks: { color: '#9CA3AF' } }
+                        }
+                    }
+                });
+            }
+
+            // კალენდრის გენერაცია
+            const calContainer = document.getElementById('calendarContainer');
+            if (calContainer) {
+                const daysOfWeek = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
+                daysOfWeek.forEach(d => {
+                    calContainer.innerHTML += `<div class="text-gray-500 font-semibold py-1">${d}</div>`;
+                });
+                for (let i = 1; i <= 28; i++) {
+                    calContainer.innerHTML += `<div class="bg-white/5 hover:bg-white/10 rounded p-1.5 text-gray-400 transition">${i}</div>`;
+                }
+            }
         });
 
         function openSettingsModal() {
