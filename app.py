@@ -13,7 +13,7 @@ app.secret_key = "your_secret_key_here"
 # Supabase PostgreSQL ბაზის მისამართი (Transaction Pooler - 6543 პორტი Render-ისთვის)
 DATABASE_URL = os.environ.get(
     "DATABASE_URL", 
-    "postgresql://postgres.rnktcgfknokfdktfxjkb:Sandrika789@aws-0-eu-central-1.pooler.supabase.com:6543/postgres"
+    "postgresql://postgres.rnktcgfknokfdktfxjkb:Sandrika789@aws-0-ap-northeast-2.pooler.supabase.com:6543/postgres"
 )
 
 
@@ -484,3 +484,5 @@ def toggle_user(user_id):
 
 if __name__ == "__main__":
     app.run(debug=True)
+
+# cache fix timestamp 2026
