@@ -5,61 +5,116 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ტრეიდის დამატება</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #0f172a; /* საიტის მუქი ფონი */
+            color: #f8fafc;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .card-custom {
+            background-color: #1e293b; /* ქარდის ფერი */
+            border: 1px solid #334155;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+        }
+        .form-control, .form-select {
+            background-color: #0f172a;
+            border: 1px solid #475569;
+            color: #f8fafc;
+        }
+        .form-control:focus, .form-select:focus {
+            background-color: #0f172a;
+            border-color: #3b82f6;
+            color: #f8fafc;
+            box-shadow: 0 0 0 0.25rem rgba(59, 130, 246, 0.25);
+        }
+        .form-label {
+            color: #cbd5e1;
+            font-weight: 500;
+        }
+        .btn-primary-custom {
+            background-color: #2563eb;
+            border: none;
+            color: white;
+            font-weight: 600;
+            transition: background-color 0.2s;
+        }
+        .btn-primary-custom:hover {
+            background-color: #1d4ed8;
+            color: white;
+        }
+        .btn-outline-custom {
+            border: 1px solid #475569;
+            color: #cbd5e1;
+            background-color: transparent;
+            transition: all 0.2s;
+        }
+        .btn-outline-custom:hover {
+            background-color: #334155;
+            color: white;
+            border-color: #64748b;
+        }
+    </style>
 </head>
-<body class="bg-dark text-light">
-    <div class="container mt-5">
+<body>
+    <div class="container mt-5 mb-5">
         <div class="row justify-content-center">
-            <div class="col-md-6">
-                <div class="card bg-secondary text-light p-4 shadow">
-                    <h3 class="mb-4 text-center">ახალი ტრეიდის დამატება</h3>
+            <div class="col-md-7 col-lg-6">
+                <div class="card card-custom p-4 p-md-5">
+                    <h3 class="mb-4 text-center fw-bold text-white">ახალი ტრეიდის დამატება</h3>
                     
-                    <form action="/add_trade" method="POST">
-                        <div class="mb-3">
-                            <label for="date" class="form-label">თარიღი</label>
-                            <input type="date" class="form-control" id="date" name="date" required>
+                    <!-- მნიშვნელოვანია enctype="multipart/form-data" ფაილის ასატვირთად -->
+                    <form action="/add_trade" method="POST" enctype="multipart/form-data">
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="date" class="form-label">თარიღი</label>
+                                <input type="date" class="form-control" id="date" name="date" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="pair" class="form-label">სავალუტო წყვილი / აქტივი</label>
+                                <input type="text" class="form-control" id="pair" name="pair" placeholder="მაგ: EURUSD, BTC" required>
+                            </div>
                         </div>
 
-                        <div class="mb-3">
-                            <label for="pair" class="form-label">სავალუტო წყვილი / აქტივი</label>
-                            <input type="text" class="form-control" id="pair" name="pair" placeholder="მაგ: EURUSD, BTCUSD" required>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="direction" class="form-label">მიმართულება</label>
+                                <select class="form-select" id="direction" name="direction">
+                                    <option value="LONG">LONG (ლონგი)</option>
+                                    <option value="SHORT">SHORT (შორთი)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="pnl" class="form-label">მოგება / ზარალი (PnL)</label>
+                                <input type="number" step="any" class="form-control" id="pnl" name="pnl" placeholder="მაგ: 150 ან -50" required>
+                            </div>
                         </div>
 
-                        <div class="mb-3">
-                            <label for="direction" class="form-label">მიმართულება (Direction)</label>
-                            <select class="form-control" id="direction" name="direction">
-                                <option value="LONG">LONG (ლონგი)</option>
-                                <option value="SHORT">SHORT (შორთი)</option>
-                            </select>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="entry_price" class="form-label">შესვლის ფასი</label>
-                            <input type="number" step="any" class="form-control" id="entry_price" name="entry_price" placeholder="0.00">
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="exit_price" class="form-label">გასვლის ფასი</label>
-                            <input type="number" step="any" class="form-control" id="exit_price" name="exit_price" placeholder="0.00">
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="pnl" class="form-label">მოგება / ზარალი (PnL)</label>
-                            <input type="number" step="any" class="form-control" id="pnl" name="pnl" placeholder="მაგ: 150 ან -50" required>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="entry_price" class="form-label">შესვლის ფასი</label>
+                                <input type="number" step="any" class="form-control" id="entry_price" name="entry_price" placeholder="0.00">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="exit_price" class="form-label">გასვლის ფასი</label>
+                                <input type="number" step="any" class="form-control" id="exit_price" name="exit_price" placeholder="0.00">
+                            </div>
                         </div>
 
                         <div class="mb-3">
                             <label for="emotion" class="form-label">ემოცია / ფსიქოლოგია</label>
-                            <input type="text" class="form-control" id="emotion" name="emotion" placeholder="მაგ: მშვიდი, აზარტული, ფოკუსირებული">
+                            <input type="text" class="form-control" id="emotion" name="emotion" placeholder="მაგ: მშვიდი, ფოკუსირებული">
                         </div>
 
-                        <div class="mb-3">
-                            <label for="screenshot" class="form-label">სქრინის ლინკი ან Base64 (არასავალდებულო)</label>
-                            <input type="text" class="form-control" id="screenshot" name="screenshot" placeholder="სურათის ბმული">
+                        <div class="mb-4">
+                            <label for="screenshot" class="form-label">სქრინის ატვირთვა (კომპიუტერიდან)</label>
+                            <input type="file" class="form-control" id="screenshot" name="screenshot" accept="image/*">
                         </div>
 
                         <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-success">ტრეიდის შენახვა</button>
-                            <a href="/" class="btn btn-outline-light">უკან დაბრუნება</a>
+                            <button type="submit" class="btn btn-primary-custom py-2">ტრეიდის შენახვა</button>
+                            <a href="/" class="btn btn-outline-custom py-2">უკან დაბრუნება</a>
                         </div>
                     </form>
                 </div>
