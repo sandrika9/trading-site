@@ -119,6 +119,26 @@
             </div>
 
             <div class="flex items-center gap-4">
+                <!-- ენების არჩევანი (Language Selector) -->
+                <div class="relative z-30">
+                    <button id="langMenuButton" onclick="toggleLangMenu()" class="glass-panel px-3 py-2 rounded-lg text-sm font-medium text-gray-300 hover:text-white flex items-center gap-2 transition">
+                        <i data-lucide="globe" class="w-4 h-4 text-indigo-400"></i>
+                        <span id="currentLangLabel">ქართული</span>
+                        <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-gray-400"></i>
+                    </button>
+                    <div id="langDropdown" class="hidden absolute right-0 mt-2 w-36 glass-panel rounded-xl shadow-xl overflow-hidden border border-white/10 py-1">
+                        <button onclick="changeLanguage('ka')" class="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-white flex items-center gap-2 transition">
+                            🇬🇪 ქართული
+                        </button>
+                        <button onclick="changeLanguage('en')" class="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-white flex items-center gap-2 transition">
+                            🇬🇧 English
+                        </button>
+                        <button onclick="changeLanguage('hy')" class="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-white flex items-center gap-2 transition">
+                            🇦🇲 Հայերեն
+                        </button>
+                    </div>
+                </div>
+
                 <a href="{{ url_for('add_trade') }}" class="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-300 flex items-center gap-2 shadow-[0_0_15px_rgba(79,70,229,0.3)] hover:scale-[1.02] relative z-30">
                     <i data-lucide="plus" class="w-4 h-4"></i> ახალი ტრეიდი
                 </a>
@@ -226,6 +246,44 @@
 
     <script>
         lucide.createIcons();
+
+        function toggleLangMenu() {
+            const dropdown = document.getElementById('langDropdown');
+            dropdown.classList.toggle('hidden');
+        }
+
+        // Close dropdown when clicking outside
+        window.addEventListener('click', function(e) {
+            const button = document.getElementById('langMenuButton');
+            const dropdown = document.getElementById('langDropdown');
+            if (!button.contains(e.target) && !dropdown.contains(e.target)) {
+                dropdown.classList.add('hidden');
+            }
+        });
+
+        function changeLanguage(lang) {
+            const labels = {
+                'ka': 'ქართული',
+                'en': 'English',
+                'hy': 'Հայերեն'
+            };
+            document.getElementById('currentLangLabel').innerText = labels[lang] || 'ქართული';
+            document.getElementById('langDropdown').classList.add('hidden');
+            
+            // შეინახეთ localStorage-ში ან დააკავშირეთ ბექენდთან მარშრუტით
+            localStorage.setItem('selected_language', lang);
+        }
+
+        // Page load initialization for language
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedLang = localStorage.getItem('selected_language');
+            if (savedLang) {
+                const labels = { 'ka': 'ქართული', 'en': 'English', 'hy': 'Հայերեն' };
+                if (labels[savedLang]) {
+                    document.getElementById('currentLangLabel').innerText = labels[savedLang];
+                }
+            }
+        });
 
         if (document.startViewTransition) {
             document.querySelectorAll('a').forEach(link => {
