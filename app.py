@@ -168,24 +168,27 @@ def pending_approval():
     return render_template("pending.html", discord_tag="cs2sacc")
 
 
-# --- Paddle Webhook (ავტომატურად ააქტიურებს იუზერს გადახდის შემდეგ) ---
+# --- Paddle Webhook (იყენებს custom_data-ს და ააქტიურებს იუზერს ID-ით) ---
 @app.route("/paddle-webhook", methods=["POST"])
 def paddle_webhook():
     data = request.get_json()
     if not data:
-        return jsonify(success=False), 0
+        return jsonify(success=False), 400
         
     event_type = data.get("event_type")
     
     # როდესაც ტრანზაქცია წარმატებით დასრულდება
     if event_type == "transaction.completed":
         data_obj = data.get("data", {})
-        customer_email = data_obj.get("customer", {}).get("email")
         
-        if customer_email:
+        # ამოვიღოთ custom_data-დან user_id
+        custom_data = data_obj.get("custom_data", {})
+        user_id = custom_data.get("user_id")
+        
+        if user_id:
             conn = get_db_connection()
             cursor = conn.cursor()
-            cursor.execute("UPDATE users SET is_paid = 1 WHERE email = %s", (customer_email,))
+            cursor.execute("UPDATE users SET is_paid = 1 WHERE id = %s", (user_id,))
             conn.commit()
             cursor.close()
             conn.close()
