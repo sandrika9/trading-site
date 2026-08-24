@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ka" class="dark">
+<html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YourStats - ტრეიდის დამატება</title>
+    <title id="pageTitle">YourStats - Add Trade</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -102,20 +102,43 @@
                 <!-- დესკტოპ მენიუ -->
                 <div class="hidden md:flex items-center gap-6">
                     <a href="{{ url_for('index') }}" class="text-gray-400 flex items-center gap-2 font-medium transition hover:text-white">
-                        <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard
+                        <i data-lucide="layout-dashboard" class="w-4 h-4"></i> <span data-i18n="nav_dashboard">Dashboard</span>
                     </a>
                     <a href="{{ url_for('trades_list') }}" class="text-gray-400 flex items-center gap-2 font-medium transition hover:text-white">
-                        <i data-lucide="list" class="w-4 h-4"></i> History
+                        <i data-lucide="list" class="w-4 h-4"></i> <span data-i18n="nav_history">History</span>
                     </a>
                     <a href="{{ url_for('analytics') }}" class="text-gray-400 flex items-center gap-2 font-medium transition hover:text-white">
-                        <i data-lucide="pie-chart" class="w-4 h-4"></i> Analytics
+                        <i data-lucide="pie-chart" class="w-4 h-4"></i> <span data-i18n="nav_analytics">Analytics</span>
                     </a>
                 </div>
 
                 <div class="flex items-center gap-2 sm:gap-4">
+                    <!-- ენების არჩევანი -->
+                    <div class="relative z-30">
+                        <button id="langMenuButton" onclick="toggleLangMenu()" class="glass-panel px-3 py-2 rounded-lg text-sm font-medium text-gray-300 hover:text-white flex items-center gap-2 transition">
+                            <i data-lucide="globe" class="w-4 h-4 text-indigo-400"></i>
+                            <span id="currentLangLabel">English</span>
+                            <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-gray-400"></i>
+                        </button>
+                        <div id="langDropdown" class="hidden absolute right-0 mt-2 w-40 glass-panel rounded-xl shadow-xl overflow-hidden border border-white/10 py-1">
+                            <button onclick="changeLanguage('en')" class="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-white flex items-center gap-2 transition">
+                                🇬🇧 English
+                            </button>
+                            <button onclick="changeLanguage('ka')" class="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-white flex items-center gap-2 transition">
+                                🇬🇪 ქართული
+                            </button>
+                            <button onclick="changeLanguage('ru')" class="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-white flex items-center gap-2 transition">
+                                🇷🇺 Русский
+                            </button>
+                            <button onclick="changeLanguage('es')" class="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-white flex items-center gap-2 transition">
+                                🇪🇸 Español
+                            </button>
+                        </div>
+                    </div>
+
                     <a href="{{ url_for('index') }}" class="text-gray-400 hover:text-white p-2 rounded-xl bg-white/5 hover:bg-white/10 transition flex items-center gap-1.5 text-sm font-medium">
                         <i data-lucide="arrow-left" class="w-4 h-4 text-indigo-400"></i>
-                        <span class="hidden sm:inline">უკან</span>
+                        <span class="hidden sm:inline" data-i18n="btn_back">Back</span>
                     </a>
 
                     <div class="h-6 w-[1px] bg-white/10 hidden sm:block"></div>
@@ -151,9 +174,9 @@
         <div class="flex items-center justify-between">
             <div>
                 <h1 class="text-xl sm:text-2xl font-bold text-white flex items-center gap-2">
-                    <i data-lucide="plus-circle" class="w-6 h-6 text-indigo-400"></i> ახალი ტრეიდის დამატება
+                    <i data-lucide="plus-circle" class="w-6 h-6 text-indigo-400"></i> <span data-i18n="form_heading">Add New Trade</span>
                 </h1>
-                <p class="text-xs sm:text-sm text-gray-400 mt-1">შეიყვანეთ სავაჭრო ოპერაციის დეტალები აღმოსაჩენად.</p>
+                <p class="text-xs sm:text-sm text-gray-400 mt-1" data-i18n="form_subtitle">Enter trade operation details for analysis.</p>
             </div>
         </div>
 
@@ -163,13 +186,13 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <!-- თარიღი -->
                     <div>
-                        <label class="block text-xs font-medium text-gray-400 mb-1.5">თარიღი</label>
+                        <label class="block text-xs font-medium text-gray-400 mb-1.5" data-i18n="label_date">Date</label>
                         <input type="date" name="date" required class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white text-sm font-mono focus:outline-none focus:border-indigo-500 transition">
                     </div>
 
                     <!-- სავაჭრო წყვილი -->
                     <div>
-                        <label class="block text-xs font-medium text-gray-400 mb-1.5">სავაჭრო წყვილი (მაგ: EURUSD, BTCUSD)</label>
+                        <label class="block text-xs font-medium text-gray-400 mb-1.5" data-i18n="label_pair">Trading Pair (e.g., EURUSD, BTCUSD)</label>
                         <input type="text" name="pair" placeholder="EURUSD" required class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white text-sm font-mono uppercase focus:outline-none focus:border-indigo-500 transition">
                     </div>
                 </div>
@@ -177,7 +200,7 @@
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
                     <!-- მხარე (LONG/SHORT) -->
                     <div>
-                        <label class="block text-xs font-medium text-gray-400 mb-1.5">მხარე</label>
+                        <label class="block text-xs font-medium text-gray-400 mb-1.5" data-i18n="label_direction">Direction</label>
                         <select name="direction" required class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-indigo-500 transition">
                             <option value="LONG" class="bg-surface text-success font-semibold">LONG</option>
                             <option value="SHORT" class="bg-surface text-danger font-semibold">SHORT</option>
@@ -186,13 +209,13 @@
 
                     <!-- შესვლის ფასი -->
                     <div>
-                        <label class="block text-xs font-medium text-gray-400 mb-1.5">შესვლის ფასი</label>
+                        <label class="block text-xs font-medium text-gray-400 mb-1.5" data-i18n="label_entry">Entry Price</label>
                         <input type="number" step="any" name="entry_price" placeholder="0.00" required class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white text-sm font-mono focus:outline-none focus:border-indigo-500 transition">
                     </div>
 
                     <!-- გასვლის ფასი -->
                     <div>
-                        <label class="block text-xs font-medium text-gray-400 mb-1.5">გასვლის ფასი</label>
+                        <label class="block text-xs font-medium text-gray-400 mb-1.5" data-i18n="label_exit">Exit Price</label>
                         <input type="number" step="any" name="exit_price" placeholder="0.00" required class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white text-sm font-mono focus:outline-none focus:border-indigo-500 transition">
                     </div>
                 </div>
@@ -200,17 +223,17 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <!-- PnL ($) -->
                     <div>
-                        <label class="block text-xs font-medium text-gray-400 mb-1.5">მოგება / წაგება ($)</label>
-                        <input type="number" step="0.01" name="pnl" placeholder="მოგებისთვის პლუსი, წაგებისთვის მინუსი (მაგ: 150 ან -50)" required class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white text-sm font-mono focus:outline-none focus:border-indigo-500 transition">
+                        <label class="block text-xs font-medium text-gray-400 mb-1.5" data-i18n="label_pnl">Profit / Loss ($)</label>
+                        <input type="number" step="0.01" name="pnl" placeholder="Plus for profit, minus for loss" required class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white text-sm font-mono focus:outline-none focus:border-indigo-500 transition">
                     </div>
 
                     <!-- სქრინშოტი -->
                     <div>
-                        <label class="block text-xs font-medium text-gray-400 mb-1.5">სქრინშოტი (სურათი)</label>
+                        <label class="block text-xs font-medium text-gray-400 mb-1.5" data-i18n="label_screenshot">Screenshot (Image)</label>
                         <label class="flex flex-col items-center justify-center w-full h-[46px] border border-white/10 border-dashed rounded-xl cursor-pointer bg-black/40 hover:bg-white/[0.04] transition">
                             <div class="flex items-center gap-2 text-gray-400 text-xs px-3">
                                 <i data-lucide="upload" class="w-4 h-4 text-indigo-400"></i>
-                                <span id="fileName" class="truncate">აირჩიეთ ფაილი...</span>
+                                <span id="fileName" class="truncate" data-i18n="file_choose">Choose file...</span>
                             </div>
                             <input type="file" name="screenshot" accept="image/*" class="hidden" onchange="updateFileName(this)">
                         </label>
@@ -219,15 +242,15 @@
 
                 <!-- ნოტები / კომენტარი -->
                 <div>
-                    <label class="block text-xs font-medium text-gray-400 mb-1.5">კომენტარი / სტრატეგია</label>
-                    <textarea name="notes" rows="3" placeholder="რატომ გახსენი ტრეიდი? რა დასკვნა გამოიტანე?" class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-indigo-500 transition"></textarea>
+                    <label class="block text-xs font-medium text-gray-400 mb-1.5" data-i18n="label_notes">Notes / Strategy</label>
+                    <textarea name="notes" rows="3" placeholder="Why did you open this trade?" class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-indigo-500 transition" data-i18n-placeholder="notes_placeholder"></textarea>
                 </div>
 
                 <!-- ღილაკები -->
                 <div class="flex items-center justify-end gap-3 pt-4 border-t border-white/5">
-                    <a href="{{ url_for('index') }}" class="px-5 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-gray-300 text-xs sm:text-sm font-medium transition">გაუქმება</a>
+                    <a href="{{ url_for('index') }}" class="px-5 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-gray-300 text-xs sm:text-sm font-medium transition" data-i18n="btn_cancel">Cancel</a>
                     <button type="submit" class="px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs sm:text-sm font-semibold shadow-lg shadow-indigo-600/30 transition flex items-center gap-2">
-                        <i data-lucide="check" class="w-4 h-4"></i> ტრეიდის შენახვა
+                        <i data-lucide="check" class="w-4 h-4"></i> <span data-i18n="btn_save">Save Trade</span>
                     </button>
                 </div>
 
@@ -239,21 +262,179 @@
     <script>
         lucide.createIcons();
 
+        // ენების ლექსიკონი
+        const translations = {
+            en: {
+                page_title: "YourStats - Add Trade",
+                nav_dashboard: "Dashboard",
+                nav_history: "History",
+                nav_analytics: "Analytics",
+                btn_back: "Back",
+                form_heading: "Add New Trade",
+                form_subtitle: "Enter trade operation details for analysis.",
+                label_date: "Date",
+                label_pair: "Trading Pair (e.g., EURUSD, BTCUSD)",
+                label_direction: "Direction",
+                label_entry: "Entry Price",
+                label_exit: "Exit Price",
+                label_pnl: "Profit / Loss ($)",
+                label_screenshot: "Screenshot (Image)",
+                file_choose: "Choose file...",
+                label_notes: "Notes / Strategy",
+                notes_placeholder: "Why did you open this trade? What conclusion did you make?",
+                btn_cancel: "Cancel",
+                btn_save: "Save Trade"
+            },
+            ka: {
+                page_title: "YourStats - ტრეიდის დამატება",
+                nav_dashboard: "Dashboard",
+                nav_history: "History",
+                nav_analytics: "Analytics",
+                btn_back: "უკან",
+                form_heading: "ახალი ტრეიდის დამატება",
+                form_subtitle: "შეიყვანეთ სავაჭრო ოპერაციის დეტალები აღმოსაჩენად.",
+                label_date: "თარიღი",
+                label_pair: "სავაჭრო წყვილი (მაგ: EURUSD, BTCUSD)",
+                label_direction: "მხარე",
+                label_entry: "შესვლის ფასი",
+                label_exit: "გასვლის ფასი",
+                label_pnl: "მოგება / წაგება ($)",
+                label_screenshot: "სქრინშოტი (სურათი)",
+                file_choose: "აირჩიეთ ფაილი...",
+                label_notes: "კომენტარი / სტრატეგია",
+                notes_placeholder: "რატომ გახსენი ტრეიდი? რა დასკვნა გამოიტანე?",
+                btn_cancel: "გაუქმება",
+                btn_save: "ტრეიდის შენახვა"
+            },
+            ru: {
+                page_title: "YourStats - Добавить сделку",
+                nav_dashboard: "Dashboard",
+                nav_history: "History",
+                nav_analytics: "Analytics",
+                btn_back: "Назад",
+                form_heading: "Добавить новую сделку",
+                form_subtitle: "Введите детали торговой операции для анализа.",
+                label_date: "Дата",
+                label_pair: "Торговая пара (например, EURUSD, BTCUSD)",
+                label_direction: "Направление",
+                label_entry: "Цена входа",
+                label_exit: "Цена выхода",
+                label_pnl: "Прибыль / Убыток ($)",
+                label_screenshot: "Скриншот (изображение)",
+                file_choose: "Выберите файл...",
+                label_notes: "Заметки / Стратегия",
+                notes_placeholder: "Почему вы открыли эту сделку? Какой вывод сделали?",
+                btn_cancel: "Отмена",
+                btn_save: "Сохранить сделку"
+            },
+            es: {
+                page_title: "YourStats - Añadir Operación",
+                nav_dashboard: "Dashboard",
+                nav_history: "History",
+                nav_analytics: "Analytics",
+                btn_back: "Volver",
+                form_heading: "Añadir Nueva Operación",
+                form_subtitle: "Introduce los detalles de la operación para su análisis.",
+                label_date: "Fecha",
+                label_pair: "Par de trading (ej. EURUSD, BTCUSD)",
+                label_direction: "Dirección",
+                label_entry: "Precio de entrada",
+                label_exit: "Precio de salida",
+                label_pnl: "Beneficio / Pérdida ($)",
+                label_screenshot: "Captura de pantalla (Imagen)",
+                file_choose: "Elegir archivo...",
+                label_notes: "Notas / Estrategia",
+                notes_placeholder: "¿Por qué abriste esta operación? ¿Qué conclusión sacaste?",
+                btn_cancel: "Cancelar",
+                btn_save: "Guardar Operación"
+            }
+        };
+
         function toggleMobileMenu() {
             const menu = document.getElementById('mobileMenu');
             menu.classList.toggle('hidden');
         }
 
+        function toggleLangMenu() {
+            const dropdown = document.getElementById('langDropdown');
+            dropdown.classList.toggle('hidden');
+        }
+
+        window.addEventListener('click', function(e) {
+            const button = document.getElementById('langMenuButton');
+            const dropdown = document.getElementById('langDropdown');
+            if (button && dropdown && !button.contains(e.target) && !dropdown.contains(e.target)) {
+                dropdown.classList.add('hidden');
+            }
+        });
+
+        function changeLanguage(lang) {
+            const labels = {
+                'en': 'English',
+                'ka': 'ქართული',
+                'ru': 'Русский',
+                'es': 'Español'
+            };
+            const labelEl = document.getElementById('currentLangLabel');
+            if(labelEl) labelEl.innerText = labels[lang] || 'English';
+            
+            const dropdown = document.getElementById('langDropdown');
+            if(dropdown) dropdown.classList.add('hidden');
+            
+            localStorage.setItem('selected_language', lang);
+            applyTranslations(lang);
+        }
+
+        function applyTranslations(lang) {
+            const t = translations[lang];
+            if (!t) return;
+
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (t[key]) {
+                    el.innerText = t[key];
+                }
+            });
+
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                const key = el.getAttribute('data-i18n-placeholder');
+                if (t[key]) {
+                    el.placeholder = t[key];
+                }
+            });
+
+            if(t.page_title) document.title = t.page_title;
+        }
+
         function updateFileName(input) {
             const fileNameSpan = document.getElementById('fileName');
+            const savedLang = localStorage.getItem('selected_language') || 'en';
+            const defaultChooseText = translations[savedLang]?.file_choose || "Choose file...";
+            
             if (input.files && input.files[0]) {
                 fileNameSpan.textContent = input.files[0].name;
                 fileNameSpan.classList.add('text-white');
             } else {
-                fileNameSpan.textContent = 'აირჩიეთ ფაილი...';
+                fileNameSpan.textContent = defaultChooseText;
                 fileNameSpan.classList.remove('text-white');
             }
         }
+
+        // გვერდის ჩატვირთვისას ავტომატურად ძებნა და შენახული ენის მორგება
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedLang = localStorage.getItem('selected_language') || 'en';
+            const labels = {
+                'en': 'English',
+                'ka': 'ქართული',
+                'ru': 'Русский',
+                'es': 'Español'
+            };
+            const labelEl = document.getElementById('currentLangLabel');
+            if (labelEl && labels[savedLang]) {
+                labelEl.innerText = labels[savedLang];
+            }
+            applyTranslations(savedLang);
+        });
     </script>
 </body>
 </html>
