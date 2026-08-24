@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="ka" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title data-i18n="page_title">YourStats - Register</title>
+    <title>YourStats - რეგისტრაცია</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -23,26 +23,9 @@
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             z-index: -1; background-color: #05070B;
         }
-        .lang-btn {
-            transition: all 0.2s ease;
-        }
-        .lang-btn.active {
-            background-color: #6366F1;
-            color: #ffffff;
-            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
-        }
     </style>
 </head>
-<body class="bg-transparent text-gray-300 min-h-screen flex flex-col items-center justify-center p-4 font-sans relative">
-    
-    <!-- ენების ასარჩევი პანელი ზედა მარჯვენა კუთხეში -->
-    <div class="absolute top-6 right-6 z-10 flex items-center gap-1 bg-[#11151F]/80 border border-indigo-500/20 p-1 rounded-xl backdrop-blur-md shadow-lg">
-        <button onclick="changeLanguage('en')" id="btn-en" class="lang-btn px-2.5 py-1 text-xs font-medium rounded-lg text-gray-400 hover:text-white">EN</button>
-        <button onclick="changeLanguage('ka')" id="btn-ka" class="lang-btn px-2.5 py-1 text-xs font-medium rounded-lg text-gray-400 hover:text-white">KA</button>
-        <button onclick="changeLanguage('ru')" id="btn-ru" class="lang-btn px-2.5 py-1 text-xs font-medium rounded-lg text-gray-400 hover:text-white">RU</button>
-        <button onclick="changeLanguage('es')" id="btn-es" class="lang-btn px-2.5 py-1 text-xs font-medium rounded-lg text-gray-400 hover:text-white">ES</button>
-    </div>
-
+<body class="bg-transparent text-gray-300 min-h-screen flex flex-col items-center justify-center p-4 font-sans">
     <div class="app-background"></div>
 
     <div class="w-full max-w-md space-y-6">
@@ -56,7 +39,7 @@
 
         <div class="glass-panel p-8 rounded-3xl relative overflow-hidden">
             <h2 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
-                <i data-lucide="user-plus" class="w-5 h-5 text-indigo-400"></i> <span data-i18n="register_title">ანგარიშის შექმნა</span>
+                <i data-lucide="user-plus" class="w-5 h-5 text-indigo-400"></i> ანგარიშის შექმნა
             </h2>
 
             {% with messages = get_flashed_messages(with_categories=true) %}
@@ -71,90 +54,21 @@
 
             <form action="{{ url_for('register') }}" method="POST" class="space-y-4">
                 <div>
-                    <label class="block text-xs font-medium text-gray-400 mb-1.5" data-i18n="username_label">მომხმარებლის სახელი</label>
+                    <label class="block text-xs font-medium text-gray-400 mb-1.5">მომხმარებლის სახელი</label>
                     <input type="text" name="username" required class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-indigo-500 transition">
                 </div>
                 <div>
-                    <label class="block text-xs font-medium text-gray-400 mb-1.5" data-i18n="password_label">პაროლი</label>
+                    <label class="block text-xs font-medium text-gray-400 mb-1.5">პაროლი</label>
                     <input type="password" name="password" required class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-indigo-500 transition">
                 </div>
-                <button type="submit" class="w-full mt-2 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 px-4 rounded-xl text-sm transition shadow-lg shadow-indigo-600/30" data-i18n="register_btn">რეგისტრაცია</button>
+                <button type="submit" class="w-full mt-2 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 px-4 rounded-xl text-sm transition shadow-lg shadow-indigo-600/30">რეგისტრაცია</button>
             </form>
 
             <div class="mt-6 pt-5 border-t border-white/5 text-center text-xs text-gray-400">
-                <span data-i18n="has_account">უკვე გაქვს ანგარიში?</span> <a href="{{ url_for('login') }}" class="text-indigo-400 hover:text-indigo-300 font-semibold ml-1" data-i18n="login_link">შესვლა</a>
+                უკვე გაქვს ანგარიში? <a href="{{ url_for('login') }}" class="text-indigo-400 hover:text-indigo-300 font-semibold ml-1">შესვლა</a>
             </div>
         </div>
     </div>
-
-    <script>
-        lucide.createIcons();
-
-        const translations = {
-            en: {
-                page_title: "YourStats - Register",
-                register_title: "Create Account",
-                username_label: "Username",
-                password_label: "Password",
-                register_btn: "Register",
-                has_account: "Already have an account?",
-                login_link: "Sign In"
-            },
-            ka: {
-                page_title: "YourStats - რეგისტრაცია",
-                register_title: "ანგარიშის შექმნა",
-                username_label: "მომხმარებლის სახელი",
-                password_label: "პაროლი",
-                register_btn: "რეგისტრაცია",
-                has_account: "უკვე გაქვს ანგარიში?",
-                login_link: "შესვლა"
-            },
-            ru: {
-                page_title: "YourStats - Регистрация",
-                register_title: "Создать аккаунт",
-                username_label: "Имя пользователя",
-                password_label: "Пароль",
-                register_btn: "Регистрация",
-                has_account: "Уже есть аккаунт?",
-                login_link: "Войти"
-            },
-            es: {
-                page_title: "YourStats - Registrarse",
-                register_title: "Crear una cuenta",
-                username_label: "Nombre de usuario",
-                password_label: "Contraseña",
-                register_btn: "Registrarse",
-                has_account: "¿Ya tienes una cuenta?",
-                login_link: "Iniciar sesión"
-            }
-        };
-
-        function changeLanguage(lang) {
-            document.documentElement.lang = lang;
-            
-            const elements = document.querySelectorAll('[data-i18n]');
-            elements.forEach(el => {
-                const key = el.getAttribute('data-i18n');
-                if (translations[lang] && translations[lang][key]) {
-                    el.textContent = translations[lang][key];
-                }
-            });
-
-            document.querySelectorAll('.lang-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            const activeBtn = document.getElementById(`btn-${lang}`);
-            if (activeBtn) {
-                activeBtn.classList.add('active');
-            }
-
-            localStorage.setItem('selected_lang', lang);
-        }
-
-        window.addEventListener('DOMContentLoaded', () => {
-            const savedLang = localStorage.getItem('selected_lang') || 'en';
-            changeLanguage(savedLang);
-        });
-    </script>
+    <script>lucide.createIcons();</script>
 </body>
 </html>
