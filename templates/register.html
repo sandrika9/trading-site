@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YourStats - რეგისტრაცია</title>
+    <title id="pageTitle">YourStats - რეგისტრაცია</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -38,9 +38,19 @@
         </div>
 
         <div class="glass-panel p-8 rounded-3xl relative overflow-hidden">
-            <h2 class="text-xl font-bold text-white mb-6 flex items-center gap-2">
-                <i data-lucide="user-plus" class="w-5 h-5 text-indigo-400"></i> ანგარიშის შექმნა
-            </h2>
+            <!-- ენის ჩამოსაშლელი მენიუ -->
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                    <i data-lucide="user-plus" class="w-5 h-5 text-indigo-400"></i>
+                    <span data-i18n="register_title">ანგარიშის შექმნა</span>
+                </h2>
+                <select id="languageSelect" onchange="changeLanguage(this.value)" class="bg-black/50 border border-white/10 rounded-xl px-2.5 py-1.5 text-xs text-gray-300 focus:outline-none focus:border-indigo-500 cursor-pointer hover:bg-black/70 transition">
+                    <option value="ka" class="bg-gray-900 text-white">🇬🇪 KA</option>
+                    <option value="en" class="bg-gray-900 text-white">🇺🇸 EN</option>
+                    <option value="ru" class="bg-gray-900 text-white">🇷🇺 RU</option>
+                    <option value="es" class="bg-gray-900 text-white">🇪🇸 ES</option>
+                </select>
+            </div>
 
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
@@ -54,22 +64,86 @@
 
             <form action="{{ url_for('register') }}" method="POST" class="space-y-4">
                 <div>
-                    <label class="block text-xs font-medium text-gray-400 mb-1.5">მომხმარებლის სახელი</label>
+                    <label class="block text-xs font-medium text-gray-400 mb-1.5" data-i18n="username">მომხმარებლის სახელი</label>
                     <input type="text" name="username" required class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-indigo-500 transition">
                 </div>
                 <div>
-                    <label class="block text-xs font-medium text-gray-400 mb-1.5">პაროლი</label>
+                    <label class="block text-xs font-medium text-gray-400 mb-1.5" data-i18n="password">პაროლი</label>
                     <input type="password" name="password" required class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-indigo-500 transition">
                 </div>
-                <button type="submit" class="w-full mt-2 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 px-4 rounded-xl text-sm transition shadow-lg shadow-indigo-600/30">რეგისტრაცია</button>
+                <button type="submit" class="w-full mt-2 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 px-4 rounded-xl text-sm transition shadow-lg shadow-indigo-600/30" data-i18n="register_btn">რეგისტრაცია</button>
             </form>
 
             <div class="mt-6 pt-5 border-t border-white/5 text-center text-xs text-gray-400">
-                უკვე გაქვს ანგარიში? <a href="{{ url_for('login') }}" class="text-indigo-400 hover:text-indigo-300 font-semibold ml-1">შესვლა</a>
+                <span data-i18n="already_have_account">უკვე გაქვს ანგარიში?</span>
+                <a href="{{ url_for('login') }}" class="text-indigo-400 hover:text-indigo-300 font-semibold ml-1" data-i18n="login_link">შესვლა</a>
             </div>
         </div>
     </div>
-    <script>lucide.createIcons();</script>
-    <script src="{{ url_for('static', filename='js/i18n.js') }}"></script>
+
+    <script>
+        lucide.createIcons();
+
+        // ენების თარგმანების ლექსიკონი
+        const translations = {
+            ka: {
+                page_title: "YourStats - რეგისტრაცია",
+                register_title: "ანგარიშის შექმნა",
+                username: "მომხმარებლის სახელი",
+                password: "პაროლი",
+                register_btn: "რეგისტრაცია",
+                already_have_account: "უკვე გაქვს ანგარიში?",
+                login_link: "შესვლა"
+            },
+            en: {
+                page_title: "YourStats - Register",
+                register_title: "Create Account",
+                username: "Username",
+                password: "Password",
+                register_btn: "Register",
+                already_have_account: "Already have an account?",
+                login_link: "Sign In"
+            },
+            ru: {
+                page_title: "YourStats - Регистрация",
+                register_title: "Создать аккаунт",
+                username: "Имя пользователя",
+                password: "Пароль",
+                register_btn: "Регистрация",
+                already_have_account: "Уже есть аккаунт?",
+                login_link: "Войти"
+            },
+            es: {
+                page_title: "YourStats - Registro",
+                register_title: "Crear Cuenta",
+                username: "Nombre de usuario",
+                password: "Contraseña",
+                register_btn: "Registrarse",
+                already_have_account: "¿Ya tienes una cuenta?",
+                login_link: "Iniciar sesión"
+            }
+        };
+
+        function changeLanguage(lang) {
+            localStorage.setItem('selected_language', lang);
+            document.getElementById('languageSelect').value = lang;
+
+            if (translations[lang] && translations[lang].page_title) {
+                document.title = translations[lang].page_title;
+            }
+
+            document.querySelectorAll('[data-i18n]').forEach(element => {
+                const key = element.getAttribute('data-i18n');
+                if (translations[lang] && translations[lang][key]) {
+                    element.innerText = translations[lang][key];
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedLang = localStorage.getItem('selected_language') || 'ka';
+            changeLanguage(savedLang);
+        });
+    </script>
 </body>
 </html>
