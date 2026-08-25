@@ -193,11 +193,11 @@
             document.getElementById('langDropdown').classList.add('hidden');
         }
 
-        // გვერდის ჩატვირთვისას შენახული ენის აღდგენა
-        window.addEventListener('DOMContentLoaded', () => {
+        // გვერდის ჩატვირთვისთანავე შენახული ენის აღდგენა
+        (function() {
             const savedLang = localStorage.getItem('selected_lang') || 'ka';
             changeLanguage(savedLang);
-        });
+        })();
 
         // Paddle ინიციალიზაცია
         Paddle.Initialize({
