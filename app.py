@@ -19,14 +19,14 @@ from werkzeug.security import check_password_hash, generate_password_hash
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "your_secret_key_here")
 
-# Supabase PostgreSQL ბაზის მისამართი (Transaction Pooler - 6543 პორტი Render-ისთვის)
+# Supabase PostgreSQL ბაზის მისამართი
 DATABASE_URL = os.environ.get(
     "DATABASE_URL",
     "postgresql://postgres.rnktcgfknokfdktfxjkb:Sandrika123solo@aws-0-ap-northeast-2.pooler.supabase.com:6543/postgres",
 )
 
 
-# ბაზასთან კავშირის დამხმარე ფუნქცია (Retry მექანიზმით და DictConnection-ით)
+# ბაზასთან კავშირის დამხმარე ფუნქცია
 def get_db_connection():
     retries = 3
     delay = 2
@@ -44,6 +44,29 @@ def get_db_connection():
                 continue
             else:
                 raise e
+
+
+# --- კონტექსტის პროცესორი (ავტომატურად აწვდის is_paid და username მონაცემებს HTML-ს) ---
+@app.context_processor
+def inject_user_status():
+    if "user_id" not in session:
+        return {"user_is_paid": 0, "is_admin": False}
+    
+    if session.get("username") == "sandrika":
+        return {"user_is_paid": 1, "is_admin": True}
+
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT is_paid FROM users WHERE id = %s", (session["user_id"],))
+        user = cursor.fetchone()
+        cursor.close()
+        conn.close()
+        
+        is_paid_val = user["is_paid"] if user else 0
+        return {"user_is_paid": is_paid_val, "is_admin": False}
+    except Exception:
+        return {"user_is_paid": 0, "is_admin": False}
 
 
 # --- დეკორატორები ---
@@ -84,7 +107,6 @@ def admin_required(f):
     return decorated_function
 
 
-# --- დამხმარე ფუნქცია იუზერის პარამეტრების შესამოწმებლად/შესაქმნელად ---
 def get_or_create_user_settings(cursor, user_id):
     cursor.execute("SELECT * FROM user_settings WHERE user_id = %s", (user_id,))
     settings = cursor.fetchone()
@@ -177,7 +199,6 @@ def pending_approval():
     return render_template("pending.html", discord_tag="cs2sacc")
 
 
-# --- Paddle Webhook (იყენებს custom_data-ს და ააქტიურებს იუზერს ID-ით) ---
 @app.route("/paddle-webhook", methods=["POST"])
 def paddle_webhook():
     data = request.get_json()
@@ -471,7 +492,6 @@ def analytics():
     for t in trades:
         pnl = t["pnl"]
         raw_dir = str(t["direction"]).strip().lower() if t["direction"] else ""
-        
         emotion = t.get("emotion") if t.get("emotion") else "ზოგადი"
 
         if emotion not in emotion_stats:
@@ -580,7 +600,6 @@ def update_settings():
 def admin_users():
     conn = get_db_connection()
     cursor = conn.cursor()
-    # ამოიღებს ყველა მომხმარებელს ბაზიდან
     cursor.execute(
         "SELECT id, username, is_paid FROM users ORDER BY id ASC"
     )
@@ -596,15 +615,21 @@ def toggle_user(user_id):
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute(
-        "SELECT is_paid FROM users WHERE id = %s", (user_id,)
+        "SELECT username, is_paid FROM users WHERE id = %s", (user_id,)
     )
     current = cursor.fetchone()
+    
     if current:
         new_status = 0 if current["is_paid"] == 1 else 1
         cursor.execute(
             "UPDATE users SET is_paid = %s WHERE id = %s", (new_status, user_id)
         )
         conn.commit()
+        
+        # სესიის მყისიერი განახლება თუ ადმინი საკუთარ თავს უცვლის ან ამ მომენტში ეს იუზერია შესული
+        if session.get("user_id") == user_id:
+            session["is_paid"] = new_status
+
     cursor.close()
     conn.close()
     flash("სტატუსი განახლდა!", "success")
