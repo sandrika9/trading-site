@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title data-i18n="page_title">Premium Access - YourStats</title>
+    <title id="pageTitle" data-i18n="page_title">Premium Access - YourStats</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -56,24 +56,18 @@
             background: radial-gradient(circle, rgba(99, 102, 241, 0.08) 0%, rgba(79, 70, 229, 0.02) 50%, transparent 70%);
             border-radius: 50%; pointer-events: none; filter: blur(60px);
         }
-        .lang-btn {
-            transition: all 0.2s ease;
-        }
-        .lang-btn.active {
-            background-color: #6366F1;
-            color: #ffffff;
-            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
-        }
     </style>
 </head>
 <body class="bg-transparent text-gray-300 min-h-screen font-sans antialiased flex flex-col items-center justify-center p-4 selection:bg-indigo-500/30 selection:text-white relative">
 
-    <!-- განახლებული ენების ასარჩევი პანელი ზედა მარჯვენა კუთხეში -->
-    <div class="absolute top-6 right-6 z-10 flex items-center gap-1 bg-surface/80 border border-indigo-500/20 p-1 rounded-xl backdrop-blur-md shadow-lg">
-        <button onclick="changeLanguage('en')" id="btn-en" class="lang-btn px-2.5 py-1 text-xs font-medium rounded-lg text-gray-400 hover:text-white">EN</button>
-        <button onclick="changeLanguage('ka')" id="btn-ka" class="lang-btn px-2.5 py-1 text-xs font-medium rounded-lg text-gray-400 hover:text-white">KA</button>
-        <button onclick="changeLanguage('ru')" id="btn-ru" class="lang-btn px-2.5 py-1 text-xs font-medium rounded-lg text-gray-400 hover:text-white">RU</button>
-        <button onclick="changeLanguage('es')" id="btn-es" class="lang-btn px-2.5 py-1 text-xs font-medium rounded-lg text-gray-400 hover:text-white">ES</button>
+    <!-- ენის ჩამოსაშლელი მენიუ (ზედა მარჯვენა კუთხეში) -->
+    <div class="absolute top-6 right-6 z-10">
+        <select id="languageSelect" onchange="changeLanguage(this.value)" class="bg-surface/80 border border-indigo-500/20 rounded-xl px-3 py-1.5 text-xs text-gray-300 focus:outline-none focus:border-indigo-500 cursor-pointer hover:bg-black/70 transition backdrop-blur-md shadow-lg">
+            <option value="ka" class="bg-gray-900 text-white">🇬🇪 KA</option>
+            <option value="en" class="bg-gray-900 text-white">🇺🇸 EN</option>
+            <option value="ru" class="bg-gray-900 text-white">🇷🇺 RU</option>
+            <option value="es" class="bg-gray-900 text-white">🇪🇸 ES</option>
+        </select>
     </div>
 
     <div class="app-background">
@@ -106,7 +100,7 @@
         <div class="bg-surface/60 border border-white/5 rounded-xl p-4 mb-6 flex items-center justify-between">
             <div class="text-left">
                 <div class="text-xs text-gray-400 font-medium" data-i18n="package_title">Full Package</div>
-                <div class="text-sm font-semibold text-white">Monthly Subscription</div>
+                <div class="text-sm font-semibold text-white" data-i18n="monthly_sub">Monthly Subscription</div>
             </div>
             <div class="text-right">
                 <div class="text-lg font-bold text-indigo-400">$6.99</div>
@@ -140,33 +134,36 @@
 
         // ენების ლექსიკონი
         const translations = {
-            en: {
-                page_title: "Premium Access - YourStats",
-                title: "Premium Access Required",
-                description: "Activate your account to get full access to trading analytics, risk management, and professional tools.",
-                package_title: "Full Package",
-                billing_period: "Per month",
-                btn_activate: "Activate Subscription",
-                questions: "Have questions? Contact us on",
-                discord_link: "Discord",
-                logout: "Log Out"
-            },
             ka: {
                 page_title: "პრემიუმ წვდომა - YourStats",
                 title: "საჭიროა პრემიუმ წვდომა",
                 description: "გაააქტიურეთ თქვენი ანგარიში, რომ მიიღოთ სრული წვდომა ტრეიდინგის ანალიტიკაზე, რისკების მენეჯმენტსა და პროფესიონალურ ინსტრუმენტებზე.",
                 package_title: "სრული პაკეტი",
+                monthly_sub: "ყოველთვიური გამოწერა",
                 billing_period: "თვეში ერთხელ",
                 btn_activate: "გამოწერის გააქტიურება",
                 questions: "გაქვთ კითხვები? მოგვწერეთ",
                 discord_link: "Discord-ზე",
                 logout: "ანგარიშიდან გასვლა"
             },
+            en: {
+                page_title: "Premium Access - YourStats",
+                title: "Premium Access Required",
+                description: "Activate your account to get full access to trading analytics, risk management, and professional tools.",
+                package_title: "Full Package",
+                monthly_sub: "Monthly Subscription",
+                billing_period: "Per month",
+                btn_activate: "Activate Subscription",
+                questions: "Have questions? Contact us on",
+                discord_link: "Discord",
+                logout: "Log Out"
+            },
             ru: {
                 page_title: "Премиум доступ - YourStats",
                 title: "Требуется премиум доступ",
                 description: "Активируйте свой аккаунт, чтобы получить полный доступ к торговой аналитике, управлению рисками и профессиональным инструментам.",
                 package_title: "Полный пакет",
+                monthly_sub: "Ежемесячная подписка",
                 billing_period: "В месяц",
                 btn_activate: "Активировать подписку",
                 questions: "Есть вопросы? Напишите нам в",
@@ -178,6 +175,7 @@
                 title: "Se requiere acceso Premium",
                 description: "Active su cuenta para obtener acceso completo a análisis de trading, gestión de riesgos y herramientas profesionales.",
                 package_title: "Paquete Completo",
+                monthly_sub: "Suscripción mensual",
                 billing_period: "Por mes",
                 btn_activate: "Activar Suscripción",
                 questions: "¿Tiene preguntas? Contáctenos en",
@@ -187,33 +185,23 @@
         };
 
         function changeLanguage(lang) {
-            document.documentElement.lang = lang;
-            
-            // ტექსტების განახლება
-            const elements = document.querySelectorAll('[data-i18n]');
-            elements.forEach(el => {
-                const key = el.getAttribute('data-i18n');
-                if (translations[lang] && translations[lang][key]) {
-                    el.textContent = translations[lang][key];
-                }
-            });
+            localStorage.setItem('selected_language', lang);
+            document.getElementById('languageSelect').value = lang;
 
-            // ღილაკების ვიზუალური აქტივაცია (Active სტილის მინიჭება)
-            document.querySelectorAll('.lang-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            const activeBtn = document.getElementById(`btn-${lang}`);
-            if (activeBtn) {
-                activeBtn.classList.add('active');
+            if (translations[lang] && translations[lang].page_title) {
+                document.title = translations[lang].page_title;
             }
 
-            // შენახვა LocalStorage-ში
-            localStorage.setItem('selected_lang', lang);
+            document.querySelectorAll('[data-i18n]').forEach(element => {
+                const key = element.getAttribute('data-i18n');
+                if (translations[lang] && translations[lang][key]) {
+                    element.innerText = translations[lang][key];
+                }
+            });
         }
 
-        // გვერდის ჩატვირთვისას
-        window.addEventListener('DOMContentLoaded', () => {
-            const savedLang = localStorage.getItem('selected_lang') || 'en';
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedLang = localStorage.getItem('selected_language') || 'ka';
             changeLanguage(savedLang);
         });
 
@@ -236,6 +224,5 @@
             });
         }
     </script>
-    <script src="{{ url_for('static', filename='js/i18n.js') }}"></script>
 </body>
 </html>
