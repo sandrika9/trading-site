@@ -2,7 +2,7 @@
 <html lang="ka" class="dark">
 <head>
     <meta charset="UTF-8">
-    <title data-i18n="page_title">აირჩიეთ პაკეტი - YourStats</title>
+    <title id="t_page_title">აირჩიეთ პაკეტი - YourStats</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@lucide/lucide@latest"></script>
     <script src="https://cdn.paddle.com/paddle/v2/paddle.js"></script>
@@ -36,38 +36,38 @@
         <!-- უფასო პაკეტი -->
         <div class="bg-[#11151F] border border-white/10 rounded-3xl p-8 flex flex-col justify-between transition hover:border-indigo-500/30">
             <div>
-                <span class="text-xs font-bold text-gray-400 uppercase tracking-wider" data-i18n="free_badge">საბაზისო</span>
-                <h3 class="text-2xl font-bold text-white mt-1 mb-4" data-i18n="free_title">უფასო ვერსია</h3>
-                <p class="text-sm text-gray-400 mb-6" data-i18n="free_desc">შესანიშნავია სისტემის მინიმალური ფუნქციონალით შესამოწმებლად.</p>
+                <span class="text-xs font-bold text-gray-400 uppercase tracking-wider" id="t_free_badge">საბაზისო</span>
+                <h3 class="text-2xl font-bold text-white mt-1 mb-4" id="t_free_title">უფასო ვერსია</h3>
+                <p class="text-sm text-gray-400 mb-6" id="t_free_desc">შესანიშნავია სისტემის მინიმალური ფუნქციონალით შესამოწმებლად.</p>
                 
                 <ul class="space-y-3 text-sm text-gray-300 mb-8">
-                    <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-500"></i> <span data-i18n="free_f1">მაქსიმუმ 3 ტრეიდის დამატება</span></li>
-                    <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-500"></i> <span data-i18n="free_f2">ძირითადი ჟურნალი და ბალანსი</span></li>
-                    <li class="flex items-center gap-2 text-gray-500"><i data-lucide="x" class="w-4 h-4 text-rose-500"></i> <span data-i18n="free_f3">AI ტრეიდინგ მენტორი და ანალიტიკა</span></li>
+                    <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-500"></i> <span id="t_free_f1">მაქსიმუმ 3 ტრეიდის დამატება</span></li>
+                    <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-500"></i> <span id="t_free_f2">ძირითადი ჟურნალი და ბალანსი</span></li>
+                    <li class="flex items-center gap-2 text-gray-500"><i data-lucide="x" class="w-4 h-4 text-rose-500"></i> <span id="t_free_f3">AI ტრეიდინგ მენტორი და ანალიტიკა</span></li>
                 </ul>
             </div>
             
-            <a href="{{ url_for('index') }}" class="w-full py-3 px-4 rounded-xl bg-white/5 hover:bg-white/10 text-white font-semibold text-center transition block" data-i18n="free_btn">
+            <a href="{{ url_for('index') }}" class="w-full py-3 px-4 rounded-xl bg-white/5 hover:bg-white/10 text-white font-semibold text-center transition block" id="t_free_btn">
                 გაგრძელება უფასოდ
             </a>
         </div>
 
         <!-- პრემიუმ პაკეტი -->
         <div class="bg-gradient-to-b from-indigo-950/40 to-[#11151F] border border-indigo-500/30 rounded-3xl p-8 flex flex-col justify-between relative overflow-hidden shadow-2xl shadow-indigo-500/10">
-            <div class="absolute top-4 right-4 bg-indigo-500 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase" data-i18n="prem_badge">რეკომენდებული</div>
+            <div class="absolute top-4 right-4 bg-indigo-500 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase" id="t_prem_badge">რეკომენდებული</div>
             <div>
-                <span class="text-xs font-bold text-indigo-400 uppercase tracking-wider" data-i18n="prem_sub">პროფესიონალური</span>
-                <h3 class="text-2xl font-bold text-white mt-1 mb-4" data-i18n="prem_title">პრემიუმ პაკეტი</h3>
-                <p class="text-sm text-gray-400 mb-6" data-i18n="prem_desc">სრული წვდომა ყველა პროფესიონალურ ინსტრუმენტზე და AI მენტორზე.</p>
+                <span class="text-xs font-bold text-indigo-400 uppercase tracking-wider" id="t_prem_sub">პროფესიონალური</span>
+                <h3 class="text-2xl font-bold text-white mt-1 mb-4" id="t_prem_title">პრემიუმ პაკეტი</h3>
+                <p class="text-sm text-gray-400 mb-6" id="t_prem_desc">სრული წვდომა ყველა პროფესიონალურ ინსტრუმენტზე და AI მენტორზე.</p>
                 
                 <ul class="space-y-3 text-sm text-gray-300 mb-8">
-                    <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-500"></i> <span data-i18n="prem_f1">შეუზღუდავი ტრეიდების დამატება</span></li>
-                    <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-500"></i> <span data-i18n="prem_f2">სრული AI რჩევები და ანალიტიკა</span></li>
-                    <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-500"></i> <span data-i18n="prem_f3">დეტალური სტატისტიკა და Heatmap</span></li>
+                    <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-500"></i> <span id="t_prem_f1">შეუზღუდავი ტრეიდების დამატება</span></li>
+                    <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-500"></i> <span id="t_prem_f2">სრული AI რჩევები და ანალიტიკა</span></li>
+                    <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-500"></i> <span id="t_prem_f3">დეტალური სტატისტიკა და Heatmap</span></li>
                 </ul>
             </div>
             
-            <button onclick="openPaddleCheckout()" class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-semibold text-center transition shadow-lg shadow-indigo-600/30 cursor-pointer" data-i18n="prem_btn">
+            <button onclick="openPaddleCheckout()" class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-semibold text-center transition shadow-lg shadow-indigo-600/30 cursor-pointer" id="t_prem_btn">
                 იყიდე პრემიუმი
             </button>
         </div>
@@ -77,7 +77,7 @@
     <script>
         lucide.createIcons();
 
-        // ენების სრული ლექსიკონი
+        // ენების ლექსიკონი უშუალო ID-ების მიხედვით
         const translations = {
             ka: {
                 page_title: "აირჩიეთ პაკეტი - YourStats",
@@ -178,17 +178,18 @@
             
             document.getElementById('currentLangText').innerText = t.current;
             
-            // ტექსტების შეცვლა data-i18n ატრიბუტების მიხედვით
-            document.querySelectorAll('[data-i18n]').forEach(el => {
-                const key = el.getAttribute('data-i18n');
-                if (t[key]) {
-                    if (el.tagName === 'TITLE') {
+            // თითოეული ელემენტის განახლება ID-ს მიხედვით
+            for (const key in t) {
+                if (key === 'current') continue;
+                const element = document.getElementById('t_' + key);
+                if (element) {
+                    if (element.tagName === 'TITLE') {
                         document.title = t[key];
                     } else {
-                        el.innerText = t[key];
+                        element.innerText = t[key];
                     }
                 }
-            });
+            }
 
             document.getElementById('langDropdown').classList.add('hidden');
         }
@@ -201,7 +202,7 @@
 
         // Paddle ინიციალიზაცია
         Paddle.Initialize({
-            token: "test_c4c95eb9c0372dfcb19e59fb8f7"
+            token: "live_148661da13f33f0d9437ed24bfd"
         });
 
         function openPaddleCheckout() {
