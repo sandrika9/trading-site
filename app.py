@@ -14,6 +14,7 @@ from flask import (
     session,
     url_for,
 )
+from openai import OpenAI
 from werkzeug.security import check_password_hash, generate_password_hash
 
 app = Flask(__name__)
@@ -24,6 +25,9 @@ DATABASE_URL = os.environ.get(
     "DATABASE_URL",
     "postgresql://postgres.rnktcgfknokfdktfxjkb:Sandrika123solo@aws-0-ap-northeast-2.pooler.supabase.com:6543/postgres",
 )
+
+# OpenAI კლიენტის ინიციალიზაცია
+openai_client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 
 
 # ბაზასთან კავშირის დამხმარე ფუნქცია
@@ -46,12 +50,12 @@ def get_db_connection():
                 raise e
 
 
-# --- კონტექსტის პროცესორი (ავტომატურად აწვდის is_paid და username მონაცემებს HTML-ს) ---
+# --- კონტექსტის პროცესორი ---
 @app.context_processor
 def inject_user_status():
     if "user_id" not in session:
         return {"user_is_paid": 0, "is_admin": False}
-    
+
     if session.get("username") == "sandrika":
         return {"user_is_paid": 1, "is_admin": True}
 
@@ -62,7 +66,7 @@ def inject_user_status():
         user = cursor.fetchone()
         cursor.close()
         conn.close()
-        
+
         is_paid_val = user["is_paid"] if user else 0
         return {"user_is_paid": is_paid_val, "is_admin": False}
     except Exception:
@@ -131,9 +135,7 @@ def login():
 
         conn = get_db_connection()
         cursor = conn.cursor()
-        cursor.execute(
-            "SELECT * FROM users WHERE username = %s", (username,)
-        )
+        cursor.execute("SELECT * FROM users WHERE username = %s", (username,))
         user = cursor.fetchone()
         cursor.close()
         conn.close()
@@ -158,7 +160,6 @@ def register():
     if request.method == "POST":
         username = request.form.get("username")
         password = request.form.get("password")
-
         hashed_password = generate_password_hash(password)
 
         try:
@@ -186,9 +187,7 @@ def pending_approval():
 
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute(
-        "SELECT is_paid FROM users WHERE id = %s", (session["user_id"],)
-    )
+    cursor.execute("SELECT is_paid FROM users WHERE id = %s", (session["user_id"],))
     user = cursor.fetchone()
     cursor.close()
     conn.close()
@@ -206,7 +205,6 @@ def paddle_webhook():
         return jsonify(success=False), 400
 
     event_type = data.get("event_type")
-
     if event_type == "transaction.completed":
         data_obj = data.get("data", {})
         custom_data = data_obj.get("custom_data", {})
@@ -298,9 +296,7 @@ def index():
     if current_max_loss < 0:
         current_max_loss = 0.0
 
-    win_rate = (
-        round((wins / total_trades * 100), 1) if total_trades > 0 else 0
-    )
+    win_rate = round((wins / total_trades * 100), 1) if total_trades > 0 else 0
 
     if gross_loss > 0:
         profit_factor = round(gross_profit / gross_loss, 2)
@@ -384,7 +380,6 @@ def add_trade():
     if request.method == "POST":
         date = request.form.get("date")
         pair = request.form.get("pair")
-
         raw_direction = str(request.form.get("direction", "")).strip().lower()
         if "short" in raw_direction or "შორთ" in raw_direction or raw_direction == "s":
             direction = "SHORT"
@@ -544,6 +539,49 @@ def analytics():
     )
 
 
+# --- AI Insights ენდფოინთი (API მოთხოვნა OpenAI-სთან) ---
+@app.route("/ai_insights", methods=["POST"])
+@paid_required
+def ai_insights():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute(
+        "SELECT pair, direction, pnl, emotion, date FROM trades WHERE user_id = %s ORDER BY id DESC LIMIT 20",
+        (session["user_id"],),
+    )
+    trades = cursor.fetchall()
+    cursor.close()
+    conn.close()
+
+    if not trades:
+        return jsonify({"advice": "ჯერ არ გაქვს დამატებული ტრეიდები AI ანალიზისთვის."})
+
+    # ტრეიდების ისტორიის ფორმატირება ტექსტად AI-სთვის
+    trades_summary = "\n".join(
+        [
+            f"Pair: {t['pair']}, Direction: {t['direction']}, PnL: {t['pnl']}, Emotion: {t.get('emotion', 'N/A')}, Date: {t['date']}"
+            for t in trades
+        ]
+    )
+
+    prompt = (
+        "შენ ხარ პროფესიონალი ტრეიდინგ მენტორი და რისკ-მენეჯერი. "
+        "გააანალიზე ამ ტრეიდერის ბოლო ტრეიდები და მომეცი მოკლე, კონკრეტული და რჩევებზე ორიენტირებული ანალიზი (ქართულ ენაზე):\n\n"
+        f"{trades_summary}"
+    )
+
+    try:
+        response = openai_client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.7,
+        )
+        advice = response.choices[0].message.content
+        return jsonify({"advice": advice})
+    except Exception as e:
+        return jsonify({"advice": f"ვერ მოხერხდა AI ანალიზის გენერაცია. შეამოწმეთ API გასაღები. (შეცდომა: {str(e)})"})
+
+
 @app.route("/update_settings", methods=["POST"])
 @paid_required
 def update_settings():
@@ -600,9 +638,7 @@ def update_settings():
 def admin_users():
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute(
-        "SELECT id, username, is_paid FROM users ORDER BY id ASC"
-    )
+    cursor.execute("SELECT id, username, is_paid FROM users ORDER BY id ASC")
     all_users = cursor.fetchall()
     cursor.close()
     conn.close()
@@ -614,19 +650,16 @@ def admin_users():
 def toggle_user(user_id):
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute(
-        "SELECT username, is_paid FROM users WHERE id = %s", (user_id,)
-    )
+    cursor.execute("SELECT username, is_paid FROM users WHERE id = %s", (user_id,))
     current = cursor.fetchone()
-    
+
     if current:
         new_status = 0 if current["is_paid"] == 1 else 1
         cursor.execute(
             "UPDATE users SET is_paid = %s WHERE id = %s", (new_status, user_id)
         )
         conn.commit()
-        
-        # სესიის მყისიერი განახლება თუ ადმინი საკუთარ თავს უცვლის ან ამ მომენტში ეს იუზერია შესული
+
         if session.get("user_id") == user_id:
             session["is_paid"] = new_status
 
