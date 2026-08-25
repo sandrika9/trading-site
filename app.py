@@ -4,16 +4,25 @@ from functools import wraps
 
 import psycopg2
 import psycopg2.extras
-from flask import Flask, flash, jsonify, redirect, render_template, request, session, url_for
+from flask import (
+    Flask,
+    flash,
+    jsonify,
+    redirect,
+    render_template,
+    request,
+    session,
+    url_for,
+)
 from werkzeug.security import check_password_hash, generate_password_hash
 
 app = Flask(__name__)
-app.secret_key = "your_secret_key_here"
+app.secret_key = os.environ.get("SECRET_KEY", "your_secret_key_here")
 
 # Supabase PostgreSQL ბაზის მისამართი (Transaction Pooler - 6543 პორტი Render-ისთვის)
 DATABASE_URL = os.environ.get(
-    "DATABASE_URL", 
-    "postgresql://postgres.rnktcgfknokfdktfxjkb:Sandrika123solo@aws-0-ap-northeast-2.pooler.supabase.com:6543/postgres"
+    "DATABASE_URL",
+    "postgresql://postgres.rnktcgfknokfdktfxjkb:Sandrika123solo@aws-0-ap-northeast-2.pooler.supabase.com:6543/postgres",
 )
 
 
@@ -24,9 +33,9 @@ def get_db_connection():
     for i in range(retries):
         try:
             conn = psycopg2.connect(
-                DATABASE_URL, 
-                sslmode="require", 
-                connection_factory=psycopg2.extras.DictConnection
+                DATABASE_URL,
+                sslmode="require",
+                connection_factory=psycopg2.extras.DictConnection,
             )
             return conn
         except Exception as e:
@@ -82,7 +91,7 @@ def get_or_create_user_settings(cursor, user_id):
     if not settings:
         cursor.execute(
             "INSERT INTO user_settings (user_id, initial_balance, target_balance, max_loss_limit) VALUES (%s, %s, %s, %s)",
-            (user_id, 50000.0, 53000.0, 1000.0)
+            (user_id, 50000.0, 53000.0, 1000.0),
         )
         cursor.connection.commit()
         cursor.execute("SELECT * FROM user_settings WHERE user_id = %s", (user_id,))
@@ -174,17 +183,17 @@ def paddle_webhook():
     data = request.get_json()
     if not data:
         return jsonify(success=False), 400
-        
+
     event_type = data.get("event_type")
-    
+
     # როდესაც ტრანზაქცია წარმატებით დასრულდება
     if event_type == "transaction.completed":
         data_obj = data.get("data", {})
-        
+
         # ამოვიღოთ custom_data-დან user_id
         custom_data = data_obj.get("custom_data", {})
         user_id = custom_data.get("user_id")
-        
+
         if user_id:
             conn = get_db_connection()
             cursor = conn.cursor()
@@ -192,7 +201,7 @@ def paddle_webhook():
             conn.commit()
             cursor.close()
             conn.close()
-            
+
     return jsonify(success=True), 200
 
 
@@ -207,7 +216,7 @@ def logout():
 def index():
     conn = get_db_connection()
     cursor = conn.cursor()
-    
+
     try:
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS user_settings (
@@ -245,7 +254,7 @@ def index():
     current_max_loss = max_loss_limit
 
     chart_data = []
-    calendar_data = {}  
+    calendar_data = {}
 
     for t in reversed(dataSource_trades):
         pnl = t["pnl"]
@@ -262,7 +271,7 @@ def index():
         chart_data.append({"time": str(t["date"]), "value": current_balance})
 
     for t in dataSource_trades:
-        trade_date = str(t["date"])  
+        trade_date = str(t["date"])
         pnl = t["pnl"]
         if trade_date not in calendar_data:
             calendar_data[trade_date] = 0.0
@@ -310,8 +319,8 @@ def index():
         target_balance=target_balance,
         progress_pct=progress_pct,
         chart_data=chart_data,
-        calendar_data=calendar_data,  
-        daily_pnl=calendar_data,  
+        calendar_data=calendar_data,
+        daily_pnl=calendar_data,
         trades=trades,
     )
 
@@ -372,7 +381,7 @@ def add_trade():
 
         conn = get_db_connection()
         cursor = conn.cursor()
-        
+
         try:
             cursor.execute(
                 """
@@ -465,9 +474,9 @@ def analytics():
     for t in trades:
         pnl = t["pnl"]
         raw_dir = str(t["direction"]).strip().lower() if t["direction"] else ""
-        emotion = (
-            t["emotion"] if "emotion" in t.keys() and t["emotion"] else "ზოგადი"
-        )
+        
+        # უსაფრთხო ამოღება DictRow-დან
+        emotion = t.get("emotion") if t.get("emotion") else "ზოგადი"
 
         if emotion not in emotion_stats:
             emotion_stats[emotion] = {"count": 0, "pnl": 0.0}
@@ -528,7 +537,7 @@ def update_settings():
 
     conn = get_db_connection()
     cursor = conn.cursor()
-    
+
     try:
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS user_settings (
@@ -540,14 +549,23 @@ def update_settings():
         """)
         conn.commit()
 
+        # გასწორდა PostgreSQL სინტაქსი: დაემატა DO
         cursor.execute(
             """
             INSERT INTO user_settings (user_id, initial_balance, target_balance, max_loss_limit)
             VALUES (%s, %s, %s, %s)
             ON CONFLICT (user_id) 
-            UPDATE SET initial_balance = %s, target_balance = %s, max_loss_limit = %s
+            DO UPDATE SET initial_balance = %s, target_balance = %s, max_loss_limit = %s
             """,
-            (session["user_id"], initial_balance, target_balance, max_loss_limit, initial_balance, target_balance, max_loss_limit)
+            (
+                session["user_id"],
+                initial_balance,
+                target_balance,
+                max_loss_limit,
+                initial_balance,
+                target_balance,
+                max_loss_limit,
+            ),
         )
         conn.commit()
     except Exception as e:
@@ -599,5 +617,3 @@ def toggle_user(user_id):
 
 if __name__ == "__main__":
     app.run(debug=True)
-
-# cache fix timestamp 2026
