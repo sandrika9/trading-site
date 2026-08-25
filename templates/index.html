@@ -104,63 +104,40 @@
                 <!-- დესკტოპ მენიუ -->
                 <div class="hidden md:flex items-center gap-6">
                     <a href="{{ url_for('index') }}" class="text-white flex items-center gap-2 font-medium transition hover:text-indigo-400">
-                        <i data-lucide="layout-dashboard" class="w-4 h-4"></i> <span data-i18n="nav_dashboard">Dashboard</span>
+                        <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard
                     </a>
-                    <a href="{{ url_for('trades_list') if 'trades_list' in endpoints else '#' }}" class="text-gray-400 flex items-center gap-2 font-medium transition hover:text-white">
-                        <i data-lucide="list" class="w-4 h-4"></i> <span data-i18n="nav_history">History</span>
+                    <a href="{{ url_for('trades_list') }}" class="text-gray-400 flex items-center gap-2 font-medium transition hover:text-white">
+                        <i data-lucide="list" class="w-4 h-4"></i> History
                     </a>
-                    <a href="{{ url_for('analytics') if 'analytics' in endpoints else '#' }}" class="text-gray-400 flex items-center gap-2 font-medium transition hover:text-white">
-                        <i data-lucide="pie-chart" class="w-4 h-4"></i> <span data-i18n="nav_analytics">Analytics</span>
+                    <a href="{{ url_for('analytics') }}" class="text-gray-400 flex items-center gap-2 font-medium transition hover:text-white">
+                        <i data-lucide="pie-chart" class="w-4 h-4"></i> Analytics
                     </a>
                 </div>
 
-                <div class="flex items-center gap-2 sm:gap-3">
-                    <!-- ენის გადამრთველი დროპდაუნი (4 ენა) -->
-                    <div class="relative inline-block text-left">
-                        <button onclick="toggleLangDropdown()" class="text-gray-400 hover:text-white p-2 rounded-xl bg-white/5 hover:bg-white/10 transition flex items-center gap-1.5 text-xs font-semibold">
-                            <i data-lucide="globe" class="w-4 h-4 text-indigo-400"></i>
-                            <span id="currentLangDisplay">KA</span>
-                            <i data-lucide="chevron-down" class="w-3 h-3 text-gray-400"></i>
-                        </button>
-                        <div id="langDropdown" class="hidden absolute right-0 mt-2 w-32 glass-panel bg-[#11151F] border border-white/10 rounded-xl shadow-2xl z-50 overflow-hidden py-1">
-                            <button onclick="selectLanguage('ka')" class="w-full text-left px-3 py-2 text-xs text-white hover:bg-indigo-600/30 flex items-center gap-2 transition">
-                                <span>🇬🇪</span> ქართული
-                            </button>
-                            <button onclick="selectLanguage('en')" class="w-full text-left px-3 py-2 text-xs text-gray-300 hover:bg-indigo-600/30 flex items-center gap-2 transition">
-                                <span>🇺🇸</span> English
-                            </button>
-                            <button onclick="selectLanguage('ru')" class="w-full text-left px-3 py-2 text-xs text-gray-300 hover:bg-indigo-600/30 flex items-center gap-2 transition">
-                                <span>🇷🇺</span> Русский
-                            </button>
-                            <button onclick="selectLanguage('es')" class="w-full text-left px-3 py-2 text-xs text-gray-300 hover:bg-indigo-600/30 flex items-center gap-2 transition">
-                                <span>🇪🇸</span> Español
-                            </button>
-                        </div>
-                    </div>
-
-                    <button onclick="openSettingsModal()" class="text-gray-400 hover:text-white p-2 rounded-xl bg-white/5 hover:bg-white/10 transition flex items-center gap-1.5 text-xs font-semibold" title="პარამეტრები">
+                <div class="flex items-center gap-2 sm:gap-4">
+                    <button onclick="openSettingsModal()" class="text-gray-400 hover:text-white p-2 rounded-xl bg-white/5 hover:bg-white/10 transition flex items-center gap-1.5 text-sm font-medium" title="პარამეტრები">
                         <i data-lucide="sliders" class="w-4 h-4 text-indigo-400"></i>
-                        <span class="hidden sm:inline" data-i18n="nav_settings">პარამეტრები</span>
+                        <span class="hidden sm:inline">პარამეტრები</span>
                     </button>
 
-                    <a href="{{ url_for('add_trade') if 'add_trade' in endpoints else '#' }}" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-300 flex items-center gap-1.5 shadow-[0_0_15px_rgba(79,70,229,0.3)] hover:scale-[1.02]">
-                        <i data-lucide="plus" class="w-4 h-4"></i> <span data-i18n="nav_new_trade">ახალი ტრეიდი</span>
+                    <a href="{{ url_for('add_trade') }}" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 sm:px-5 py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-300 flex items-center gap-1.5 sm:gap-2 shadow-[0_0_15px_rgba(79,70,229,0.3)] hover:scale-[1.02]">
+                        <i data-lucide="plus" class="w-4 h-4"></i> <span>ახალი ტრეიდი</span>
                     </a>
 
                     {% if session.get('username') == 'sandrika' %}
-                        <a href="{{ url_for('admin_users') if 'admin_users' in endpoints else '#' }}" class="hidden sm:flex px-3 py-2 rounded-xl bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 text-xs font-semibold transition items-center gap-1.5 border border-indigo-500/20">
+                        <a href="{{ url_for('admin_users') }}" class="hidden sm:flex px-3 py-2 rounded-xl bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 text-xs font-semibold transition items-center gap-1.5 border border-indigo-500/20" title="ადმინ პანელი">
                             <i data-lucide="shield-check" class="w-4 h-4"></i>
-                            <span data-i18n="nav_admin">ადმინი</span>
+                            <span>ადმინი</span>
                         </a>
                     {% endif %}
 
                     <div class="h-6 w-[1px] bg-white/10 hidden sm:block"></div>
                     
-                    <a href="{{ url_for('logout') if 'logout' in endpoints else '#' }}" class="text-gray-500 hover:text-rose-400 transition p-1" title="გასვლა">
+                    <a href="{{ url_for('logout') }}" class="text-gray-500 hover:text-rose-400 transition p-1" title="გასვლა">
                         <i data-lucide="log-out" class="w-5 h-5"></i>
                     </a>
 
-                    <!-- მობილური მენიუს ღილაკი -->
+                    <!-- მობილური მენიუს ჰამბურგერ ღილაკი -->
                     <button onclick="toggleMobileMenu()" class="md:hidden text-gray-400 hover:text-white p-2 rounded-xl bg-white/5">
                         <i data-lucide="menu" class="w-6 h-6"></i>
                     </button>
@@ -171,31 +148,19 @@
         <!-- მობილური ჩამოსაშლელი მენიუ -->
         <div id="mobileMenu" class="hidden md:hidden px-4 pt-2 pb-4 border-t border-white/5 space-y-2 bg-surface">
             <a href="{{ url_for('index') }}" class="block px-3 py-2 rounded-lg text-white font-medium bg-white/5 flex items-center gap-2">
-                <i data-lucide="layout-dashboard" class="w-4 h-4 text-indigo-400"></i> <span data-i18n="nav_dashboard">Dashboard</span>
+                <i data-lucide="layout-dashboard" class="w-4 h-4 text-indigo-400"></i> Dashboard
             </a>
-            <a href="{{ url_for('trades_list') if 'trades_list' in endpoints else '#' }}" class="block px-3 py-2 rounded-lg text-gray-300 hover:bg-white/5 font-medium flex items-center gap-2">
-                <i data-lucide="list" class="w-4 h-4 text-indigo-400"></i> <span data-i18n="nav_history">History</span>
+            <a href="{{ url_for('trades_list') }}" class="block px-3 py-2 rounded-lg text-gray-300 hover:bg-white/5 font-medium flex items-center gap-2">
+                <i data-lucide="list" class="w-4 h-4 text-indigo-400"></i> History
             </a>
-            <a href="{{ url_for('analytics') if 'analytics' in endpoints else '#' }}" class="block px-3 py-2 rounded-lg text-gray-300 hover:bg-white/5 font-medium flex items-center gap-2">
-                <i data-lucide="pie-chart" class="w-4 h-4 text-indigo-400"></i> <span data-i18n="nav_analytics">Analytics</span>
+            <a href="{{ url_for('analytics') }}" class="block px-3 py-2 rounded-lg text-gray-300 hover:bg-white/5 font-medium flex items-center gap-2">
+                <i data-lucide="pie-chart" class="w-4 h-4 text-indigo-400"></i> Analytics
             </a>
-            <button onclick="openSettingsModal(); toggleMobileMenu();" class="w-full text-left px-3 py-2 rounded-lg text-gray-300 hover:bg-white/5 font-medium flex items-center gap-2">
-                <i data-lucide="sliders" class="w-4 h-4 text-indigo-400"></i> <span data-i18n="nav_settings">პარამეტრები</span>
-            </button>
-            <div class="grid grid-cols-2 gap-2 pt-2 border-t border-white/5">
-                <button onclick="selectLanguage('ka')" class="py-1.5 rounded-lg bg-white/5 text-xs text-center text-white">🇬🇪 ქართული</button>
-                <button onclick="selectLanguage('en')" class="py-1.5 rounded-lg bg-white/5 text-xs text-center text-gray-300">🇺🇸 English</button>
-                <button onclick="selectLanguage('ru')" class="py-1.5 rounded-lg bg-white/5 text-xs text-center text-gray-300">🇷🇺 Русский</button>
-                <button onclick="selectLanguage('es')" class="py-1.5 rounded-lg bg-white/5 text-xs text-center text-gray-300">🇪🇸 Español</button>
-            </div>
             {% if session.get('username') == 'sandrika' %}
-            <a href="{{ url_for('admin_users') if 'admin_users' in endpoints else '#' }}" class="block px-3 py-2 rounded-lg text-indigo-400 hover:bg-white/5 font-medium flex items-center gap-2">
-                <i data-lucide="shield-check" class="w-4 h-4"></i> <span data-i18n="nav_admin">ადმინ პანელი</span>
+            <a href="{{ url_for('admin_users') }}" class="block px-3 py-2 rounded-lg text-indigo-400 hover:bg-white/5 font-medium flex items-center gap-2">
+                <i data-lucide="shield-check" class="w-4 h-4"></i> ადმინ პანელი
             </a>
             {% endif %}
-            <a href="{{ url_for('logout') if 'logout' in endpoints else '#' }}" class="block px-3 py-2 rounded-lg text-rose-400 hover:bg-rose-500/10 font-medium flex items-center gap-2">
-                <i data-lucide="log-out" class="w-4 h-4"></i> <span data-i18n="nav_logout">გასვლა</span>
-            </a>
         </div>
     </nav>
 
@@ -203,17 +168,17 @@
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 sm:space-y-8 animate-fade-in">
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
-                <h1 class="text-xl sm:text-2xl font-bold text-white"><span data-i18n="welcome_text">მოგესალმები</span>, <span class="text-indigo-400">{{ session.get('username', 'ტრეიდერო') }}</span> 👋</h1>
-                <p class="text-xs sm:text-sm text-gray-400 mt-1" data-i18n="dashboard_subtitle">აქ არის შენი სავაჭრო ანგარიშის დეტალური მიმოხილვა.</p>
+                <h1 class="text-xl sm:text-2xl font-bold text-white">მოგესალმები, <span class="text-indigo-400">{{ session.get('username', 'ტრეიდერო') }}</span> 👋</h1>
+                <p class="text-xs sm:text-sm text-gray-400 mt-1">აქ არის შენი სავაჭრო ანგარიშის დეტალური მიმოხილვა.</p>
             </div>
             
             <div class="glass-panel px-4 sm:px-5 py-3.5 rounded-xl w-full md:w-[320px]">
                 <div class="flex justify-between text-xs mb-2">
-                    <span class="text-gray-400 flex items-center gap-1.5"><i data-lucide="trending-up" class="w-3.5 h-3.5 text-indigo-400"></i> <span data-i18n="progress_label">პროგრესი</span> (<span data-i18n="target_label">მიზანი</span>: ${{ "%.2f"|format(target_balance|default(0)|float) }})</span>
-                    <span class="font-bold text-white">{{ progress_pct|default(0)|round(1) }}%</span>
+                    <span class="text-gray-400 flex items-center gap-1.5"><i data-lucide="trending-up" class="w-3.5 h-3.5 text-indigo-400"></i> პროგრესი (მიზანი: ${{ "{:,.0f}".format(target_balance) }})</span>
+                    <span class="font-bold text-white">{{ progress_pct }}%</span>
                 </div>
                 <div class="w-full bg-black/60 rounded-full h-2.5 overflow-hidden p-[1px] border border-white/5">
-                    <div class="bg-gradient-to-r from-indigo-500 to-purple-500 h-full rounded-full transition-all duration-1000 shadow-[0_0_10px_rgba(99,102,241,0.5)]" style="width: {{ progress_pct|default(0) }}%"></div>
+                    <div class="bg-gradient-to-r from-indigo-500 to-purple-500 h-full rounded-full transition-all duration-1000 shadow-[0_0_10px_rgba(99,102,241,0.5)]" style="width: {{ progress_pct }}%"></div>
                 </div>
             </div>
         </div>
@@ -225,22 +190,21 @@
                 <div class="flex justify-between items-start mb-3 sm:mb-4">
                     <div class="p-2 bg-indigo-500/10 rounded-lg text-indigo-400"><i data-lucide="wallet" class="w-5 h-5"></i></div>
                 </div>
-                <h3 class="text-gray-400 text-xs sm:text-sm font-medium" data-i18n="card_current_balance">მიმდინარე ბალანსი</h3>
-                <p class="text-2xl sm:text-3xl font-bold text-white mt-1">${{ "%.2f"|format(current_balance|default(0)|float) }}</p>
-                <p class="text-xs text-gray-500 mt-1"><span data-i18n="card_initial">საწყისი</span>: ${{ "%.2f"|format(initial_balance|default(0)|float) }}</p>
+                <h3 class="text-gray-400 text-xs sm:text-sm font-medium">მიმდინარე ბალანსი</h3>
+                <p class="text-2xl sm:text-3xl font-bold text-white mt-1">${{ "{:,.2f}".format(current_balance) }}</p>
+                <p class="text-xs text-gray-500 mt-1">საწყისი: ${{ "{:,.2f}".format(initial_balance) }}</p>
             </div>
 
             <div class="glass-panel p-5 sm:p-6 rounded-2xl relative overflow-hidden group">
-                {% set pnl_val = total_pnl|default(0)|float %}
-                <div class="absolute -right-6 -top-6 w-24 h-24 rounded-full blur-2xl transition {% if pnl_val >= 0 %} bg-success/10 group-hover:bg-success/20 {% else %} bg-danger/10 group-hover:bg-danger/20 {% endif %}"></div>
+                <div class="absolute -right-6 -top-6 w-24 h-24 rounded-full blur-2xl transition {% if total_pnl >= 0 %} bg-success/10 group-hover:bg-success/20 {% else %} bg-danger/10 group-hover:bg-danger/20 {% endif %}"></div>
                 <div class="flex justify-between items-start mb-3 sm:mb-4">
-                    <div class="p-2 rounded-lg {% if pnl_val >= 0 %} bg-success/10 text-success {% else %} bg-danger/10 text-danger {% endif %}">
-                        <i data-lucide="{% if pnl_val >= 0 %}trending-up{% else %}trending-down{% endif %}" class="w-5 h-5"></i>
+                    <div class="p-2 rounded-lg {% if total_pnl >= 0 %} bg-success/10 text-success {% else %} bg-danger/10 text-danger {% endif %}">
+                        <i data-lucide="{% if total_pnl >= 0 %}trending-up{% else %}trending-down{% endif %}" class="w-5 h-5"></i>
                     </div>
                 </div>
-                <h3 class="text-gray-400 text-xs sm:text-sm font-medium" data-i18n="card_total_pnl">მთლიანი PnL</h3>
-                <p class="text-2xl sm:text-3xl font-bold mt-1 {% if pnl_val > 0 %} text-success {% elif pnl_val < 0 %} text-danger {% else %} text-white {% endif %}">
-                    {% if pnl_val > 0 %}+{% endif %}${{ "%.2f"|format(pnl_val) }}
+                <h3 class="text-gray-400 text-xs sm:text-sm font-medium">მთლიანი PnL</h3>
+                <p class="text-2xl sm:text-3xl font-bold mt-1 {% if total_pnl > 0 %} text-success {% elif total_pnl < 0 %} text-danger {% else %} text-white {% endif %}">
+                    {% if total_pnl > 0 %}+{% endif %}${{ "{:,.2f}".format(total_pnl) }}
                 </p>
             </div>
 
@@ -249,8 +213,8 @@
                 <div class="flex justify-between items-start mb-3 sm:mb-4">
                     <div class="p-2 bg-blue-500/10 rounded-lg text-blue-400"><i data-lucide="target" class="w-5 h-5"></i></div>
                 </div>
-                <h3 class="text-gray-400 text-xs sm:text-sm font-medium" data-i18n="card_win_rate">Win Rate</h3>
-                <p class="text-2xl sm:text-3xl font-bold text-white mt-1">{{ win_rate|default(0)|round(1) }}%</p>
+                <h3 class="text-gray-400 text-xs sm:text-sm font-medium">Win Rate</h3>
+                <p class="text-2xl sm:text-3xl font-bold text-white mt-1">{{ win_rate }}%</p>
             </div>
 
             <div class="glass-panel p-5 sm:p-6 rounded-2xl relative overflow-hidden group">
@@ -258,20 +222,20 @@
                 <div class="flex justify-between items-start mb-3 sm:mb-4">
                     <div class="p-2 bg-purple-500/10 rounded-lg text-purple-400"><i data-lucide="bar-chart-2" class="w-5 h-5"></i></div>
                 </div>
-                <h3 class="text-gray-400 text-xs sm:text-sm font-medium" data-i18n="card_profit_factor">Profit Factor</h3>
-                <p class="text-2xl sm:text-3xl font-bold text-white mt-1">{{ profit_factor|default(0)|round(2) }}</p>
+                <h3 class="text-gray-400 text-xs sm:text-sm font-medium">Profit Factor</h3>
+                <p class="text-2xl sm:text-3xl font-bold text-white mt-1">{{ profit_factor }}</p>
             </div>
 
             <div class="glass-panel p-5 sm:p-6 rounded-2xl relative overflow-hidden group sm:col-span-2 lg:col-span-1">
                 <div class="absolute -right-6 -top-6 w-24 h-24 bg-rose-500/10 rounded-full blur-2xl group-hover:bg-rose-500/20 transition"></div>
                 <div class="flex justify-between items-start mb-3 sm:mb-4">
                     <div class="p-2 bg-rose-500/10 rounded-lg text-rose-400"><i data-lucide="shield-alert" class="w-5 h-5"></i></div>
-                    <button onclick="openSettingsModal()" class="text-gray-400 hover:text-white transition p-1 rounded-lg bg-white/5 hover:bg-white/15" title="პარამეტრები">
+                    <button onclick="openSettingsModal()" class="text-gray-400 hover:text-white transition p-1 rounded-lg bg-white/5 hover:bg-white/15" title="პარამეტრების შეცვლა">
                         <i data-lucide="sliders" class="w-4 h-4"></i>
                     </button>
                 </div>
-                <h3 class="text-gray-400 text-xs sm:text-sm font-medium" data-i18n="card_loss_limit">წაგების ლიმიტი</h3>
-                <p class="text-2xl sm:text-3xl font-bold text-white mt-1">${{ "%.2f"|format(max_loss_limit|default(0)|float) }}</p>
+                <h3 class="text-gray-400 text-xs sm:text-sm font-medium">წაგების ლიმიტი</h3>
+                <p class="text-2xl sm:text-3xl font-bold text-white mt-1">${{ "{:,.2f}".format(max_loss_limit) }}</p>
             </div>
         </div>
 
@@ -280,7 +244,7 @@
             <div class="glass-panel p-5 sm:p-6 rounded-2xl lg:col-span-2 flex flex-col justify-between !transform-none">
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="text-sm sm:text-base font-semibold text-white flex items-center gap-2">
-                        <i data-lucide="activity" class="w-5 h-5 text-indigo-400"></i> <span data-i18n="chart_title">კაპიტალის ზრდის მაჩვენებელი</span>
+                        <i data-lucide="activity" class="w-5 h-5 text-indigo-400"></i> კაპიტალის ზრდის მაჩვენებელი
                     </h3>
                 </div>
                 <div class="h-[240px] sm:h-[280px] w-full relative">
@@ -291,15 +255,15 @@
             <div class="glass-panel p-5 sm:p-6 rounded-2xl flex flex-col justify-between !transform-none">
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="text-sm sm:text-base font-semibold text-white flex items-center gap-2">
-                        <i data-lucide="calendar" class="w-5 h-5 text-indigo-400"></i> <span data-i18n="calendar_title">სავაჭრო კალენდარი</span>
+                        <i data-lucide="calendar" class="w-5 h-5 text-indigo-400"></i> სავაჭრო კალენდარი
                     </h3>
                 </div>
                 <div class="flex-1 flex flex-col justify-center">
                     <div id="calendarContainer" class="grid grid-cols-7 gap-1.5 text-center text-xs"></div>
                 </div>
                 <div class="mt-4 pt-3 border-t border-white/5 flex justify-between text-xs text-gray-400">
-                    <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-success"></span> <span data-i18n="legend_profitable">მოგებიანი</span></span>
-                    <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-danger"></span> <span data-i18n="legend_unprofitable">წამგებიანი</span></span>
+                    <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-success"></span> მოგებიანი</span>
+                    <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-danger"></span> წამგებიანი</span>
                 </div>
             </div>
         </div>
@@ -308,63 +272,55 @@
         <div class="glass-panel rounded-2xl overflow-hidden flex flex-col !transform-none">
             <div class="p-5 sm:p-6 border-b border-white/5 flex justify-between items-center bg-surface/50">
                 <h2 class="text-base sm:text-lg font-semibold text-white flex items-center gap-2">
-                    <i data-lucide="history" class="w-5 h-5 text-indigo-400"></i> <span data-i18n="recent_trades_title">ბოლო ტრეიდები</span>
+                    <i data-lucide="history" class="w-5 h-5 text-indigo-400"></i> ბოლო ტრეიდები
                 </h2>
-                <a href="{{ url_for('trades_list') if 'trades_list' in endpoints else '#' }}" class="text-xs sm:text-sm text-indigo-400 hover:text-indigo-300 transition"><span data-i18n="view_all">ყველას ნახვა</span> &rarr;</a>
+                <a href="{{ url_for('trades_list') }}" class="text-xs sm:text-sm text-indigo-400 hover:text-indigo-300 transition">ყველას ნახვა &rarr;</a>
             </div>
             
             <div class="overflow-x-auto w-full">
                 <table class="w-full text-left text-sm whitespace-nowrap">
                     <thead class="bg-black/20 text-gray-400 text-xs sm:text-sm">
                         <tr>
-                            <th class="px-4 sm:px-6 py-3.5 font-medium" data-i18n="th_pair">წყვილი</th>
-                            <th class="px-4 sm:px-6 py-3.5 font-medium" data-i18n="th_date">თარიღი</th>
-                            <th class="px-4 sm:px-6 py-3.5 font-medium" data-i18n="th_side">მხარე</th>
-                            <th class="px-4 sm:px-6 py-3.5 font-medium" data-i18n="th_entry_exit">შესვლა &rarr; გასვლა</th>
-                            <th class="px-4 sm:px-6 py-3.5 font-medium text-right" data-i18n="th_pnl">PnL</th>
+                            <th class="px-4 sm:px-6 py-3.5 font-medium">წყვილი</th>
+                            <th class="px-4 sm:px-6 py-3.5 font-medium">თარიღი</th>
+                            <th class="px-4 sm:px-6 py-3.5 font-medium">მხარე</th>
+                            <th class="px-4 sm:px-6 py-3.5 font-medium">შესვლა &rarr; გასვლა</th>
+                            <th class="px-4 sm:px-6 py-3.5 font-medium text-right">PnL</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-white/5 text-xs sm:text-sm">
-                        {% if trades and trades|length > 0 %}
-                            {% for trade in trades[:5] %}
-                            <tr class="hover:bg-white/[0.03] transition">
-                                <td class="px-4 sm:px-6 py-3.5"><span class="font-bold text-white bg-white/5 px-2.5 py-1 rounded-md">{{ trade[3] if trade[3] is defined else trade.symbol }}</span></td>
-                                <td class="px-4 sm:px-6 py-3.5 text-gray-400">{{ trade[2] if trade[2] is defined else trade.date }}</td>
-                                <td class="px-4 sm:px-6 py-3.5">
-                                    {% set side = trade[4] if trade[4] is defined else trade.side %}
-                                    {% if side == 'LONG' %}
-                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-semibold bg-success/10 text-success border border-success/20">
-                                            <i data-lucide="arrow-up-right" class="w-3 h-3"></i> LONG
-                                        </span>
-                                    {% else %}
-                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-semibold bg-danger/10 text-danger border border-danger/20">
-                                            <i data-lucide="arrow-down-right" class="w-3 h-3"></i> SHORT
-                                        </span>
-                                    {% endif %}
-                                </td>
-                                <td class="px-4 sm:px-6 py-3.5 font-mono text-gray-300 text-xs">
-                                    {{ trade[5] if trade[5] is defined else trade.entry_price }} 
-                                    <span class="text-gray-500 mx-1">&rarr;</span> 
-                                    {{ trade[6] if trade[6] is defined else trade.exit_price }}
-                                </td>
-                                <td class="px-4 sm:px-6 py-3.5 text-right">
-                                    {% set t_pnl = (trade[7] if trade[7] is defined else trade.pnl)|default(0)|float %}
-                                    <span class="font-bold {% if t_pnl > 0 %} text-success {% elif t_pnl < 0 %} text-danger {% else %} text-gray-400 {% endif %}">
-                                        {% if t_pnl > 0 %}+{% endif %}${{ "%.2f"|format(t_pnl) }}
+                        {% for trade in trades[:5] %}
+                        <tr class="hover:bg-white/[0.03] transition">
+                            <td class="px-4 sm:px-6 py-3.5"><span class="font-bold text-white bg-white/5 px-2.5 py-1 rounded-md">{{ trade[3] }}</span></td>
+                            <td class="px-4 sm:px-6 py-3.5 text-gray-400">{{ trade[2] }}</td>
+                            <td class="px-4 sm:px-6 py-3.5">
+                                {% if trade[4] == 'LONG' %}
+                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-semibold bg-success/10 text-success border border-success/20">
+                                        <i data-lucide="arrow-up-right" class="w-3 h-3"></i> LONG
                                     </span>
-                                </td>
-                            </tr>
-                            {% endfor %}
+                                {% else %}
+                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-semibold bg-danger/10 text-danger border border-danger/20">
+                                        <i data-lucide="arrow-down-right" class="w-3 h-3"></i> SHORT
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td class="px-4 sm:px-6 py-3.5 font-mono text-gray-300 text-xs">{{ trade[5] }} <span class="text-gray-500 mx-1">&rarr;</span> {{ trade[6] }}</td>
+                            <td class="px-4 sm:px-6 py-3.5 text-right">
+                                <span class="font-bold {% if trade[7] > 0 %} text-success {% elif trade[7] < 0 %} text-danger {% else %} text-gray-400 {% endif %}">
+                                    {% if trade[7] > 0 %}+{% endif %}${{ trade[7] }}
+                                </span>
+                            </td>
+                        </tr>
                         {% else %}
                         <tr>
                             <td colspan="5" class="px-6 py-10 text-center text-gray-500">
                                 <div class="flex flex-col items-center justify-center">
                                     <i data-lucide="inbox" class="w-10 h-10 mb-2 text-gray-600"></i>
-                                    <p class="text-xs sm:text-sm" data-i18n="no_trades">ჯერ ტრეიდები არ არის დამატებული.</p>
+                                    <p class="text-xs sm:text-sm">ჯერ ტრეიდები არ არის დამატებული.</p>
                                 </div>
                             </td>
                         </tr>
-                        {% endif %}
+                        {% endfor %}
                     </tbody>
                 </table>
             </div>
@@ -376,217 +332,36 @@
         <div class="glass-panel bg-[#11151F] border border-white/10 p-5 sm:p-6 rounded-2xl w-full max-w-md shadow-2xl animate-fade-in">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-base sm:text-lg font-bold text-white flex items-center gap-2">
-                    <i data-lucide="sliders" class="w-5 h-5 text-indigo-400"></i> <span data-i18n="modal_title">ანგარიშის პარამეტრები</span>
+                    <i data-lucide="sliders" class="w-5 h-5 text-indigo-400"></i> ანგარიშის პარამეტრები
                 </h3>
                 <button onclick="closeSettingsModal()" class="text-gray-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
             
-            <form action="{{ url_for('update_settings') if 'update_settings' in endpoints else '#' }}" method="POST" class="space-y-4">
+            <form action="{{ url_for('update_settings') }}" method="POST" class="space-y-4">
                 <div>
-                    <label class="block text-xs font-medium text-gray-400 mb-1.5" data-i18n="modal_initial_balance">საწყისი ბალანსი ($)</label>
-                    <input type="number" step="0.01" name="initial_balance" value="{{ initial_balance|default(0) }}" required class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 sm:py-3 text-white text-sm font-mono focus:outline-none focus:border-indigo-500 transition">
+                    <label class="block text-xs font-medium text-gray-400 mb-1.5">საწყისი ბალანსი ($)</label>
+                    <input type="number" step="0.01" name="initial_balance" value="{{ initial_balance }}" required class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 sm:py-3 text-white text-sm font-mono focus:outline-none focus:border-indigo-500 transition">
                 </div>
 
                 <div>
-                    <label class="block text-xs font-medium text-gray-400 mb-1.5" data-i18n="modal_target_balance">მოგების მიზანი ($)</label>
-                    <input type="number" step="0.01" name="target_balance" value="{{ target_balance|default(0) }}" required class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 sm:py-3 text-white text-sm font-mono focus:outline-none focus:border-indigo-500 transition">
+                    <label class="block text-xs font-medium text-gray-400 mb-1.5">მოგების მიზანი ($)</label>
+                    <input type="number" step="0.01" name="target_balance" value="{{ target_balance }}" required class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 sm:py-3 text-white text-sm font-mono focus:outline-none focus:border-indigo-500 transition">
                 </div>
 
                 <div>
-                    <label class="block text-xs font-medium text-gray-400 mb-1.5" data-i18n="modal_max_loss">მაქსიმალური წაგების ლიმიტი ($)</label>
-                    <input type="number" step="0.01" name="max_loss_limit" value="{{ max_loss_limit|default(0) }}" required class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 sm:py-3 text-white text-sm font-mono focus:outline-none focus:border-indigo-500 transition">
+                    <label class="block text-xs font-medium text-gray-400 mb-1.5">მაქსიმალური წაგების ლიმიტი ($)</label>
+                    <input type="number" step="0.01" name="max_loss_limit" value="{{ max_loss_limit }}" required class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 sm:py-3 text-white text-sm font-mono focus:outline-none focus:border-indigo-500 transition">
                 </div>
 
                 <div class="flex justify-end gap-3 mt-6">
-                    <button type="button" onclick="closeSettingsModal()" class="px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-gray-300 text-xs sm:text-sm font-medium transition" data-i18n="btn_cancel">გაუქმება</button>
-                    <button type="submit" class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs sm:text-sm font-semibold shadow-lg shadow-indigo-600/30 transition" data-i18n="btn_save">შენახვა</button>
+                    <button type="button" onclick="closeSettingsModal()" class="px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-gray-300 text-xs sm:text-sm font-medium transition">გაუქმება</button>
+                    <button type="submit" class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs sm:text-sm font-semibold shadow-lg shadow-indigo-600/30 transition">შენახვა</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- სრულყოფილი 4-ენოვანი (KA, EN, RU, ES) i18n სკრიპტი -->
-    <script>
-        const i18nDict = {
-            ka: {
-                nav_dashboard: "Dashboard",
-                nav_history: "ისტორია",
-                nav_analytics: "ანალიტიკა",
-                nav_settings: "პარამეტრები",
-                nav_new_trade: "ახალი ტრეიდი",
-                nav_admin: "ადმინი",
-                nav_logout: "გასვლა",
-                welcome_text: "მოგესალმები",
-                dashboard_subtitle: "აქ არის შენი სავაჭრო ანგარიშის დეტალური მიმოხილვა.",
-                progress_label: "პროგრესი",
-                target_label: "მიზანი",
-                card_current_balance: "მიმდინარე ბალანსი",
-                card_initial: "საწყისი",
-                card_total_pnl: "მთლიანი PnL",
-                card_win_rate: "Win Rate",
-                card_profit_factor: "Profit Factor",
-                card_loss_limit: "წაგების ლიმიტი",
-                chart_title: "კაპიტალის ზრდის მაჩვენებელი",
-                calendar_title: "სავაჭრო კალენდარი",
-                legend_profitable: "მოგებიანი",
-                legend_unprofitable: "წამგებიანი",
-                recent_trades_title: "ბოლო ტრეიდები",
-                view_all: "ყველას ნახვა",
-                th_pair: "წყვილი",
-                th_date: "თარიღი",
-                th_side: "მხარე",
-                th_entry_exit: "შესვლა → გასვლა",
-                th_pnl: "PnL",
-                no_trades: "ჯერ ტრეიდები არ არის დამატებული.",
-                modal_title: "ანგარიშის პარამეტრები",
-                modal_initial_balance: "საწყისი ბალანსი ($)",
-                modal_target_balance: "მოგების მიზანი ($)",
-                modal_max_loss: "მაქსიმალური წაგების ლიმიტი ($)",
-                btn_cancel: "გაუქმება",
-                btn_save: "შენახვა"
-            },
-            en: {
-                nav_dashboard: "Dashboard",
-                nav_history: "History",
-                nav_analytics: "Analytics",
-                nav_settings: "Settings",
-                nav_new_trade: "New Trade",
-                nav_admin: "Admin",
-                nav_logout: "Logout",
-                welcome_text: "Welcome",
-                dashboard_subtitle: "Here is your detailed trading account overview.",
-                progress_label: "Progress",
-                target_label: "Target",
-                card_current_balance: "Current Balance",
-                card_initial: "Initial",
-                card_total_pnl: "Total PnL",
-                card_win_rate: "Win Rate",
-                card_profit_factor: "Profit Factor",
-                card_loss_limit: "Max Loss Limit",
-                chart_title: "Equity Curve",
-                calendar_title: "Trading Calendar",
-                legend_profitable: "Profitable",
-                legend_unprofitable: "Loss-making",
-                recent_trades_title: "Recent Trades",
-                view_all: "View All",
-                th_pair: "Pair",
-                th_date: "Date",
-                th_side: "Side",
-                th_entry_exit: "Entry → Exit",
-                th_pnl: "PnL",
-                no_trades: "No trades added yet.",
-                modal_title: "Account Settings",
-                modal_initial_balance: "Initial Balance ($)",
-                modal_target_balance: "Profit Target ($)",
-                modal_max_loss: "Max Loss Limit ($)",
-                btn_cancel: "Cancel",
-                btn_save: "Save"
-            },
-            ru: {
-                nav_dashboard: "Дашборд",
-                nav_history: "История",
-                nav_analytics: "Аналитика",
-                nav_settings: "Настройки",
-                nav_new_trade: "Новая сделка",
-                nav_admin: "Админ",
-                nav_logout: "Выйти",
-                welcome_text: "Добро пожаловать",
-                dashboard_subtitle: "Подробный обзор вашего торгового счета.",
-                progress_label: "Прогресс",
-                target_label: "Цель",
-                card_current_balance: "Текущий баланс",
-                card_initial: "Начальный",
-                card_total_pnl: "Общий PnL",
-                card_win_rate: "Винрейт",
-                card_profit_factor: "Профит-фактор",
-                card_loss_limit: "Лимит убытка",
-                chart_title: "График роста капитала",
-                calendar_title: "Торговый календарь",
-                legend_profitable: "Прибыльный",
-                legend_unprofitable: "Убыточный",
-                recent_trades_title: "Последние сделки",
-                view_all: "Смотреть все",
-                th_pair: "Пара",
-                th_date: "Дата",
-                th_side: "Сторона",
-                th_entry_exit: "Вход → Выход",
-                th_pnl: "PnL",
-                no_trades: "Сделки пока не добавлены.",
-                modal_title: "Настройки счета",
-                modal_initial_balance: "Начальный баланс ($)",
-                modal_target_balance: "Цель по прибыли ($)",
-                modal_max_loss: "Макс. лимит убытка ($)",
-                btn_cancel: "Отмена",
-                btn_save: "Сохранить"
-            },
-            es: {
-                nav_dashboard: "Panel",
-                nav_history: "Historial",
-                nav_analytics: "Analítica",
-                nav_settings: "Ajustes",
-                nav_new_trade: "Nueva Operación",
-                nav_admin: "Admin",
-                nav_logout: "Cerrar sesión",
-                welcome_text: "Bienvenido",
-                dashboard_subtitle: "Resumen detallado de su cuenta de trading.",
-                progress_label: "Progreso",
-                target_label: "Objetivo",
-                card_current_balance: "Balance Actual",
-                card_initial: "Inicial",
-                card_total_pnl: "PnL Total",
-                card_win_rate: "Tasa de Aciertos",
-                card_profit_factor: "Factor de Beneficio",
-                card_loss_limit: "Límite de Pérdida",
-                chart_title: "Curva de Crecimiento del Capital",
-                calendar_title: "Calendario de Trading",
-                legend_profitable: "Ganador",
-                legend_unprofitable: "Perdedor",
-                recent_trades_title: "Operaciones Recientes",
-                view_all: "Ver Todo",
-                th_pair: "Par",
-                th_date: "Fecha",
-                th_side: "Lado",
-                th_entry_exit: "Entrada → Salida",
-                th_pnl: "PnL",
-                no_trades: "Aún no hay operaciones.",
-                modal_title: "Ajustes de la Cuenta",
-                modal_initial_balance: "Balance Inicial ($)",
-                modal_target_balance: "Objetivo de Ganancia ($)",
-                modal_max_loss: "Límite Máximo de Pérdida ($)",
-                btn_cancel: "Cancelar",
-                btn_save: "Guardar"
-            }
-        };
-
-        function applyLanguage(lang) {
-            const currentLang = i18nDict[lang] ? lang : 'ka';
-            localStorage.setItem('user_lang', currentLang);
-            document.documentElement.lang = currentLang;
-            
-            const displayBtn = document.getElementById('currentLangDisplay');
-            if (displayBtn) displayBtn.innerText = currentLang.toUpperCase();
-
-            document.querySelectorAll('[data-i18n]').forEach(elem => {
-                const key = elem.getAttribute('data-i18n');
-                if (i18nDict[currentLang] && i18nDict[currentLang][key]) {
-                    elem.innerText = i18nDict[currentLang][key];
-                }
-            });
-        }
-
-        function selectLanguage(lang) {
-            const dropdown = document.getElementById('langDropdown');
-            if (dropdown) dropdown.classList.add('hidden');
-            applyLanguage(lang);
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            const savedLang = localStorage.getItem('user_lang') || 'ka';
-            applyLanguage(savedLang);
-        });
-    </script>
-
-    <!-- UI სკრიპტები და Chart.js -->
+    <!-- სკრიპტები -->
     <script>
         lucide.createIcons();
 
@@ -597,46 +372,28 @@
             document.getElementById('settingsModal').classList.add('hidden');
         }
         function toggleMobileMenu() {
-            document.getElementById('mobileMenu').classList.toggle('hidden');
-        }
-        function toggleLangDropdown() {
-            document.getElementById('langDropdown').classList.toggle('hidden');
+            const menu = document.getElementById('mobileMenu');
+            menu.classList.toggle('hidden');
         }
 
-        document.addEventListener('click', function(e) {
-            const dropdown = document.getElementById('langDropdown');
-            const btn = e.target.closest('button');
-            if (dropdown && !dropdown.contains(e.target) && (!btn || !btn.getAttribute('onclick')?.includes('toggleLangDropdown'))) {
-                dropdown.classList.add('hidden');
-            }
-        });
-
-        // მონაცემების მიღება Chart.js-ისთვის
-        const chartRawData = {{ (chart_data if chart_data is defined else []) | tojson }};
-        const chartLabels = Array.isArray(chartRawData) ? chartRawData.map(item => item.time || '') : [];
-        const chartValues = Array.isArray(chartRawData) ? chartRawData.map(item => item.value || 0) : [];
+        const chartRawData = {{ chart_data | tojson }};
+        const chartLabels = chartRawData.map(item => item.time);
+        const chartValues = chartRawData.map(item => item.value);
 
         const ctx = document.getElementById('equityChart').getContext('2d');
-        const gradient = ctx.createLinearGradient(0, 0, 0, 300);
-        gradient.addColorStop(0, 'rgba(99, 102, 241, 0.25)');
-        gradient.addColorStop(1, 'rgba(99, 102, 241, 0.0)');
-
-        const initBalance = {{ initial_balance|default(0)|float }};
-
-        new Chart(ctx, {
+        const equityChart = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: chartLabels.length > 0 ? chartLabels : ['Start'],
+                labels: chartLabels.length > 0 ? chartLabels : ['საწყისი'],
                 datasets: [{
-                    label: 'Balance ($)',
-                    data: chartValues.length > 0 ? chartValues : [initBalance],
+                    label: 'ბალანსი ($)',
+                    data: chartValues.length > 0 ? chartValues : [{{ initial_balance }}],
                     borderColor: '#6366F1',
-                    backgroundColor: gradient,
+                    backgroundColor: 'rgba(99, 102, 241, 0.1)',
                     borderWidth: 2.5,
                     fill: true,
                     tension: 0.35,
-                    pointRadius: 3,
-                    pointHoverRadius: 6,
+                    pointRadius: 4,
                     pointBackgroundColor: '#6366F1'
                 }]
             },
@@ -651,7 +408,7 @@
             }
         });
 
-        const dailyPnlData = {{ (daily_pnl if daily_pnl is defined else {}) | tojson }};
+        const dailyPnlData = {{ daily_pnl | tojson }};
         const calendarContainer = document.getElementById('calendarContainer');
         
         if (calendarContainer) {
@@ -686,7 +443,7 @@
                 const dateStr = `${year}-${formattedMonth}-${formattedDay}`;
 
                 let bgClass = 'bg-white/[0.02] text-gray-400 border-white/5';
-                if (dailyPnlData && dailyPnlData.hasOwnProperty(dateStr)) {
+                if (dailyPnlData.hasOwnProperty(dateStr)) {
                     const pnl = dailyPnlData[dateStr];
                     if (pnl > 0) {
                         bgClass = 'bg-success/20 text-success border-success/40 font-bold shadow-[0_0_10px_rgba(16,185,129,0.2)]';
@@ -698,8 +455,8 @@
                 dayDiv.className = `py-1.5 sm:py-2 rounded-lg font-mono text-[10px] sm:text-[11px] border flex items-center justify-center transition-all ${bgClass}`;
                 dayDiv.innerText = i;
                 
-                if (dailyPnlData && dailyPnlData.hasOwnProperty(dateStr)) {
-                    dayDiv.title = `PnL: $${Number(dailyPnlData[dateStr]).toFixed(2)}`;
+                if (dailyPnlData.hasOwnProperty(dateStr)) {
+                    dayDiv.title = `PnL: $${dailyPnlData[dateStr].toFixed(2)}`;
                 }
 
                 calendarContainer.appendChild(dayDiv);
