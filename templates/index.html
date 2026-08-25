@@ -156,11 +156,17 @@
             <a href="{{ url_for('analytics') }}" class="block px-3 py-2 rounded-lg text-gray-300 hover:bg-white/5 font-medium flex items-center gap-2">
                 <i data-lucide="pie-chart" class="w-4 h-4 text-indigo-400"></i> Analytics
             </a>
+            <button onclick="openSettingsModal(); toggleMobileMenu();" class="w-full text-left px-3 py-2 rounded-lg text-gray-300 hover:bg-white/5 font-medium flex items-center gap-2">
+                <i data-lucide="sliders" class="w-4 h-4 text-indigo-400"></i> პარამეტრები
+            </button>
             {% if session.get('username') == 'sandrika' %}
             <a href="{{ url_for('admin_users') }}" class="block px-3 py-2 rounded-lg text-indigo-400 hover:bg-white/5 font-medium flex items-center gap-2">
                 <i data-lucide="shield-check" class="w-4 h-4"></i> ადმინ პანელი
             </a>
             {% endif %}
+            <a href="{{ url_for('logout') }}" class="block px-3 py-2 rounded-lg text-rose-400 hover:bg-rose-500/10 font-medium flex items-center gap-2">
+                <i data-lucide="log-out" class="w-4 h-4"></i> გასვლა
+            </a>
         </div>
     </nav>
 
@@ -306,8 +312,8 @@
                             </td>
                             <td class="px-4 sm:px-6 py-3.5 font-mono text-gray-300 text-xs">{{ trade[5] }} <span class="text-gray-500 mx-1">&rarr;</span> {{ trade[6] }}</td>
                             <td class="px-4 sm:px-6 py-3.5 text-right">
-                                <span class="font-bold {% if trade[7] > 0 %} text-success {% elif trade[7] < 0 %} text-danger {% else %} text-gray-400 {% endif %}">
-                                    {% if trade[7] > 0 %}+{% endif %}${{ trade[7] }}
+                                <span class="font-bold {% if trade[7]|float > 0 %} text-success {% elif trade[7]|float < 0 %} text-danger {% else %} text-gray-400 {% endif %}">
+                                    {% if trade[7]|float > 0 %}+{% endif %}${{ "{:,.2f}".format(trade[7]|float) }}
                                 </span>
                             </td>
                         </tr>
@@ -381,6 +387,10 @@
         const chartValues = chartRawData.map(item => item.value);
 
         const ctx = document.getElementById('equityChart').getContext('2d');
+        const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+        gradient.addColorStop(0, 'rgba(99, 102, 241, 0.25)');
+        gradient.addColorStop(1, 'rgba(99, 102, 241, 0.0)');
+
         const equityChart = new Chart(ctx, {
             type: 'line',
             data: {
@@ -389,11 +399,12 @@
                     label: 'ბალანსი ($)',
                     data: chartValues.length > 0 ? chartValues : [{{ initial_balance }}],
                     borderColor: '#6366F1',
-                    backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                    backgroundColor: gradient,
                     borderWidth: 2.5,
                     fill: true,
                     tension: 0.35,
-                    pointRadius: 4,
+                    pointRadius: 3,
+                    pointHoverRadius: 6,
                     pointBackgroundColor: '#6366F1'
                 }]
             },
