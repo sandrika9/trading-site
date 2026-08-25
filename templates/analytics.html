@@ -77,10 +77,6 @@
             mask-image: radial-gradient(circle at 50% 20%, black 40%, transparent 80%);
             pointer-events: none;
         }
-        ::view-transition-old(root),
-        ::view-transition-new(root) {
-            animation-duration: 0.25s;
-        }
     </style>
 </head>
 <body class="bg-transparent text-gray-300 min-h-screen font-sans antialiased">
@@ -118,7 +114,6 @@
                 </div>
 
                 <div class="flex items-center gap-4">
-                    <!-- 4-ენოვანი ჩამოსაშლელი მენიუ -->
                     <div class="relative z-30">
                         <select id="lang-select" onchange="setLanguage(this.value)" class="bg-black/40 border border-white/10 rounded-xl px-3 py-1.5 text-xs font-bold text-gray-200 focus:outline-none focus:border-indigo-500 cursor-pointer">
                             <option value="ka" class="bg-[#11151F] text-white">KA</option>
@@ -233,7 +228,6 @@
         </div>
     </main>
 
-    <!-- 4-ენოვანი დამახსოვრების JS ლოგიკა -->
     <script>
         const translations = {
             ka: {
@@ -309,15 +303,12 @@
         function setLanguage(lang) {
             if (!translations[lang]) return;
             
-            // localStorage-ში შენახვა
             localStorage.setItem('selected_language', lang);
             document.documentElement.lang = lang;
 
-            // სელექტორის განახლება UI-ში
             const langSelect = document.getElementById('lang-select');
             if (langSelect) langSelect.value = lang;
 
-            // ტექსტების შეცვლა data-i18n ატრიბუტით
             document.querySelectorAll('[data-i18n]').forEach(element => {
                 const key = element.getAttribute('data-i18n');
                 if (translations[lang][key]) {
@@ -326,27 +317,12 @@
             });
         }
 
-        // გვერდის ჩატვირთვისას შენახული ენის წამოღება (ნაგულისხმევად 'ka')
         document.addEventListener('DOMContentLoaded', () => {
             const savedLang = localStorage.getItem('selected_language') || 'ka';
             setLanguage(savedLang);
         });
 
         lucide.createIcons();
-
-        if (document.startViewTransition) {
-            document.querySelectorAll('a').forEach(link => {
-                link.addEventListener('click', e => {
-                    const href = link.getAttribute('href');
-                    if (href && !href.startsWith('#') && !href.startsWith('http') && !link.hasAttribute('download')) {
-                        e.preventDefault();
-                        document.startViewTransition(() => {
-                            window.location.href = href;
-                        });
-                    }
-                });
-            });
-        }
     </script>
 </body>
 </html>
