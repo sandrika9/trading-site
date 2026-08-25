@@ -9,8 +9,8 @@
 </head>
 <body class="bg-[#05070B] text-gray-300 min-h-screen flex flex-col items-center justify-center p-6 relative">
 
-    <!-- ენების არჩევის ჩამოსაშლელი ღილაკი (ზედა მარჯვენა კუთხეში) -->
-    <div class="absolute top-6 right-6">
+    <!-- ენების არჩევის ჩამოსაშლელი ღილაკი -->
+    <div class="absolute top-6 right-6 z-40">
         <div class="relative inline-block text-left">
             <button onclick="toggleLangDropdown()" id="langMenuButton" class="flex items-center gap-2 bg-[#11151F] border border-white/10 hover:border-indigo-500/40 px-4 py-2 rounded-xl text-sm font-medium text-white transition shadow-lg cursor-pointer">
                 <i data-lucide="globe" class="w-4 h-4 text-indigo-400"></i>
@@ -21,10 +21,10 @@
             <!-- ჩამოსაშლელი სია -->
             <div id="langDropdown" class="hidden absolute right-0 mt-2 w-40 bg-[#11151F] border border-white/10 rounded-2xl shadow-2xl overflow-hidden z-50">
                 <div class="py-1">
-                    <button onclick="changeLanguage('ka')" class="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-indigo-600/20 hover:text-white transition flex items-center gap-2">🇬🇪 ქართული</button>
-                    <button onclick="changeLanguage('en')" class="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-indigo-600/20 hover:text-white transition flex items-center gap-2">🇺🇸 English</button>
-                    <button onclick="changeLanguage('ru')" class="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-indigo-600/20 hover:text-white transition flex items-center gap-2">🇷🇺 Русский</button>
-                    <button onclick="changeLanguage('es')" class="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-indigo-600/20 hover:text-white transition flex items-center gap-2">🇪🇸 Español</button>
+                    <button onclick="changeLanguage('ka')" class="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-indigo-600/20 hover:text-white transition flex items-center gap-2 cursor-pointer">🇬🇪 ქართული</button>
+                    <button onclick="changeLanguage('en')" class="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-indigo-600/20 hover:text-white transition flex items-center gap-2 cursor-pointer">🇺🇸 English</button>
+                    <button onclick="changeLanguage('ru')" class="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-indigo-600/20 hover:text-white transition flex items-center gap-2 cursor-pointer">🇷🇺 Русский</button>
+                    <button onclick="changeLanguage('es')" class="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-indigo-600/20 hover:text-white transition flex items-center gap-2 cursor-pointer">🇪🇸 Español</button>
                 </div>
             </div>
         </div>
@@ -47,7 +47,7 @@
                 </ul>
             </div>
             
-            <a href="{{ url_for('index') }}" class="w-full py-3 px-4 rounded-xl bg-white/5 hover:bg-white/10 text-white font-semibold text-center transition" data-i18n="free_btn">
+            <a href="{{ url_for('index') }}" class="w-full py-3 px-4 rounded-xl bg-white/5 hover:bg-white/10 text-white font-semibold text-center transition block" data-i18n="free_btn">
                 გაგრძელება უფასოდ
             </a>
         </div>
@@ -158,7 +158,7 @@
             dropdown.classList.toggle('hidden');
         }
 
-        // დახურვა მენიუს გარეთ დაჭერისას
+        // მენიუს დახურვა გარე კლიკზე
         window.addEventListener('click', function(e) {
             const btn = document.getElementById('langMenuButton');
             const dropdown = document.getElementById('langDropdown');
@@ -170,9 +170,11 @@
         function changeLanguage(lang) {
             localStorage.setItem('selected_lang', lang);
             const t = translations[lang];
+            if (!t) return;
+            
             document.getElementById('currentLangText').innerText = t.current;
             
-            // ტექსტების შეცვლა ატრიბუტების მიხედვით
+            // ყველა ელემენტის თარგმნა data-i18n ატრიბუტით
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
                 if (t[key]) {
@@ -195,17 +197,24 @@
         });
 
         function openPaddleCheckout() {
-            Paddle.Checkout.open({
-                items: [
-                    {
-                        priceId: "pri_01m0t4w57zap9tma4qw27cfnta",
-                        quantity: 1
+            try {
+                Paddle.Checkout.open({
+                    items: [
+                        {
+                            priceId: "pri_01m0t4w57zap9tma4qw27cfnta",
+                            quantity: 1
+                        }
+                    ],
+                    customData: {
+                        user_id: "{{ session.get('user_id') }}"
+                    },
+                    successCallback: function(data) {
+                        window.location.href = "{{ url_for('index') }}";
                     }
-                ],
-                customData: {
-                    user_id: "{{ session.get('user_id') }}"
-                }
-            });
+                });
+            } catch (error) {
+                console.error("Paddle error:", error);
+            }
         }
     </script>
 </body>
