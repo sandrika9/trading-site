@@ -74,7 +74,7 @@
         .bg-grid {
             position: absolute; inset: 0;
             background-image: linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-                              linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+                            linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
             background-size: 32px 32px;
             mask-image: radial-gradient(circle at 50% 20%, black 40%, transparent 80%);
             pointer-events: none;
@@ -227,9 +227,9 @@
                 </div>
             </div>
 
-            <!-- Container with Blur Effect -->
+            <!-- Container with Blur Effect / Check for Paid User -->
             <div class="relative rounded-3xl overflow-hidden border border-white/10">
-                <div class="filter blur-md select-none pointer-events-none opacity-45 p-6 bg-surface/80 grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="p-6 bg-surface/80 grid grid-cols-1 md:grid-cols-3 gap-6 {% if user_is_paid != 1 and session.get('username') != 'sandrika' %}filter blur-md select-none pointer-events-none opacity-45{% endif %}">
                     <div class="glass-panel p-5 rounded-2xl space-y-3">
                         <div class="text-xs text-gray-400 font-medium">Profit Factor</div>
                         <div class="text-2xl font-extrabold text-success">2.84</div>
@@ -251,7 +251,8 @@
                     </div>
                 </div>
 
-                <!-- Unlock Overlay Call to Action with Paddle Checkout trigger -->
+                <!-- Unlock Overlay Call to Action (Shows only if NOT paid and NOT sandrika) -->
+                {% if user_is_paid != 1 and session.get('username') != 'sandrika' %}
                 <div class="absolute inset-0 bg-black/60 backdrop-blur-md flex flex-col items-center justify-center text-center p-6 z-20">
                     <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-xl shadow-indigo-500/30 mb-4 animate-bounce">
                         <i data-lucide="lock" class="w-7 h-7 text-white"></i>
@@ -265,6 +266,7 @@
                         <span data-i18n="upgrade_btn">გაიაქტიურე პრემიუმი</span>
                     </button>
                 </div>
+                {% endif %}
             </div>
         </div>
     </main>
@@ -295,11 +297,11 @@
     <script>
         lucide.createIcons();
 
-        // Paddle ინიციალიზაცია (შეცვალე 'test' და შენი Client Token / Price ID საჭიროებისამებრ)
+        // Paddle ინიციალიზაცია
         document.addEventListener("DOMContentLoaded", function () {
             if (typeof Paddle !== 'undefined') {
                 Paddle.Initialize({ 
-                        token: 'live_148661da13f33f0d9437ed24bfd' // აქ ჩასვი შენი რეალური Paddle Client Token
+                        token: 'live_148661da13f33f0d9437ed24bfd'
                 });
             }
         });
@@ -310,7 +312,7 @@
                 Paddle.Checkout.open({
                     items: [
                         {
-                            priceId: 'pri_01m0t4w57zap9tma4qw27cfnta', // აქ ჩასვი შენი Paddle პროდუქტის/ფასის ID
+                            priceId: 'pri_01m0t4w57zap9tma4qw27cfnta',
                             quantity: 1
                         }
                     ]
