@@ -5,6 +5,8 @@
     <title>აირჩიეთ პაკეტი - YourStats</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@lucide/lucide@latest"></script>
+    <!-- Paddle-ის სკრიპტი -->
+    <script src="https://cdn.paddle.com/paddle/v2/paddle.js"></script>
 </head>
 <body class="bg-[#05070B] text-gray-300 min-h-screen flex items-center justify-center p-6">
 
@@ -24,7 +26,6 @@
                 </ul>
             </div>
             
-            <!-- უფასო ვერსიაზე დაჭერისას შედის საიტზე მთავარ გვერდზე -->
             <a href="{{ url_for('index') }}" class="w-full py-3 px-4 rounded-xl bg-white/5 hover:bg-white/10 text-white font-semibold text-center transition">
                 გაგრძელება უფასოდ
             </a>
@@ -45,7 +46,6 @@
                 </ul>
             </div>
             
-            <!-- პრემიუმის ყიდვის ღილაკი -->
             <button onclick="openPaddleCheckout()" class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-semibold text-center transition shadow-lg shadow-indigo-600/30 cursor-pointer">
                 იყიდე პრემიუმი
             </button>
@@ -55,7 +55,25 @@
 
     <script>
         lucide.createIcons();
-        // აქ ჩასვი შენი არსებული Paddle ინიციალიზაცია, თუ გაქვს
+
+        // Paddle-ის ინიციალიზაცია V2-ის მიხედვით
+        Paddle.Initialize({
+            token: "test_c4c95eb9c0372dfcb19e59fb8f7" // შენი Paddle Client-side Token (ან Test Token თუ ტესტ რეჟიმში ხარ)
+        });
+
+        function openPaddleCheckout() {
+            Paddle.Checkout.open({
+                items: [
+                    {
+                        priceId: "pri_01m0t4w57zap9tma4qw27cfnta",
+                        quantity: 1
+                    }
+                ],
+                customData: {
+                    user_id: "{{ session.get('user_id') }}"
+                }
+            });
+        }
     </script>
 </body>
 </html>
