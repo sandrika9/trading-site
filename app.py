@@ -26,17 +26,6 @@ DATABASE_URL = os.environ.get(
 )
 
 
-# --- დამხმარე ფუნქცია რიცხვების უსაფრთხო კონვერტაციისთვის ---
-def parse_float(value, default=0.0):
-    if value is None:
-        return default
-    try:
-        clean_str = str(value).replace(',', '.').strip()
-        return float(clean_str) if clean_str else default
-    except (ValueError, TypeError):
-        return default
-
-
 # ბაზასთან კავშირის დამხმარე ფუნქცია (Retry მექანიზმით და DictConnection-ით)
 def get_db_connection():
     retries = 3
@@ -242,9 +231,9 @@ def index():
         conn.rollback()
 
     settings = get_or_create_user_settings(cursor, session["user_id"])
-    initial_balance = parse_float(settings["initial_balance"], 50000.0)
-    target_balance = parse_float(settings["target_balance"], 53000.0)
-    max_loss_limit = parse_float(settings["max_loss_limit"], 1000.0)
+    initial_balance = float(settings["initial_balance"])
+    target_balance = float(settings["target_balance"])
+    max_loss_limit = float(settings["max_loss_limit"])
 
     cursor.execute(
         "SELECT * FROM trades WHERE user_id = %s ORDER BY id DESC",
@@ -268,7 +257,7 @@ def index():
     calendar_data = {}
 
     for t in reversed(dataSource_trades):
-        pnl = parse_float(t["pnl"], 0.0)
+        pnl = t["pnl"]
         total_pnl += pnl
         current_balance += pnl
 
@@ -283,7 +272,7 @@ def index():
 
     for t in dataSource_trades:
         trade_date = str(t["date"])
-        pnl = parse_float(t["pnl"], 0.0)
+        pnl = t["pnl"]
         if trade_date not in calendar_data:
             calendar_data[trade_date] = 0.0
         calendar_data[trade_date] += pnl
@@ -384,9 +373,9 @@ def add_trade():
         else:
             direction = "LONG"
 
-        entry_price = parse_float(request.form.get("entry_price"), 0.0)
-        exit_price = parse_float(request.form.get("exit_price"), 0.0)
-        pnl = parse_float(request.form.get("pnl"), 0.0)
+        entry_price = float(request.form.get("entry_price", 0) or 0)
+        exit_price = float(request.form.get("exit_price", 0) or 0)
+        pnl = float(request.form.get("pnl", 0) or 0)
         emotion = request.form.get("emotion", "ნეიტრალური")
         screenshot_base64 = request.form.get("screenshot")
 
@@ -483,9 +472,10 @@ def analytics():
     emotion_stats = {}
 
     for t in trades:
-        pnl = parse_float(t["pnl"], 0.0)
+        pnl = t["pnl"]
         raw_dir = str(t["direction"]).strip().lower() if t["direction"] else ""
         
+        # უსაფრთხო ამოღება DictRow-დან
         emotion = t.get("emotion") if t.get("emotion") else "ზოგადი"
 
         if emotion not in emotion_stats:
@@ -541,9 +531,9 @@ def analytics():
 @app.route("/update_settings", methods=["POST"])
 @paid_required
 def update_settings():
-    initial_balance = parse_float(request.form.get("initial_balance"), 50000.0)
-    target_balance = parse_float(request.form.get("target_balance"), 53000.0)
-    max_loss_limit = parse_float(request.form.get("max_loss_limit"), 1000.0)
+    initial_balance = float(request.form.get("initial_balance", 50000.0) or 50000.0)
+    target_balance = float(request.form.get("target_balance", 53000.0) or 53000.0)
+    max_loss_limit = float(request.form.get("max_loss_limit", 1000.0) or 1000.0)
 
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -559,6 +549,7 @@ def update_settings():
         """)
         conn.commit()
 
+        # გასწორდა PostgreSQL სინტაქსი: დაემატა DO
         cursor.execute(
             """
             INSERT INTO user_settings (user_id, initial_balance, target_balance, max_loss_limit)
@@ -577,16 +568,16 @@ def update_settings():
             ),
         )
         conn.commit()
-        flash("პარამეტრები წარმატებით განახლდა!", "success")
     except Exception as e:
         conn.rollback()
         flash("შეცდომა პარამეტრების შენახვისას.", "error")
-        print(f"Update settings error: {e}")
+        print(e)
     finally:
         cursor.close()
         conn.close()
 
-    return redirect(request.referrer or url_for("index"))
+    flash("პარამეტრები წარმატებით განახლდა!", "success")
+    return redirect(url_for("index"))
 
 
 @app.route("/admin/users")
