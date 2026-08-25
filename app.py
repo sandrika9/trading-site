@@ -186,11 +186,8 @@ def paddle_webhook():
 
     event_type = data.get("event_type")
 
-    # როდესაც ტრანზაქცია წარმატებით დასრულდება
     if event_type == "transaction.completed":
         data_obj = data.get("data", {})
-
-        # ამოვიღოთ custom_data-დან user_id
         custom_data = data_obj.get("custom_data", {})
         user_id = custom_data.get("user_id")
 
@@ -475,7 +472,6 @@ def analytics():
         pnl = t["pnl"]
         raw_dir = str(t["direction"]).strip().lower() if t["direction"] else ""
         
-        # უსაფრთხო ამოღება DictRow-დან
         emotion = t.get("emotion") if t.get("emotion") else "ზოგადი"
 
         if emotion not in emotion_stats:
@@ -549,7 +545,6 @@ def update_settings():
         """)
         conn.commit()
 
-        # გასწორდა PostgreSQL სინტაქსი: დაემატა DO
         cursor.execute(
             """
             INSERT INTO user_settings (user_id, initial_balance, target_balance, max_loss_limit)
@@ -585,8 +580,9 @@ def update_settings():
 def admin_users():
     conn = get_db_connection()
     cursor = conn.cursor()
+    # ამოიღებს ყველა მომხმარებელს ბაზიდან
     cursor.execute(
-        "SELECT id, username, is_paid FROM users WHERE username != 'sandrika'"
+        "SELECT id, username, is_paid FROM users ORDER BY id ASC"
     )
     all_users = cursor.fetchall()
     cursor.close()
