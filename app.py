@@ -26,8 +26,9 @@ DATABASE_URL = os.environ.get(
     "postgresql://postgres.rnktcgfknokfdktfxjkb:Sandrika123solo@aws-0-ap-northeast-2.pooler.supabase.com:6543/postgres",
 )
 
-# OpenAI კლიენტის ინიციალიზაცია
-openai_client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+# OpenAI კლიენტის უსაფრთხო ინიციალიზაცია (თუ გასაღები არ დევს, სერვერი არ იშლება)
+openai_api_key = os.environ.get("OPENAI_API_KEY")
+openai_client = OpenAI(api_key=openai_api_key) if openai_api_key else None
 
 
 # ბაზასთან კავშირის დამხმარე ფუნქცია
@@ -539,10 +540,13 @@ def analytics():
     )
 
 
-# --- AI Insights ენდფოინთი (API მოთხოვნა OpenAI-სთან) ---
+# --- AI Insights ენდფოინთი ---
 @app.route("/ai_insights", methods=["POST"])
 @paid_required
 def ai_insights():
+    if not openai_client:
+        return jsonify({"advice": "OpenAI API გასაღები არ არის კონფიგურირებული სერვერზე."})
+
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute(
@@ -556,7 +560,6 @@ def ai_insights():
     if not trades:
         return jsonify({"advice": "ჯერ არ გაქვს დამატებული ტრეიდები AI ანალიზისთვის."})
 
-    # ტრეიდების ისტორიის ფორმატირება ტექსტად AI-სთვის
     trades_summary = "\n".join(
         [
             f"Pair: {t['pair']}, Direction: {t['direction']}, PnL: {t['pnl']}, Emotion: {t.get('emotion', 'N/A')}, Date: {t['date']}"
@@ -579,7 +582,7 @@ def ai_insights():
         advice = response.choices[0].message.content
         return jsonify({"advice": advice})
     except Exception as e:
-        return jsonify({"advice": f"ვერ მოხერხდა AI ანალიზის გენერაცია. შეამოწმეთ API გასაღები. (შეცდომა: {str(e)})"})
+        return jsonify({"advice": f"ვერ მოხერხდა AI ანალიზის გენერაცია. (შეცდომა: {str(e)})"})
 
 
 @app.route("/update_settings", methods=["POST"])
@@ -670,4 +673,5 @@ def toggle_user(user_id):
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port, debug=True)
