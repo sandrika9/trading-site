@@ -143,8 +143,11 @@ def login():
             session["username"] = user["username"]
             session["is_paid"] = user["is_paid"]
 
-            # რეგისტრაციის/ლოგინის შემდეგ უშვებთ მთავარ გვერდზე, სადაც თავად გადაწყვეტს უფასოთი სარგებლობას თუ პრემიუმით
-            return redirect(url_for("index"))
+            # თუ ადმინია ან პრემიუმია, უშვებთ მთავარზე. თუ უფასოა, ჯერ პაკეტების (Pricing) გვერდზე ხვდება!
+            if username == "sandrika" or user["is_paid"] == 1:
+                return redirect(url_for("index"))
+            else:
+                return redirect(url_for("pricing"))
         else:
             flash("არასწორი მომხმარებლის სახელი ან პაროლი", "error")
 
