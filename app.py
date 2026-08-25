@@ -57,7 +57,11 @@ def inject_user_status():
     if "user_id" not in session:
         return {"user_is_paid": 0, "is_admin": False}
 
-    if session.get("username") == "sandrika":
+    username = session.get("username")
+    is_admin = (username == "sandrika")
+
+    # თუ ადმინია, ავტომატურად ყველაფერი ჩართული აქვს
+    if is_admin:
         return {"user_is_paid": 1, "is_admin": True}
 
     try:
