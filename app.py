@@ -20,18 +20,15 @@ from werkzeug.security import check_password_hash, generate_password_hash
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "your_secret_key_here")
 
-# Supabase PostgreSQL ბაზის მისამართი
 DATABASE_URL = os.environ.get(
     "DATABASE_URL",
     "postgresql://postgres.rnktcgfknokfdktfxjkb:Sandrika123solo@aws-0-ap-northeast-2.pooler.supabase.com:6543/postgres",
 )
 
-# OpenAI კლიენტის უსაფრთხო ინიციალიზაცია (თუ გასაღები არ დევს, სერვერი არ იშლება)
 openai_api_key = os.environ.get("OPENAI_API_KEY")
 openai_client = OpenAI(api_key=openai_api_key) if openai_api_key else None
 
 
-# ბაზასთან კავშირის დამხმარე ფუნქცია
 def get_db_connection():
     retries = 3
     delay = 2
@@ -51,7 +48,6 @@ def get_db_connection():
                 raise e
 
 
-# --- კონტექსტის პროცესორი ---
 @app.context_processor
 def inject_user_status():
     if "user_id" not in session:
@@ -77,7 +73,7 @@ def inject_user_status():
         return {"user_is_paid": 1 if is_admin else 0, "is_admin": is_admin}
 
 
-# --- დეკორატორები ---
+# დეკორატორი მკაცრად პრემიუმ ფუნქციებისთვის (თუ რამის დაბლოკვა გინდა)
 def paid_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -97,7 +93,7 @@ def paid_required(f):
         conn.close()
 
         if not user or user["is_paid"] != 1:
-            return redirect(url_for("pending_approval"))
+            return redirect(url_for("pricing"))  # გადაამისამართებს პაკეტების არჩევის გვერდზე
 
         return f(*args, **kwargs)
 
@@ -129,8 +125,6 @@ def get_or_create_user_settings(cursor, user_id):
     return settings
 
 
-# --- მარშრუტები ---
-
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
@@ -149,10 +143,8 @@ def login():
             session["username"] = user["username"]
             session["is_paid"] = user["is_paid"]
 
-            if username == "sandrika" or user["is_paid"] == 1:
-                return redirect(url_for("index"))
-            else:
-                return redirect(url_for("pending_approval"))
+            # რეგისტრაციის/ლოგინის შემდეგ უშვებთ მთავარ გვერდზე, სადაც თავად გადაწყვეტს უფასოთი სარგებლობას თუ პრემიუმით
+            return redirect(url_for("index"))
         else:
             flash("არასწორი მომხმარებლის სახელი ან პაროლი", "error")
 
@@ -184,22 +176,12 @@ def register():
     return render_template("register.html")
 
 
-@app.route("/pending")
-def pending_approval():
+# პაკეტების არჩევის გვერდი (სადაც გამოჩნდება უფასო და პრემიუმ ღილაკები)
+@app.route("/pricing")
+def pricing():
     if "user_id" not in session:
         return redirect(url_for("login"))
-
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("SELECT is_paid FROM users WHERE id = %s", (session["user_id"],))
-    user = cursor.fetchone()
-    cursor.close()
-    conn.close()
-
-    if session.get("username") == "sandrika" or (user and user["is_paid"] == 1):
-        return redirect(url_for("index"))
-
-    return render_template("pending.html", discord_tag="cs2sacc")
+    return render_template("pricing.html")
 
 
 @app.route("/paddle-webhook", methods=["POST"])
@@ -231,9 +213,12 @@ def logout():
     return redirect(url_for("login"))
 
 
+# მთავარი გვერდი ხელმისაწვდომია ყველასთვის (უფასოებისთვისაც და პრემიუმებისთვისაც)
 @app.route("/")
-@paid_required
 def index():
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+
     conn = get_db_connection()
     cursor = conn.cursor()
 
@@ -344,8 +329,9 @@ def index():
 
 
 @app.route("/trades")
-@paid_required
 def trades_list():
+    if "user_id" not in session:
+        return redirect(url_for("login"))
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute(
@@ -359,8 +345,9 @@ def trades_list():
 
 
 @app.route("/trade/<int:id>")
-@paid_required
 def trade_detail(id):
+    if "user_id" not in session:
+        return redirect(url_for("login"))
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute(
@@ -378,9 +365,32 @@ def trade_detail(id):
     return render_template("trade_detail.html", trade=trade)
 
 
+# აქ ვამატებთ შემოწმებას: თუ მომხმარებელი არ არის პრემიუმი და უკვე აქვს 3 ტრეიდი, ვზღუდავთ
 @app.route("/add_trade", methods=["GET", "POST"])
-@paid_required
 def add_trade():
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    # ვამოწმებთ პრემიუმ სტატუსს
+    cursor.execute("SELECT is_paid FROM users WHERE id = %s", (session["user_id"],))
+    user = cursor.fetchone()
+    is_paid = user["is_paid"] if user else 0
+    is_admin = (session.get("username") == "sandrika")
+
+    # ვითვლით არსებულ ტრეიდებს
+    cursor.execute("SELECT COUNT(*) FROM trades WHERE user_id = %s", (session["user_id"],))
+    trade_count = cursor.fetchone()[0]
+    cursor.close()
+    conn.close()
+
+    # თუ არ არის პრემიუმი (არც ადმინია) და უკვე დაგროვილი აქვს 3 ტრეიდი
+    if not is_admin and is_paid != 1 and trade_count >= 3:
+        flash("უფასო ვერსიით შეგიძლია დაამატო მაქსიმუმ 3 ტრეიდი. შეიძინე პრემიუმი შეუზღუდავად სარგებლობისთვის.", "error")
+        return redirect(url_for("pricing"))
+
     if request.method == "POST":
         date = request.form.get("date")
         pair = request.form.get("pair")
@@ -447,8 +457,9 @@ def add_trade():
 
 
 @app.route("/delete_trade/<int:id>", methods=["GET", "POST"])
-@paid_required
 def delete_trade(id):
+    if "user_id" not in session:
+        return redirect(url_for("login"))
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute(
@@ -466,7 +477,7 @@ def delete_trade(id):
 
 
 @app.route("/analytics")
-@paid_required
+@paid_required  # ანალიტიკა დავტოვოთ მხოლოდ პრემიუმისთვის (ან მოვხსნათ თუ უფასოსაც უნდა ჰქონდეს)
 def analytics():
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -543,9 +554,8 @@ def analytics():
     )
 
 
-# --- AI Insights ენდფოინთი ---
 @app.route("/ai_insights", methods=["POST"])
-@paid_required
+@paid_required  # AI მენტორი მკაცრად პრემიუმია
 def ai_insights():
     if not openai_client:
         return jsonify({"advice": "OpenAI API გასაღები არ არის კონფიგურირებული სერვერზე."})
@@ -572,6 +582,7 @@ def ai_insights():
 
     prompt = (
         "შენ ხარ პროფესიონალი ტრეიდინგ მენტორი და რისკ-მენეჯერი. "
+        "შენ ხარ პროფესიონალი ტრეიდინგ მენტორი და რისკ-მენეჯერი. "
         "გააანალიზე ამ ტრეიდერის ბოლო ტრეიდები და მომეცი მოკლე, კონკრეტული და რჩევებზე ორიენტირებული ანალიზი (ქართულ ენაზე):\n\n"
         f"{trades_summary}"
     )
@@ -589,8 +600,9 @@ def ai_insights():
 
 
 @app.route("/update_settings", methods=["POST"])
-@paid_required
 def update_settings():
+    if "user_id" not in session:
+        return redirect(url_for("login"))
     initial_balance = float(request.form.get("initial_balance", 50000.0) or 50000.0)
     target_balance = float(request.form.get("target_balance", 53000.0) or 53000.0)
     max_loss_limit = float(request.form.get("max_loss_limit", 1000.0) or 1000.0)
