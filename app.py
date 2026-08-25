@@ -60,10 +60,6 @@ def inject_user_status():
     username = session.get("username")
     is_admin = (username == "sandrika")
 
-    # თუ ადმინია, ავტომატურად ყველაფერი ჩართული აქვს
-    if is_admin:
-        return {"user_is_paid": 1, "is_admin": True}
-
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
@@ -73,9 +69,12 @@ def inject_user_status():
         conn.close()
 
         is_paid_val = user["is_paid"] if user else 0
-        return {"user_is_paid": is_paid_val, "is_admin": False}
+        if is_admin or is_paid_val == 1:
+            return {"user_is_paid": 1, "is_admin": is_admin}
+            
+        return {"user_is_paid": 0, "is_admin": is_admin}
     except Exception:
-        return {"user_is_paid": 0, "is_admin": False}
+        return {"user_is_paid": 1 if is_admin else 0, "is_admin": is_admin}
 
 
 # --- დეკორატორები ---
@@ -97,7 +96,7 @@ def paid_required(f):
         cursor.close()
         conn.close()
 
-        if not user or user["is_paid"] == 0:
+        if not user or user["is_paid"] != 1:
             return redirect(url_for("pending_approval"))
 
         return f(*args, **kwargs)
