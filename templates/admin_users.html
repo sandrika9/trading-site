@@ -7,17 +7,60 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                }
+            }
+        }
+    </script>
     <style>
         .glass-panel {
             background: rgba(17, 21, 31, 0.75);
             backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.07);
+        }
+        .app-background {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: -1; overflow: hidden; background-color: #05070B;
+            pointer-events: none;
+        }
+        .bg-glow-1 {
+            position: absolute; top: -10%; left: 20%; width: 600px; height: 600px;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.12) 0%, rgba(139, 92, 246, 0.05) 40%, transparent 70%);
+            border-radius: 50%; pointer-events: none; filter: blur(60px);
+        }
+        .bg-glow-2 {
+            position: absolute; bottom: -15%; right: 10%; width: 700px; height: 700px;
+            background: radial-gradient(circle, rgba(168, 85, 247, 0.08) 0%, rgba(59, 130, 246, 0.03) 50%, transparent 70%);
+            border-radius: 50%; pointer-events: none; filter: blur(80px);
+        }
+        .bg-grid {
+            position: absolute; inset: 0;
+            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            background-size: 32px 32px;
+            mask-image: radial-gradient(circle at 50% 20%, black 40%, transparent 80%);
+            pointer-events: none;
         }
     </style>
 </head>
-<body class="bg-[#05070B] text-gray-300 min-h-screen p-6 font-sans">
+<body class="bg-transparent text-gray-300 min-h-screen p-6 font-sans antialiased">
+
+    <!-- ფონური ეფექტები -->
+    <div class="app-background">
+        <div class="bg-glow-1"></div>
+        <div class="bg-glow-2"></div>
+        <div class="bg-grid"></div>
+    </div>
+
     <div class="max-w-4xl mx-auto space-y-6">
-        <div class="flex justify-between items-center glass-panel p-6 rounded-2xl">
+        <!-- ჰედერი -->
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 glass-panel p-6 rounded-2xl shadow-xl">
             <div>
                 <h1 class="text-xl font-bold text-white flex items-center gap-2">
                     <i data-lucide="shield-check" class="w-6 h-6 text-indigo-400"></i> მომხმარებლების მართვა (Admin)
@@ -29,8 +72,15 @@
             </a>
         </div>
 
+        <!-- ძებნის ველი -->
+        <div class="glass-panel p-4 rounded-2xl flex items-center gap-3">
+            <i data-lucide="search" class="w-4 h-4 text-gray-400 ml-2"></i>
+            <input type="text" id="searchInput" onkeyup="filterUsers()" placeholder="მოძებნე მომხმარებელი სახელით..." class="w-full bg-transparent text-sm text-white placeholder-gray-500 focus:outline-none">
+        </div>
+
+        <!-- ცხრილი -->
         <div class="glass-panel rounded-2xl overflow-hidden shadow-xl">
-            <table class="w-full text-left text-sm">
+            <table class="w-full text-left text-sm" id="usersTable">
                 <thead class="bg-black/40 text-gray-400 border-b border-white/5">
                     <tr>
                         <th class="px-6 py-4 font-medium">მომხმარებელი</th>
@@ -40,8 +90,8 @@
                 </thead>
                 <tbody class="divide-y divide-white/5">
                     {% for u in users %}
-                    <tr class="hover:bg-white/[0.02] transition">
-                        <td class="px-6 py-4 font-bold text-white">{{ u.username }}</td>
+                    <tr class="hover:bg-white/[0.02] transition user-row">
+                        <td class="px-6 py-4 font-bold text-white username-text">{{ u.username }}</td>
                         <td class="px-6 py-4">
                             {% if u.is_paid == 1 %}
                                 <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">აქტიური (ნაყიდი)</span>
@@ -72,6 +122,28 @@
             </table>
         </div>
     </div>
-    <script>lucide.createIcons();</script>
+
+    <script>
+        lucide.createIcons();
+
+        // რეალურ დროში ძებნის ფუნქცია
+        function filterUsers() {
+            let input = document.getElementById('searchInput');
+            let filter = input.value.toLowerCase();
+            let rows = document.getElementsByClassName('user-row');
+
+            for (let i = 0; i < rows.length; i++) {
+                let usernameTd = rows[i].getElementsByClassName('username-text')[0];
+                if (usernameTd) {
+                    let textValue = usernameTd.textContent || usernameTd.innerText;
+                    if (textValue.toLowerCase().indexOf(filter) > -1) {
+                        rows[i].style.display = "";
+                    } else {
+                        rows[i].style.display = "none";
+                    }
+                }
+            }
+        }
+    </script>
 </body>
 </html>

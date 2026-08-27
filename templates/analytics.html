@@ -77,10 +77,6 @@ D2<!DOCTYPE html>
             mask-image: radial-gradient(circle at 50% 20%, black 40%, transparent 80%);
             pointer-events: none;
         }
-        ::view-transition-old(root),
-        ::view-transition-new(root) {
-            animation-duration: 0.25s;
-        }
     </style>
 </head>
 <body class="bg-transparent text-gray-300 min-h-screen font-sans antialiased">
@@ -95,7 +91,6 @@ D2<!DOCTYPE html>
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16 items-center">
             
-            <!-- მთავარი სათაური და ლოგო გადაქცეულია სრულად კლიკაბელურ ბმულად -->
             <a href="{{ url_for('index') }}" class="flex items-center gap-3 group cursor-pointer relative z-30">
                 <div class="bg-gradient-to-br from-indigo-500 to-purple-600 p-2 rounded-xl shadow-lg shadow-indigo-500/20 group-hover:scale-105 transition">
                     <i data-lucide="line-chart" class="w-6 h-6 text-white"></i>
@@ -133,113 +128,123 @@ D2<!DOCTYPE html>
             <p class="text-sm text-gray-400 mt-1">თქვენი შედეგების ღრმა სტატისტიკური ანალიზი და განაწილება.</p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="glass-panel p-6 rounded-2xl relative overflow-hidden group">
-                <div class="absolute -right-6 -top-6 w-24 h-24 bg-success/10 rounded-full blur-2xl group-hover:bg-success/20 transition"></div>
-                <div class="flex justify-between items-center mb-6">
-                    <div class="flex items-center gap-3">
-                        <div class="p-2.5 bg-success/10 rounded-xl text-success border border-success/20"><i data-lucide="trending-up" class="w-5 h-5"></i></div>
-                        <div>
-                            <h3 class="text-white font-bold text-base">LONG პოზიციები</h3>
-                            <span class="text-xs text-gray-400">სულ: <span class="text-white font-semibold">{{ long_stats.count }}</span></span>
+        <!-- პრემიუმ შემოწმება: თუ გადახდილია ან ადმინია -->
+        {% if user_is_paid == 1 or session.get('username') == 'sandrika' %}
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="glass-panel p-6 rounded-2xl relative overflow-hidden group">
+                    <div class="absolute -right-6 -top-6 w-24 h-24 bg-success/10 rounded-full blur-2xl group-hover:bg-success/20 transition"></div>
+                    <div class="flex justify-between items-center mb-6">
+                        <div class="flex items-center gap-3">
+                            <div class="p-2.5 bg-success/10 rounded-xl text-success border border-success/20"><i data-lucide="trending-up" class="w-5 h-5"></i></div>
+                            <div>
+                                <h3 class="text-white font-bold text-base">LONG პოზიციები</h3>
+                                <span class="text-xs text-gray-400">სულ: <span class="text-white font-semibold">{{ long_stats.count }}</span></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-black/30 p-4 rounded-xl border border-white/5">
+                            <span class="text-xs text-gray-400 block mb-1">მთლიანი PnL</span>
+                            <span class="text-xl font-bold {% if long_stats.pnl >= 0 %} text-success {% else %} text-danger {% endif %}">
+                                {% if long_stats.pnl > 0 %}+{% endif %}${{ "{:,.2f}".format(long_stats.pnl) }}
+                            </span>
+                        </div>
+                        <div class="bg-black/30 p-4 rounded-xl border border-white/5">
+                            <span class="text-xs text-gray-400 block mb-1">Win Rate</span>
+                            <span class="text-xl font-bold text-white">{{ long_stats.win_rate }}%</span>
                         </div>
                     </div>
                 </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="bg-black/30 p-4 rounded-xl border border-white/5">
-                        <span class="text-xs text-gray-400 block mb-1">მთლიანი PnL</span>
-                        <span class="text-xl font-bold {% if long_stats.pnl >= 0 %} text-success {% else %} text-danger {% endif %}">
-                            {% if long_stats.pnl > 0 %}+{% endif %}${{ "{:,.2f}".format(long_stats.pnl) }}
-                        </span>
+
+                <div class="glass-panel p-6 rounded-2xl relative overflow-hidden group">
+                    <div class="absolute -right-6 -top-6 w-24 h-24 bg-danger/10 rounded-full blur-2xl group-hover:bg-danger/20 transition"></div>
+                    <div class="flex justify-between items-center mb-6">
+                        <div class="flex items-center gap-3">
+                            <div class="p-2.5 bg-danger/10 rounded-xl text-danger border border-danger/20"><i data-lucide="trending-down" class="w-5 h-5"></i></div>
+                            <div>
+                                <h3 class="text-white font-bold text-base">SHORT პოზიციები</h3>
+                                <span class="text-xs text-gray-400">სულ: <span class="text-white font-semibold">{{ short_stats.count }}</span></span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="bg-black/30 p-4 rounded-xl border border-white/5">
-                        <span class="text-xs text-gray-400 block mb-1">Win Rate</span>
-                        <span class="text-xl font-bold text-white">{{ long_stats.win_rate }}%</span>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-black/30 p-4 rounded-xl border border-white/5">
+                            <span class="text-xs text-gray-400 block mb-1">მთლიანი PnL</span>
+                            <span class="text-xl font-bold {% if short_stats.pnl >= 0 %} text-success {% else %} text-danger {% endif %}">
+                                {% if short_stats.pnl > 0 %}+{% endif %}${{ "{:,.2f}".format(short_stats.pnl) }}
+                            </span>
+                        </div>
+                        <div class="bg-black/30 p-4 rounded-xl border border-white/5">
+                            <span class="text-xs text-gray-400 block mb-1">Win Rate</span>
+                            <span class="text-xl font-bold text-white">{{ short_stats.win_rate }}%</span>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="glass-panel p-6 rounded-2xl relative overflow-hidden group">
-                <div class="absolute -right-6 -top-6 w-24 h-24 bg-danger/10 rounded-full blur-2xl group-hover:bg-danger/20 transition"></div>
-                <div class="flex justify-between items-center mb-6">
-                    <div class="flex items-center gap-3">
-                        <div class="p-2.5 bg-danger/10 rounded-xl text-danger border border-danger/20"><i data-lucide="trending-down" class="w-5 h-5"></i></div>
-                        <div>
-                            <h3 class="text-white font-bold text-base">SHORT პოზიციები</h3>
-                            <span class="text-xs text-gray-400">სულ: <span class="text-white font-semibold">{{ short_stats.count }}</span></span>
-                        </div>
-                    </div>
+            <div class="glass-panel rounded-2xl overflow-hidden shadow-2xl !transform-none">
+                <div class="p-6 border-b border-white/5 bg-surface/50">
+                    <h2 class="text-lg font-semibold text-white flex items-center gap-2">
+                        <i data-lucide="brain" class="w-5 h-5 text-indigo-400"></i> ფსიქოლოგიური და ემოციური ანალიზი
+                    </h2>
                 </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="bg-black/30 p-4 rounded-xl border border-white/5">
-                        <span class="text-xs text-gray-400 block mb-1">მთლიანი PnL</span>
-                        <span class="text-xl font-bold {% if short_stats.pnl >= 0 %} text-success {% else %} text-danger {% endif %}">
-                            {% if short_stats.pnl > 0 %}+{% endif %}${{ "{:,.2f}".format(short_stats.pnl) }}
-                        </span>
-                    </div>
-                    <div class="bg-black/30 p-4 rounded-xl border border-white/5">
-                        <span class="text-xs text-gray-400 block mb-1">Win Rate</span>
-                        <span class="text-xl font-bold text-white">{{ short_stats.win_rate }}%</span>
-                    </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm whitespace-nowrap">
+                        <thead class="bg-black/20 text-gray-400">
+                            <tr>
+                                <th class="px-6 py-4 font-medium">ემოცია / მდგომარეობა</th>
+                                <th class="px-6 py-4 font-medium">ტრეიდების რაოდენობა</th>
+                                <th class="px-6 py-4 font-medium text-right">ჯამური PnL</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-white/5">
+                            {% for emo, data in emotion_stats.items() %}
+                            <tr class="hover:bg-white/[0.03] transition">
+                                <td class="px-6 py-4"><span class="font-semibold text-white bg-white/5 px-3 py-1.5 rounded-lg">{{ emo }}</span></td>
+                                <td class="px-6 py-4 text-gray-300 font-medium">{{ data.count }}</td>
+                                <td class="px-6 py-4 text-right">
+                                    <span class="font-bold text-base {% if data.pnl > 0 %} text-success {% elif data.pnl < 0 %} text-danger {% else %} text-gray-400 {% endif %}">
+                                        {% if data.pnl > 0 %}+{% endif %}${{ "{:,.2f}".format(data.pnl) }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="3" class="px-6 py-12 text-center text-gray-500">
+                                    მონაცემები ჯერ არ არის.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
             </div>
-        </div>
 
-        <div class="glass-panel rounded-2xl overflow-hidden shadow-2xl !transform-none">
-            <div class="p-6 border-b border-white/5 bg-surface/50">
-                <h2 class="text-lg font-semibold text-white flex items-center gap-2">
-                    <i data-lucide="brain" class="w-5 h-5 text-indigo-400"></i> ფსიქოლოგიური და ემოციური ანალიზი
-                </h2>
+        {% else %}
+            <!-- თუ არ აქვს გადახდილი (ან ხელით გაუთიშე) -->
+            <div class="glass-panel p-12 rounded-2xl text-center space-y-6 relative overflow-hidden">
+                <div class="absolute inset-0 bg-gradient-to-b from-indigo-500/5 to-purple-500/5 pointer-events-none"></div>
+                <div class="w-16 h-16 bg-indigo-600/20 border border-indigo-500/30 text-indigo-400 rounded-2xl mx-auto flex items-center justify-center shadow-lg shadow-indigo-500/10">
+                    <i data-lucide="lock" class="w-8 h-8"></i>
+                </div>
+                <div class="max-w-md mx-auto space-y-2">
+                    <h3 class="text-xl font-bold text-white">Unlock Premium Analytics</h3>
+                    <p class="text-sm text-gray-400">Get full access to AI insights, advanced risk calculator and detailed trading metrics.</p>
+                </div>
+                <div>
+                    <!-- შენი გადახდის ბმული ან ღილაკი -->
+                    <a href="#" class="inline-flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white px-8 py-3 rounded-xl font-semibold shadow-lg shadow-indigo-500/25 transition-all hover:scale-105">
+                        <i data-lucide="zap" class="w-4 h-4"></i> Upgrade to Premium
+                    </a>
+                </div>
             </div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left text-sm whitespace-nowrap">
-                    <thead class="bg-black/20 text-gray-400">
-                        <tr>
-                            <th class="px-6 py-4 font-medium">ემოცია / მდგომარეობა</th>
-                            <th class="px-6 py-4 font-medium">ტრეიდების რაოდენობა</th>
-                            <th class="px-6 py-4 font-medium text-right">ჯამური PnL</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-white/5">
-                        {% for emo, data in emotion_stats.items() %}
-                        <tr class="hover:bg-white/[0.03] transition">
-                            <td class="px-6 py-4"><span class="font-semibold text-white bg-white/5 px-3 py-1.5 rounded-lg">{{ emo }}</span></td>
-                            <td class="px-6 py-4 text-gray-300 font-medium">{{ data.count }}</td>
-                            <td class="px-6 py-4 text-right">
-                                <span class="font-bold text-base {% if data.pnl > 0 %} text-success {% elif data.pnl < 0 %} text-danger {% else %} text-gray-400 {% endif %}">
-                                    {% if data.pnl > 0 %}+{% endif %}${{ "{:,.2f}".format(data.pnl) }}
-                                </span>
-                            </td>
-                        </tr>
-                        {% else %}
-                        <tr>
-                            <td colspan="3" class="px-6 py-12 text-center text-gray-500">
-                                მონაცემები ჯერ არ არის.
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
+        {% endif %}
+
     </main>
 
     <script>
         lucide.createIcons();
-
-        if (document.startViewTransition) {
-            document.querySelectorAll('a').forEach(link => {
-                link.addEventListener('click', e => {
-                    const href = link.getAttribute('href');
-                    if (href && !href.startsWith('#') && !href.startsWith('http') && !link.hasAttribute('download')) {
-                        e.preventDefault();
-                        document.startViewTransition(() => {
-                            window.location.href = href;
-                        });
-                    }
-                });
-            });
-        }
     </script>
 </body>
 </html>
