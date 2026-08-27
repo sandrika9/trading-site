@@ -4,29 +4,40 @@ from functools import wraps
 
 import psycopg2
 import psycopg2.extras
-from flask import Flask, flash, redirect, render_template, request, session, url_for
+from flask import (
+    Flask,
+    flash,
+    jsonify,
+    redirect,
+    render_template,
+    request,
+    session,
+    url_for,
+)
+from openai import OpenAI
 from werkzeug.security import check_password_hash, generate_password_hash
 
 app = Flask(__name__)
-app.secret_key = "your_secret_key_here"
+app.secret_key = os.environ.get("SECRET_KEY", "your_secret_key_here")
 
-# Supabase PostgreSQL ბაზის მისამართი (Transaction Pooler - 6543 პორტი Render-ისთვის)
 DATABASE_URL = os.environ.get(
-    "DATABASE_URL", 
-    "postgresql://postgres.rnktcgfknokfdktfxjkb:Sandrika123solo@aws-0-ap-northeast-2.pooler.supabase.com:6543/postgres"
+    "DATABASE_URL",
+    "postgresql://postgres.rnktcgfknokfdktfxjkb:Sandrika123solo@aws-0-ap-northeast-2.pooler.supabase.com:6543/postgres",
 )
 
+openai_api_key = os.environ.get("OPENAI_API_KEY")
+openai_client = OpenAI(api_key=openai_api_key) if openai_api_key else None
 
-# ბაზასთან კავშირის დამხმარე ფუნქცია (Retry მექანიზმით და DictConnection-ით)
+
 def get_db_connection():
     retries = 3
     delay = 2
     for i in range(retries):
         try:
             conn = psycopg2.connect(
-                DATABASE_URL, 
-                sslmode="require", 
-                connection_factory=psycopg2.extras.DictConnection
+                DATABASE_URL,
+                sslmode="require",
+                connection_factory=psycopg2.extras.DictConnection,
             )
             return conn
         except Exception as e:
@@ -37,7 +48,32 @@ def get_db_connection():
                 raise e
 
 
-# --- დეკორატორები ---
+@app.context_processor
+def inject_user_status():
+    if "user_id" not in session:
+        return {"user_is_paid": 0, "is_admin": False}
+
+    username = session.get("username")
+    is_admin = (username == "sandrika")
+
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT is_paid FROM users WHERE id = %s", (session["user_id"],))
+        user = cursor.fetchone()
+        cursor.close()
+        conn.close()
+
+        is_paid_val = user["is_paid"] if user else 0
+        if is_admin or is_paid_val == 1:
+            return {"user_is_paid": 1, "is_admin": is_admin}
+            
+        return {"user_is_paid": 0, "is_admin": is_admin}
+    except Exception:
+        return {"user_is_paid": 1 if is_admin else 0, "is_admin": is_admin}
+
+
+# დეკორატორი მკაცრად პრემიუმ ფუნქციებისთვის (თუ რამის დაბლოკვა გინდა)
 def paid_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -56,8 +92,8 @@ def paid_required(f):
         cursor.close()
         conn.close()
 
-        if not user or user["is_paid"] == 0:
-            return redirect(url_for("pending_approval"))
+        if not user or user["is_paid"] != 1:
+            return redirect(url_for("pricing"))  # გადაამისამართებს პაკეტების არჩევის გვერდზე
 
         return f(*args, **kwargs)
 
@@ -75,22 +111,19 @@ def admin_required(f):
     return decorated_function
 
 
-# --- დამხმარე ფუნქცია იუზერის პარამეტრების შესამოწმებლად/შესაქმნელად ---
 def get_or_create_user_settings(cursor, user_id):
     cursor.execute("SELECT * FROM user_settings WHERE user_id = %s", (user_id,))
     settings = cursor.fetchone()
     if not settings:
         cursor.execute(
             "INSERT INTO user_settings (user_id, initial_balance, target_balance, max_loss_limit) VALUES (%s, %s, %s, %s)",
-            (user_id, 50000.0, 53000.0, 1000.0)
+            (user_id, 50000.0, 53000.0, 1000.0),
         )
         cursor.connection.commit()
         cursor.execute("SELECT * FROM user_settings WHERE user_id = %s", (user_id,))
         settings = cursor.fetchone()
     return settings
 
-
-# --- მარშრუტები ---
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -100,9 +133,7 @@ def login():
 
         conn = get_db_connection()
         cursor = conn.cursor()
-        cursor.execute(
-            "SELECT * FROM users WHERE username = %s", (username,)
-        )
+        cursor.execute("SELECT * FROM users WHERE username = %s", (username,))
         user = cursor.fetchone()
         cursor.close()
         conn.close()
@@ -112,10 +143,11 @@ def login():
             session["username"] = user["username"]
             session["is_paid"] = user["is_paid"]
 
+            # თუ ადმინია ან პრემიუმია, უშვებთ მთავარზე. თუ უფასოა, ჯერ პაკეტების (Pricing) გვერდზე ხვდება!
             if username == "sandrika" or user["is_paid"] == 1:
                 return redirect(url_for("index"))
             else:
-                return redirect(url_for("pending_approval"))
+                return redirect(url_for("pricing"))
         else:
             flash("არასწორი მომხმარებლის სახელი ან პაროლი", "error")
 
@@ -127,7 +159,6 @@ def register():
     if request.method == "POST":
         username = request.form.get("username")
         password = request.form.get("password")
-
         hashed_password = generate_password_hash(password)
 
         try:
@@ -148,24 +179,35 @@ def register():
     return render_template("register.html")
 
 
-@app.route("/pending")
-def pending_approval():
+# პაკეტების არჩევის გვერდი (სადაც გამოჩნდება უფასო და პრემიუმ ღილაკები)
+@app.route("/pricing")
+def pricing():
     if "user_id" not in session:
         return redirect(url_for("login"))
+    return render_template("pricing.html")
 
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute(
-        "SELECT is_paid FROM users WHERE id = %s", (session["user_id"],)
-    )
-    user = cursor.fetchone()
-    cursor.close()
-    conn.close()
 
-    if session.get("username") == "sandrika" or (user and user["is_paid"] == 1):
-        return redirect(url_for("index"))
+@app.route("/paddle-webhook", methods=["POST"])
+def paddle_webhook():
+    data = request.get_json()
+    if not data:
+        return jsonify(success=False), 400
 
-    return render_template("pending.html", discord_tag="cs2sacc")
+    event_type = data.get("event_type")
+    if event_type == "transaction.completed":
+        data_obj = data.get("data", {})
+        custom_data = data_obj.get("custom_data", {})
+        user_id = custom_data.get("user_id")
+
+        if user_id:
+            conn = get_db_connection()
+            cursor = conn.cursor()
+            cursor.execute("UPDATE users SET is_paid = 1 WHERE id = %s", (user_id,))
+            conn.commit()
+            cursor.close()
+            conn.close()
+
+    return jsonify(success=True), 200
 
 
 @app.route("/logout")
@@ -174,13 +216,15 @@ def logout():
     return redirect(url_for("login"))
 
 
+# მთავარი გვერდი ხელმისაწვდომია ყველასთვის (უფასოებისთვისაც და პრემიუმებისთვისაც)
 @app.route("/")
-@paid_required
 def index():
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+
     conn = get_db_connection()
     cursor = conn.cursor()
-    
-    # ვამოწმებთ არსებობს თუ არა user_settings ცხრილი, თუ არადა ვქმნით ავტომატურად
+
     try:
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS user_settings (
@@ -218,7 +262,7 @@ def index():
     current_max_loss = max_loss_limit
 
     chart_data = []
-    calendar_data = {}  
+    calendar_data = {}
 
     for t in reversed(dataSource_trades):
         pnl = t["pnl"]
@@ -235,7 +279,7 @@ def index():
         chart_data.append({"time": str(t["date"]), "value": current_balance})
 
     for t in dataSource_trades:
-        trade_date = str(t["date"])  
+        trade_date = str(t["date"])
         pnl = t["pnl"]
         if trade_date not in calendar_data:
             calendar_data[trade_date] = 0.0
@@ -244,9 +288,7 @@ def index():
     if current_max_loss < 0:
         current_max_loss = 0.0
 
-    win_rate = (
-        round((wins / total_trades * 100), 1) if total_trades > 0 else 0
-    )
+    win_rate = round((wins / total_trades * 100), 1) if total_trades > 0 else 0
 
     if gross_loss > 0:
         profit_factor = round(gross_profit / gross_loss, 2)
@@ -283,15 +325,16 @@ def index():
         target_balance=target_balance,
         progress_pct=progress_pct,
         chart_data=chart_data,
-        calendar_data=calendar_data,  
-        daily_pnl=calendar_data,  
+        calendar_data=calendar_data,
+        daily_pnl=calendar_data,
         trades=trades,
     )
 
 
 @app.route("/trades")
-@paid_required
 def trades_list():
+    if "user_id" not in session:
+        return redirect(url_for("login"))
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute(
@@ -305,8 +348,9 @@ def trades_list():
 
 
 @app.route("/trade/<int:id>")
-@paid_required
 def trade_detail(id):
+    if "user_id" not in session:
+        return redirect(url_for("login"))
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute(
@@ -324,13 +368,35 @@ def trade_detail(id):
     return render_template("trade_detail.html", trade=trade)
 
 
+# აქ ვამატებთ შემოწმებას: თუ მომხმარებელი არ არის პრემიუმი და უკვე აქვს 3 ტრეიდი, ვზღუდავთ
 @app.route("/add_trade", methods=["GET", "POST"])
-@paid_required
 def add_trade():
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    # ვამოწმებთ პრემიუმ სტატუსს
+    cursor.execute("SELECT is_paid FROM users WHERE id = %s", (session["user_id"],))
+    user = cursor.fetchone()
+    is_paid = user["is_paid"] if user else 0
+    is_admin = (session.get("username") == "sandrika")
+
+    # ვითვლით არსებულ ტრეიდებს
+    cursor.execute("SELECT COUNT(*) FROM trades WHERE user_id = %s", (session["user_id"],))
+    trade_count = cursor.fetchone()[0]
+    cursor.close()
+    conn.close()
+
+    # თუ არ არის პრემიუმი (არც ადმინია) და უკვე დაგროვილი აქვს 3 ტრეიდი
+    if not is_admin and is_paid != 1 and trade_count >= 3:
+        flash("უფასო ვერსიით შეგიძლია დაამატო მაქსიმუმ 3 ტრეიდი. შეიძინე პრემიუმი შეუზღუდავად სარგებლობისთვის.", "error")
+        return redirect(url_for("pricing"))
+
     if request.method == "POST":
         date = request.form.get("date")
         pair = request.form.get("pair")
-
         raw_direction = str(request.form.get("direction", "")).strip().lower()
         if "short" in raw_direction or "შორთ" in raw_direction or raw_direction == "s":
             direction = "SHORT"
@@ -345,7 +411,7 @@ def add_trade():
 
         conn = get_db_connection()
         cursor = conn.cursor()
-        
+
         try:
             cursor.execute(
                 """
@@ -366,7 +432,6 @@ def add_trade():
             )
             conn.commit()
         except Exception:
-            # თუ ცხრილში emotion ან screenshot სვეტები არ არსებობს, ვცდილობთ ძველი სტრუქტურის მიხედვით ჩაწერას, რომ 500 error არ აგდოს
             conn.rollback()
             cursor.execute(
                 """
@@ -395,8 +460,9 @@ def add_trade():
 
 
 @app.route("/delete_trade/<int:id>", methods=["GET", "POST"])
-@paid_required
 def delete_trade(id):
+    if "user_id" not in session:
+        return redirect(url_for("login"))
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute(
@@ -414,7 +480,7 @@ def delete_trade(id):
 
 
 @app.route("/analytics")
-@paid_required
+@paid_required  # ანალიტიკა დავტოვოთ მხოლოდ პრემიუმისთვის (ან მოვხსნათ თუ უფასოსაც უნდა ჰქონდეს)
 def analytics():
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -439,9 +505,7 @@ def analytics():
     for t in trades:
         pnl = t["pnl"]
         raw_dir = str(t["direction"]).strip().lower() if t["direction"] else ""
-        emotion = (
-            t["emotion"] if "emotion" in t.keys() and t["emotion"] else "ზოგადი"
-        )
+        emotion = t.get("emotion") if t.get("emotion") else "ზოგადი"
 
         if emotion not in emotion_stats:
             emotion_stats[emotion] = {"count": 0, "pnl": 0.0}
@@ -493,16 +557,62 @@ def analytics():
     )
 
 
+@app.route("/ai_insights", methods=["POST"])
+@paid_required  # AI მენტორი მკაცრად პრემიუმია
+def ai_insights():
+    if not openai_client:
+        return jsonify({"advice": "OpenAI API გასაღები არ არის კონფიგურირებული სერვერზე."})
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute(
+        "SELECT pair, direction, pnl, emotion, date FROM trades WHERE user_id = %s ORDER BY id DESC LIMIT 20",
+        (session["user_id"],),
+    )
+    trades = cursor.fetchall()
+    cursor.close()
+    conn.close()
+
+    if not trades:
+        return jsonify({"advice": "ჯერ არ გაქვს დამატებული ტრეიდები AI ანალიზისთვის."})
+
+    trades_summary = "\n".join(
+        [
+            f"Pair: {t['pair']}, Direction: {t['direction']}, PnL: {t['pnl']}, Emotion: {t.get('emotion', 'N/A')}, Date: {t['date']}"
+            for t in trades
+        ]
+    )
+
+    prompt = (
+        "შენ ხარ პროფესიონალი ტრეიდინგ მენტორი და რისკ-მენეჯერი. "
+        "შენ ხარ პროფესიონალი ტრეიდინგ მენტორი და რისკ-მენეჯერი. "
+        "გააანალიზე ამ ტრეიდერის ბოლო ტრეიდები და მომეცი მოკლე, კონკრეტული და რჩევებზე ორიენტირებული ანალიზი (ქართულ ენაზე):\n\n"
+        f"{trades_summary}"
+    )
+
+    try:
+        response = openai_client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.7,
+        )
+        advice = response.choices[0].message.content
+        return jsonify({"advice": advice})
+    except Exception as e:
+        return jsonify({"advice": f"ვერ მოხერხდა AI ანალიზის გენერაცია. (შეცდომა: {str(e)})"})
+
+
 @app.route("/update_settings", methods=["POST"])
-@paid_required
 def update_settings():
+    if "user_id" not in session:
+        return redirect(url_for("login"))
     initial_balance = float(request.form.get("initial_balance", 50000.0) or 50000.0)
     target_balance = float(request.form.get("target_balance", 53000.0) or 53000.0)
     max_loss_limit = float(request.form.get("max_loss_limit", 1000.0) or 1000.0)
 
     conn = get_db_connection()
     cursor = conn.cursor()
-    
+
     try:
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS user_settings (
@@ -521,7 +631,15 @@ def update_settings():
             ON CONFLICT (user_id) 
             DO UPDATE SET initial_balance = %s, target_balance = %s, max_loss_limit = %s
             """,
-            (session["user_id"], initial_balance, target_balance, max_loss_limit, initial_balance, target_balance, max_loss_limit)
+            (
+                session["user_id"],
+                initial_balance,
+                target_balance,
+                max_loss_limit,
+                initial_balance,
+                target_balance,
+                max_loss_limit,
+            ),
         )
         conn.commit()
     except Exception as e:
@@ -541,9 +659,7 @@ def update_settings():
 def admin_users():
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute(
-        "SELECT id, username, is_paid FROM users WHERE username != 'sandrika'"
-    )
+    cursor.execute("SELECT id, username, is_paid FROM users ORDER BY id ASC")
     all_users = cursor.fetchall()
     cursor.close()
     conn.close()
@@ -555,16 +671,19 @@ def admin_users():
 def toggle_user(user_id):
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute(
-        "SELECT is_paid FROM users WHERE id = %s", (user_id,)
-    )
+    cursor.execute("SELECT username, is_paid FROM users WHERE id = %s", (user_id,))
     current = cursor.fetchone()
+
     if current:
         new_status = 0 if current["is_paid"] == 1 else 1
         cursor.execute(
             "UPDATE users SET is_paid = %s WHERE id = %s", (new_status, user_id)
         )
         conn.commit()
+
+        if session.get("user_id") == user_id:
+            session["is_paid"] = new_status
+
     cursor.close()
     conn.close()
     flash("სტატუსი განახლდა!", "success")
@@ -572,6 +691,5 @@ def toggle_user(user_id):
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
-
-# cache fix timestamp 2026
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port, debug=True)
