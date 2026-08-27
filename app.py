@@ -14,6 +14,9 @@ from flask import (
     session,
     url_for,
 )
+from flask_mail import Mail, Message
+import secrets
+from datetime import datetime, timedelta
 from openai import OpenAI
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -24,6 +27,16 @@ DATABASE_URL = os.environ.get(
     "DATABASE_URL",
     "postgresql://postgres.rnktcgfknokfdktfxjkb:Sandrika123solo@aws-0-ap-northeast-2.pooler.supabase.com:6543/postgres",
 )
+
+# --- Flask-Mail კონფიგურაცია მეილების გასაგზავნად ---
+app.config['MAIL_SERVER'] = 'smtp.googlemail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = os.environ.get("MAIL_USERNAME", "your_email@gmail.com")
+app.config['MAIL_PASSWORD'] = os.environ.get("MAIL_PASSWORD", "your_gmail_app_password")
+app.config['MAIL_DEFAULT_SENDER'] = os.environ.get("MAIL_USERNAME", "your_email@gmail.com")
+
+mail = Mail(app)
 
 openai_api_key = os.environ.get("OPENAI_API_KEY")
 openai_client = OpenAI(api_key=openai_api_key) if openai_api_key else None
@@ -73,7 +86,7 @@ def inject_user_status():
         return {"user_is_paid": 1 if is_admin else 0, "is_admin": is_admin}
 
 
-# დეკორატორი მკაცრად პრემიუმ ფუნქციებისთვის (თუ რამის დაბლოკვა გინდა)
+# დეკორატორი მკაცრად პრემიუმ ფუნქციებისთვის
 def paid_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -93,7 +106,7 @@ def paid_required(f):
         conn.close()
 
         if not user or user["is_paid"] != 1:
-            return redirect(url_for("pricing"))  # გადაამისამართებს პაკეტების არჩევის გვერდზე
+            return redirect(url_for("pricing"))
 
         return f(*args, **kwargs)
 
@@ -143,7 +156,6 @@ def login():
             session["username"] = user["username"]
             session["is_paid"] = user["is_paid"]
 
-            # თუ ადმინია ან პრემიუმია, უშვებთ მთავარზე. თუ უფასოა, ჯერ პაკეტების (Pricing) გვერდზე ხვდება!
             if username == "sandrika" or user["is_paid"] == 1:
                 return redirect(url_for("index"))
             else:
@@ -158,28 +170,120 @@ def login():
 def register():
     if request.method == "POST":
         username = request.form.get("username")
+        email = request.form.get("email")
         password = request.form.get("password")
         hashed_password = generate_password_hash(password)
 
         try:
             conn = get_db_connection()
             cursor = conn.cursor()
+            
+            cursor.execute("SELECT id FROM users WHERE username = %s OR email = %s", (username, email))
+            if cursor.fetchone():
+                flash("მომხმარებელი ამ სახელით ან მეილით უკვე არსებობს.", "error")
+                cursor.close()
+                conn.close()
+                return redirect(url_for("register"))
+
             cursor.execute(
-                "INSERT INTO users (username, password, is_paid) VALUES (%s, %s, 0)",
-                (username, hashed_password),
+                "INSERT INTO users (username, email, password, is_paid) VALUES (%s, %s, %s, 0)",
+                (username, email, hashed_password),
             )
             conn.commit()
             cursor.close()
             conn.close()
-            flash("რეგისტრაცია წარმატებულია!", "success")
+            flash("რეგისტრაცია წარმატებულია! გთხოვთ გაიაროთ ავტორიზაცია.", "success")
             return redirect(url_for("login"))
-        except Exception:
-            flash("ეს იუზერნეიმი დაკავებულია.", "error")
+        except Exception as e:
+            print(e)
+            flash("რეგისტრაციისას მოხდა შეცდომა.", "error")
 
     return render_template("register.html")
 
 
-# პაკეტების არჩევის გვერდი (სადაც გამოჩნდება უფასო და პრემიუმ ღილაკები)
+# --- პაროლის აღდგენის მოთხოვნა (Forgot Password) ---
+@app.route("/forgot-password", methods=["GET", "POST"], endpoint="forgot_password")
+def forgot_password_view():
+    if request.method == "POST":
+        email = request.form.get("email")
+        
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT id, email FROM users WHERE email = %s", (email,))
+        user = cursor.fetchone()
+        
+        if user:
+            token = secrets.token_urlsafe(32)
+            expiration = datetime.utcnow() + timedelta(hours=1)
+            
+            cursor.execute(
+                "UPDATE users SET reset_token = %s, reset_token_expiration = %s WHERE id = %s",
+                (token, expiration, user["id"])
+            )
+            conn.commit()
+            cursor.close()
+            conn.close()
+            
+            reset_url = url_for("reset_password", token=token, _external=True)
+            msg = Message("პაროლის აღდგენა - YourStats", recipients=[email])
+            msg.body = f"""პაროლის აღსადგენად მიჰყევით ამ ბმულს:
+{reset_url}
+
+თუ ეს მოთხოვნა თქვენ არ გეკუთვნით, უბრალოდ უგულებელყავით ეს წერილი. ბმული ძალაშია 1 საათის განმავლობაში."""
+            
+            try:
+                mail.send(msg)
+                flash("პაროლის აღდგენის ინსტრუქცია გამოგზავნილია თქვენს მეილზე.", "info")
+            except Exception as e:
+                print(e)
+                flash("მეილის გაგზავნა ვერ მოხერხდა. სცადეთ მოგვიანებით.", "error")
+        else:
+            cursor.close()
+            conn.close()
+            flash("მომხმარებელი ამ მეილით ვერ მოიძებნა.", "error")
+            
+        return redirect(url_for("forgot_password"))
+        
+    return render_template("reset_password.html")
+
+
+# --- ახალი პაროლის მითითება ბმულით (Reset Password) ---
+@app.route("/reset-password/<token>", methods=["GET", "POST"])
+def reset_password(token):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    cursor.execute(
+        "SELECT id, reset_token_expiration FROM users WHERE reset_token = %s", (token,)
+    )
+    user = cursor.fetchone()
+    
+    if not user or user["reset_token_expiration"] < datetime.utcnow():
+        cursor.close()
+        conn.close()
+        flash("აღდგენის ბმული არასწორია ან ვადა გაუვიდა.", "error")
+        return redirect(url_for("forgot_password"))
+        
+    if request.method == "POST":
+        new_password = request.form.get("password")
+        hashed_password = generate_password_hash(new_password)
+        
+        cursor.execute(
+            "UPDATE users SET password = %s, reset_token = NULL, reset_token_expiration = NULL WHERE id = %s",
+            (hashed_password, user["id"])
+        )
+        conn.commit()
+        cursor.close()
+        conn.close()
+        
+        flash("პაროლი წარმატებით შეიცვალა! ახლა შეგიძლიათ შეხვიდეთ სისტემაში.", "success")
+        return redirect(url_for("login"))
+        
+    cursor.close()
+    conn.close()
+    return render_template("reset_password.html", token=token)
+
+
 @app.route("/pricing")
 def pricing():
     if "user_id" not in session:
@@ -216,7 +320,6 @@ def logout():
     return redirect(url_for("login"))
 
 
-# მთავარი გვერდი ხელმისაწვდომია ყველასთვის (უფასოებისთვისაც და პრემიუმებისთვისაც)
 @app.route("/")
 def index():
     if "user_id" not in session:
@@ -368,7 +471,6 @@ def trade_detail(id):
     return render_template("trade_detail.html", trade=trade)
 
 
-# აქ ვამატებთ შემოწმებას: თუ მომხმარებელი არ არის პრემიუმი და უკვე აქვს 3 ტრეიდი, ვზღუდავთ
 @app.route("/add_trade", methods=["GET", "POST"])
 def add_trade():
     if "user_id" not in session:
@@ -377,19 +479,16 @@ def add_trade():
     conn = get_db_connection()
     cursor = conn.cursor()
     
-    # ვამოწმებთ პრემიუმ სტატუსს
     cursor.execute("SELECT is_paid FROM users WHERE id = %s", (session["user_id"],))
     user = cursor.fetchone()
     is_paid = user["is_paid"] if user else 0
     is_admin = (session.get("username") == "sandrika")
 
-    # ვითვლით არსებულ ტრეიდებს
     cursor.execute("SELECT COUNT(*) FROM trades WHERE user_id = %s", (session["user_id"],))
     trade_count = cursor.fetchone()[0]
     cursor.close()
     conn.close()
 
-    # თუ არ არის პრემიუმი (არც ადმინია) და უკვე დაგროვილი აქვს 3 ტრეიდი
     if not is_admin and is_paid != 1 and trade_count >= 3:
         flash("უფასო ვერსიით შეგიძლია დაამატო მაქსიმუმ 3 ტრეიდი. შეიძინე პრემიუმი შეუზღუდავად სარგებლობისთვის.", "error")
         return redirect(url_for("pricing"))
@@ -480,7 +579,7 @@ def delete_trade(id):
 
 
 @app.route("/analytics")
-@paid_required  # ანალიტიკა დავტოვოთ მხოლოდ პრემიუმისთვის (ან მოვხსნათ თუ უფასოსაც უნდა ჰქონდეს)
+@paid_required
 def analytics():
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -558,7 +657,7 @@ def analytics():
 
 
 @app.route("/ai_insights", methods=["POST"])
-@paid_required  # AI მენტორი მკაცრად პრემიუმია
+@paid_required
 def ai_insights():
     if not openai_client:
         return jsonify({"advice": "OpenAI API გასაღები არ არის კონფიგურირებული სერვერზე."})
@@ -584,7 +683,6 @@ def ai_insights():
     )
 
     prompt = (
-        "შენ ხარ პროფესიონალი ტრეიდინგ მენტორი და რისკ-მენეჯერი. "
         "შენ ხარ პროფესიონალი ტრეიდინგ მენტორი და რისკ-მენეჯერი. "
         "გააანალიზე ამ ტრეიდერის ბოლო ტრეიდები და მომეცი მოკლე, კონკრეტული და რჩევებზე ორიენტირებული ანალიზი (ქართულ ენაზე):\n\n"
         f"{trades_summary}"
