@@ -245,7 +245,7 @@ def forgot_password():
             
         return redirect(url_for("forgot_password"))
         
-    return render_template("forgot_password.html")
+    return render_template("reset_password.html")
 
 
 # --- ახალი პაროლის მითითება ბმულით (Reset Password) ---
