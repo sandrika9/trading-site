@@ -8,17 +8,9 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        /* Sydview Background Glow Effects */
-        .glow-orb-1 {
-            background: radial-gradient(circle, rgba(99, 102, 241, 0.25) 0%, rgba(5, 7, 11, 0) 70%);
-        }
-        .glow-orb-2 {
-            background: radial-gradient(circle, rgba(168, 85, 247, 0.2) 0%, rgba(5, 7, 11, 0) 70%);
-        }
-
         /* Glassmorphism Panel with Ambient Shadow */
         .glass-panel {
-            background: rgba(13, 17, 23, 0.7);
+            background: rgba(13, 17, 23, 0.75);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.08);
@@ -32,7 +24,7 @@
             -webkit-text-fill-color: transparent;
         }
 
-        /* Subtle Float Animation */
+        /* Float & Background Animations */
         @keyframes subtleFloat {
             0%, 100% { transform: translateY(0px); }
             50% { transform: translateY(-6px); }
@@ -40,14 +32,52 @@
         .animate-subtle-float {
             animation: subtleFloat 5s ease-in-out infinite;
         }
+
+        @keyframes pulseSlow {
+            0%, 100% { opacity: 0.35; transform: translate(-50%, -50%) scale(1); }
+            50% { opacity: 0.65; transform: translate(-50%, -50%) scale(1.08); }
+        }
+
+        @keyframes floatSlow {
+            0%, 100% { transform: translate(0px, 0px); }
+            50% { transform: translate(30px, -30px); }
+        }
+
+        @keyframes floatSlowReverse {
+            0%, 100% { transform: translate(0px, 0px); }
+            50% { transform: translate(-30px, 30px); }
+        }
+
+        .animate-pulse-slow {
+            animation: pulseSlow 8s ease-in-out infinite;
+        }
+
+        .animate-float-slow {
+            animation: floatSlow 12s ease-in-out infinite;
+        }
+
+        .animate-float-slow-reverse {
+            animation: floatSlowReverse 14s ease-in-out infinite;
+        }
     </style>
 </head>
 <body class="bg-[#05070B] text-gray-200 min-h-screen flex items-center justify-center p-4 font-sans relative overflow-hidden antialiased">
 
-    <!-- Ambient Glow Orbs (Sydview Visual Background) -->
-    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] glow-orb-1 rounded-full blur-[100px] pointer-events-none"></div>
-    <div class="absolute top-1/4 right-1/4 w-[400px] h-[400px] glow-orb-2 rounded-full blur-[90px] pointer-events-none"></div>
+    <!-- Professional Background Layer -->
+    <div class="fixed inset-0 -z-10 overflow-hidden pointer-events-none bg-[#05070B]">
+        <!-- Subtle Grid Pattern -->
+        <div class="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)]"></div>
 
+        <!-- Animated Glowing Orbs -->
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-indigo-600/20 rounded-full blur-[130px] animate-pulse-slow"></div>
+        <div class="absolute -bottom-20 -left-20 w-[500px] h-[500px] bg-purple-600/15 rounded-full blur-[120px] animate-float-slow"></div>
+        <div class="absolute -top-20 -right-20 w-[500px] h-[500px] bg-pink-600/10 rounded-full blur-[120px] animate-float-slow-reverse"></div>
+
+        <!-- Radial Vignette -->
+        <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(5,7,11,0.8)_100%)]"></div>
+    </div>
+
+    <!-- Main Card Container -->
     <div class="w-full max-w-md space-y-6 relative z-10 animate-subtle-float">
         
         <!-- Header / Logo -->
@@ -138,7 +168,7 @@
         </div>
     </div>
 
-    <!-- Script Block Preserved Completely -->
+    <!-- Script Block -->
     <script>
         lucide.createIcons();
 
