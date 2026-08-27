@@ -144,7 +144,11 @@
 
                 <!-- Password Field -->
                 <div>
-                    <label class="block text-xs font-semibold text-gray-400 mb-1.5 uppercase tracking-wider" data-i18n="password">პაროლი</label>
+                    <div class="flex justify-between items-center mb-1.5">
+                        <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider" data-i18n="password">პაროლი</label>
+                        <!-- Forgot Password Link -->
+                        <a href="{{ url_for('forgot_password') }}" class="text-xs text-indigo-400 hover:text-indigo-300 transition" data-i18n="forgot_password">დაგავიწყდა პაროლი?</a>
+                    </div>
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-500">
                             <i data-lucide="lock" class="w-4 h-4"></i>
@@ -168,7 +172,7 @@
         </div>
     </div>
 
-    <!-- Script Block Preserved Completely -->
+    <!-- Script Block -->
     <script>
         lucide.createIcons();
 
@@ -179,6 +183,7 @@
                 login_title: "სისტემაში შესვლა",
                 username: "მომხმარებლის სახელი",
                 password: "პაროლი",
+                forgot_password: "დაგავიწყდა პაროლი?",
                 login_btn: "შესვლა",
                 no_account: "არ გაქვს ანგარიში?",
                 register: "რეგისტრაცია"
@@ -188,6 +193,7 @@
                 login_title: "Sign In",
                 username: "Username",
                 password: "Password",
+                forgot_password: "Forgot password?",
                 login_btn: "Sign In",
                 no_account: "Don't have an account?",
                 register: "Register"
@@ -197,6 +203,7 @@
                 login_title: "Вход в систему",
                 username: "Имя пользователя",
                 password: "Пароль",
+                forgot_password: "Забыли пароль?",
                 login_btn: "Войти",
                 no_account: "Нет аккаунта?",
                 register: "Регистрация"
@@ -206,6 +213,7 @@
                 login_title: "Iniciar sesión",
                 username: "Nombre de usuario",
                 password: "Contraseña",
+                forgot_password: "¿Olvidaste tu contraseña?",
                 login_btn: "Entrar",
                 no_account: "¿No tienes una cuenta?",
                 register: "Registrarse"
@@ -223,7 +231,6 @@
             document.querySelectorAll('[data-i18n]').forEach(element => {
                 const key = element.getAttribute('data-i18n');
                 if (translations[lang] && translations[lang][key]) {
-                    // თუ ელემენტს შიგნით იკონი ან ტექსტი აქვს ცალკე
                     const textSpan = element.querySelector('span');
                     if (textSpan) {
                         textSpan.innerText = translations[lang][key];
