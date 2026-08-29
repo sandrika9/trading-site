@@ -1,6 +1,6 @@
 import os
 import time
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta
 from functools import wraps
 import secrets
 
@@ -214,7 +214,7 @@ def forgot_password_view():
         
         if user:
             token = secrets.token_urlsafe(32)
-            expiration = datetime.utcnow() + timedelta(hours=1)
+            expiration = datetime.now(timezone.utc) + timedelta(hours=1)
             
             cursor.execute(
                 "UPDATE users SET reset_token = %s, reset_token_expiration = %s WHERE id = %s",
@@ -258,7 +258,7 @@ def reset_password(token):
     )
     user = cursor.fetchone()
     
-    if not user or user["reset_token_expiration"] < datetime.utcnow():
+    if not user or (user["reset_token_expiration"].replace(tzinfo=timezone.utc) < datetime.now(timezone.utc)):
         cursor.close()
         conn.close()
         flash("აღდგენის ბმული არასწორია ან ვადა გაუვიდა.", "error")
@@ -848,5 +848,3 @@ def delete_user(user_id):
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=True)
-
-
