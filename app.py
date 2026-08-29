@@ -146,7 +146,6 @@ def login():
 
         conn = get_db_connection()
         cursor = conn.cursor()
-        # ვეძებთ მომხმარებელს სახელით და არა მეილით
         cursor.execute("SELECT * FROM users WHERE username = %s", (username,))
         user = cursor.fetchone()
         cursor.close()
@@ -786,6 +785,63 @@ def toggle_user(user_id):
     cursor.close()
     conn.close()
     flash("სტატუსი განახლდა!", "success")
+    return redirect(url_for("admin_users"))
+
+
+# --- ადმინის ახალი ფუნქცია: იუზერის მეილის და სახელის რედაქტირება ---
+@app.route("/admin/edit_user/<int:user_id>", methods=["POST"])
+@admin_required
+def edit_user(user_id):
+    new_username = request.form.get("username")
+    new_email = request.form.get("email")
+    
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute(
+            "UPDATE users SET username = %s, email = %s WHERE id = %s",
+            (new_username, new_email, user_id)
+        )
+        conn.commit()
+        flash("მომხმარებლის მონაცემები წარმატებით განახლდა!", "success")
+    except Exception as e:
+        conn.rollback()
+        flash("შეცდომა: ასეთი სახელი ან მეილი უკვე დაკავებულია.", "error")
+        print(e)
+    finally:
+        cursor.close()
+        conn.close()
+        
+    return redirect(url_for("admin_users"))
+
+
+# --- ადმინის ახალი ფუნქცია: იუზერის და მისი მონაცემების სრულად წაშლა ---
+@app.route("/admin/delete_user/<int:user_id>", methods=["POST"])
+@admin_required
+def delete_user(user_id):
+    if session.get("user_id") == user_id:
+        flash("საკუთარ თავს ვერ წაშლი!", "error")
+        return redirect(url_for("admin_users"))
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        # ჯერ ვშლით ამ იუზერის ტრეიდებსა და პარამეტრებს
+        cursor.execute("DELETE FROM trades WHERE user_id = %s", (user_id,))
+        cursor.execute("DELETE FROM user_settings WHERE user_id = %s", (user_id,))
+        # ბოლოს ვშლით თავად იუზერს
+        cursor.execute("DELETE FROM users WHERE id = %s", (user_id,))
+        
+        conn.commit()
+        flash("მომხმარებელი და მისი მონაცემები წარმატებით წაიშალა.", "success")
+    except Exception as e:
+        conn.rollback()
+        flash("მომხმარებლის წაშლა ვერ მოხერხდა.", "error")
+        print(e)
+    finally:
+        cursor.close()
+        conn.close()
+        
     return redirect(url_for("admin_users"))
 
 
