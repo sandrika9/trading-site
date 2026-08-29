@@ -1,6 +1,8 @@
 import os
 import time
+from datetime import datetime, timedelta
 from functools import wraps
+import secrets
 
 import psycopg2
 import psycopg2.extras
@@ -15,8 +17,6 @@ from flask import (
     url_for,
 )
 from flask_mail import Mail, Message
-import secrets
-from datetime import datetime, timedelta
 from openai import OpenAI
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -244,7 +244,7 @@ def forgot_password_view():
             
         return redirect(url_for("forgot_password"))
         
-    return render_template("reset_password.html")
+    return render_template("forgot_password.html")
 
 
 # --- ახალი პაროლის მითითება ბმულით (Reset Password) ---
