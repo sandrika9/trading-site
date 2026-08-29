@@ -86,7 +86,6 @@ def inject_user_status():
         return {"user_is_paid": 1 if is_admin else 0, "is_admin": is_admin}
 
 
-# დეკორატორი მკაცრად პრემიუმ ფუნქციებისთვის
 def paid_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -204,6 +203,11 @@ def register():
 # --- პაროლის აღდგენის მოთხოვნა (Forgot Password) ---
 @app.route("/forgot-password", methods=["GET", "POST"], endpoint="forgot_password")
 def forgot_password_view():
+    # სანამ აღდგენის გვერდზე შევ pasaovთ, გამოვრიცხოთ ძველი აქტიური სესია,
+    # რომ მომხმარებელი ავტომატურად მთავარ გვერდზე არ შემოაბრუნოს.
+    if request.method == "GET":
+        session.clear()
+
     if request.method == "POST":
         email = request.form.get("email")
         
@@ -244,28 +248,14 @@ def forgot_password_view():
             
         return redirect(url_for("forgot_password"))
         
-    # გასწორება: გადავცემთ index.html-ისთვის საჭირო ცვლადებს ნულოვანი მნიშვნელობებით,
-    # რათა შაბლონის გაფართოებისას TypeError არ ამოვარდეს.
-    return render_template(
-        "forgot_password.html",
-        initial_balance=0.0,
-        current_balance=0.0,
-        total_pnl=0.0,
-        win_rate=0.0,
-        profit_factor=0.0,
-        max_loss_limit=0.0,
-        target_balance=0.0,
-        progress_pct=0,
-        chart_data=[],
-        calendar_data={},
-        daily_pnl={},
-        trades=[]
-    )
+    return render_template("forgot_password.html")
 
 
 # --- ახალი პაროლის მითითება ბმულით (Reset Password) ---
 @app.route("/reset-password/<token>", methods=["GET", "POST"])
 def reset_password(token):
+    session.clear()  # აქაც ვწმენდთ სესიას უსაფრთხოებისთვის
+
     conn = get_db_connection()
     cursor = conn.cursor()
     
@@ -298,23 +288,7 @@ def reset_password(token):
     cursor.close()
     conn.close()
     
-    # აქაც იგივე მიზეზით ვუზრუნველყოფთ ცვლადების გადაცემას, თუ reset_password.html-იც extend-ავს index.html-ს
-    return render_template(
-        "reset_password.html", 
-        token=token,
-        initial_balance=0.0,
-        current_balance=0.0,
-        total_pnl=0.0,
-        win_rate=0.0,
-        profit_factor=0.0,
-        max_loss_limit=0.0,
-        target_balance=0.0,
-        progress_pct=0,
-        chart_data=[],
-        calendar_data={},
-        daily_pnl={},
-        trades=[]
-    )
+    return render_template("reset_password.html", token=token)
 
 
 @app.route("/pricing")
@@ -821,7 +795,6 @@ def toggle_user(user_id):
     return redirect(url_for("admin_users"))
 
 
-# --- ადმინის ახალი ფუნქცია: იუზერის მეილის და სახელის რედაქტირება ---
 @app.route("/admin/edit_user/<int:user_id>", methods=["POST"])
 @admin_required
 def edit_user(user_id):
@@ -848,7 +821,6 @@ def edit_user(user_id):
     return redirect(url_for("admin_users"))
 
 
-# --- ადმინის ახალი ფუნქცია: იუზერის და მისი მონაცემების სრულად წაშლა ---
 @app.route("/admin/delete_user/<int:user_id>", methods=["POST"])
 @admin_required
 def delete_user(user_id):
