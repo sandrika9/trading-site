@@ -203,8 +203,6 @@ def register():
 # --- პაროლის აღდგენის მოთხოვნა (Forgot Password) ---
 @app.route("/forgot-password", methods=["GET", "POST"], endpoint="forgot_password")
 def forgot_password_view():
-    # სანამ აღდგენის გვერდზე შევ pasaovთ, გამოვრიცხოთ ძველი აქტიური სესია,
-    # რომ მომხმარებელი ავტომატურად მთავარ გვერდზე არ შემოაბრუნოს.
     if request.method == "GET":
         session.clear()
 
@@ -248,13 +246,27 @@ def forgot_password_view():
             
         return redirect(url_for("forgot_password"))
         
-    return render_template("forgot_password.html")
+    return render_template(
+        "forgot_password.html",
+        initial_balance=0.0,
+        current_balance=0.0,
+        total_pnl=0.0,
+        win_rate=0.0,
+        profit_factor=0.0,
+        max_loss_limit=0.0,
+        target_balance=0.0,
+        progress_pct=0,
+        chart_data=[],
+        calendar_data={},
+        daily_pnl={},
+        trades=[]
+    )
 
 
 # --- ახალი პაროლის მითითება ბმულით (Reset Password) ---
 @app.route("/reset-password/<token>", methods=["GET", "POST"])
 def reset_password(token):
-    session.clear()  # აქაც ვწმენდთ სესიას უსაფრთხოებისთვის
+    session.clear()
 
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -288,7 +300,22 @@ def reset_password(token):
     cursor.close()
     conn.close()
     
-    return render_template("reset_password.html", token=token)
+    return render_template(
+        "reset_password.html", 
+        token=token,
+        initial_balance=0.0,
+        current_balance=0.0,
+        total_pnl=0.0,
+        win_rate=0.0,
+        profit_factor=0.0,
+        max_loss_limit=0.0,
+        target_balance=0.0,
+        progress_pct=0,
+        chart_data=[],
+        calendar_data={},
+        daily_pnl={},
+        trades=[]
+    )
 
 
 @app.route("/pricing")
