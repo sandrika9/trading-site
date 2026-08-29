@@ -393,7 +393,7 @@
             menu.classList.toggle('hidden');
         }
 
-        // გრაფიკისა და კალენდრის ინიციალიზაცია შესრულდება მხოლოდ მაშინ, როდესაც ელემენტები არსებობს (ანუ იუზერს აქვს პრემიუმი)
+        // გრაფიკისა და კალენდრის ინიციალიზაცია
         const equityChartCanvas = document.getElementById('equityChart');
         if (equityChartCanvas) {
             const chartRawData = {{ chart_data | tojson }};
@@ -429,10 +429,9 @@
             });
         }
 
-        const dailyPnlData = {{ daily_pnl | tojson }};
         const calendarContainer = document.getElementById('calendarContainer');
-        
         if (calendarContainer) {
+            const dailyPnlData = {{ daily_pnl | tojson }};
             calendarContainer.innerHTML = '';
             
             const daysOfWeek = ['ორშ', 'სამ', 'ოთხ', 'ხუთ', 'პარ', 'შაბ', 'კვ'];
