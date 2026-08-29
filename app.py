@@ -141,12 +141,12 @@ def get_or_create_user_settings(cursor, user_id):
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        username = request.form.get("username")
+        email = request.form.get("email")
         password = request.form.get("password")
 
         conn = get_db_connection()
         cursor = conn.cursor()
-        cursor.execute("SELECT * FROM users WHERE username = %s", (username,))
+        cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
         user = cursor.fetchone()
         cursor.close()
         conn.close()
@@ -156,12 +156,12 @@ def login():
             session["username"] = user["username"]
             session["is_paid"] = user["is_paid"]
 
-            if username == "sandrika" or user["is_paid"] == 1:
+            if user["username"] == "sandrika" or user["is_paid"] == 1:
                 return redirect(url_for("index"))
             else:
                 return redirect(url_for("pricing"))
         else:
-            flash("არასწორი მომხმარებლის სახელი ან პაროლი", "error")
+            flash("არასწორი ელ-ფოსტა ან პაროლი", "error")
 
     return render_template("login.html")
 
@@ -757,7 +757,7 @@ def update_settings():
 def admin_users():
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT id, username, is_paid FROM users ORDER BY id ASC")
+    cursor.execute("SELECT id, username, email, is_paid FROM users ORDER BY id ASC")
     all_users = cursor.fetchall()
     cursor.close()
     conn.close()
@@ -791,4 +791,3 @@ def toggle_user(user_id):
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=True)
-# trigger rebuild
