@@ -141,12 +141,13 @@ def get_or_create_user_settings(cursor, user_id):
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        email = request.form.get("email")
+        username = request.form.get("username")
         password = request.form.get("password")
 
         conn = get_db_connection()
         cursor = conn.cursor()
-        cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
+        # ვეძებთ მომხმარებელს სახელით და არა მეილით
+        cursor.execute("SELECT * FROM users WHERE username = %s", (username,))
         user = cursor.fetchone()
         cursor.close()
         conn.close()
@@ -161,7 +162,7 @@ def login():
             else:
                 return redirect(url_for("pricing"))
         else:
-            flash("არასწორი ელ-ფოსტა ან პაროლი", "error")
+            flash("არასწორი მომხმარებლის სახელი ან პაროლი", "error")
 
     return render_template("login.html")
 
