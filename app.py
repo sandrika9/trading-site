@@ -201,11 +201,8 @@ def register():
 
 
 # --- პაროლის აღდგენის მოთხოვნა (Forgot Password) ---
-@app.route("/forgot-password", methods=["GET", "POST"], endpoint="forgot_password")
-def forgot_password_view():
-    if request.method == "GET":
-        session.clear()
-
+@app.route("/forgot-password", methods=["GET", "POST"])
+def forgot_password():
     if request.method == "POST":
         email = request.form.get("email")
         
@@ -248,6 +245,59 @@ def forgot_password_view():
         
     return render_template(
         "forgot_password.html",
+        initial_balance=0.0,
+        current_balance=0.0,
+        total_pnl=0.0,
+        win_rate=0.0,
+        profit_factor=0.0,
+        max_loss_limit=0.0,
+        target_balance=0.0,
+        progress_pct=0,
+        chart_data=[],
+        calendar_data={},
+        daily_pnl={},
+        trades=[]
+    )
+
+
+# --- ახალი პაროლის მითითება ბმულით (Reset Password) ---
+@app.route("/reset-password/<token>", methods=["GET", "POST"])
+def reset_password(token):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    cursor.execute(
+        "SELECT id, reset_token_expiration FROM users WHERE reset_token = %s", (token,)
+    )
+    user = cursor.fetchone()
+    
+    if not user or (user["reset_token_expiration"].replace(tzinfo=timezone.utc) < datetime.now(timezone.utc)):
+        cursor.close()
+        conn.close()
+        flash("აღდგენის ბმული არასწორია ან ვადა გაუვიდა.", "error")
+        return redirect(url_for("forgot_password"))
+        
+    if request.method == "POST":
+        new_password = request.form.get("password")
+        hashed_password = generate_password_hash(new_password)
+        
+        cursor.execute(
+            "UPDATE users SET password = %s, reset_token = NULL, reset_token_expiration = NULL WHERE id = %s",
+            (hashed_password, user["id"])
+        )
+        conn.commit()
+        cursor.close()
+        conn.close()
+        
+        flash("პაროლი წარმატებით შეიცვალა! ახლა შეგიძლიათ შეხვიდეთ სისტემაში.", "success")
+        return redirect(url_for("login"))
+        
+    cursor.close()
+    conn.close()
+    
+    return render_template(
+        "reset_password.html", 
+        token=token,
         initial_balance=0.0,
         current_balance=0.0,
         total_pnl=0.0,
