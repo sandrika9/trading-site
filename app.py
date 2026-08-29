@@ -244,7 +244,23 @@ def forgot_password_view():
             
         return redirect(url_for("forgot_password"))
         
-    return render_template("forgot_password.html")
+    # გასწორება: გადავცემთ index.html-ისთვის საჭირო ცვლადებს ნულოვანი მნიშვნელობებით,
+    # რათა შაბლონის გაფართოებისას TypeError არ ამოვარდეს.
+    return render_template(
+        "forgot_password.html",
+        initial_balance=0.0,
+        current_balance=0.0,
+        total_pnl=0.0,
+        win_rate=0.0,
+        profit_factor=0.0,
+        max_loss_limit=0.0,
+        target_balance=0.0,
+        progress_pct=0,
+        chart_data=[],
+        calendar_data={},
+        daily_pnl={},
+        trades=[]
+    )
 
 
 # --- ახალი პაროლის მითითება ბმულით (Reset Password) ---
@@ -281,7 +297,24 @@ def reset_password(token):
         
     cursor.close()
     conn.close()
-    return render_template("reset_password.html", token=token)
+    
+    # აქაც იგივე მიზეზით ვუზრუნველყოფთ ცვლადების გადაცემას, თუ reset_password.html-იც extend-ავს index.html-ს
+    return render_template(
+        "reset_password.html", 
+        token=token,
+        initial_balance=0.0,
+        current_balance=0.0,
+        total_pnl=0.0,
+        win_rate=0.0,
+        profit_factor=0.0,
+        max_loss_limit=0.0,
+        target_balance=0.0,
+        progress_pct=0,
+        chart_data=[],
+        calendar_data={},
+        daily_pnl={},
+        trades=[]
+    )
 
 
 @app.route("/pricing")
@@ -826,10 +859,8 @@ def delete_user(user_id):
     conn = get_db_connection()
     cursor = conn.cursor()
     try:
-        # ჯერ ვშლით ამ იუზერის ტრეიდებსა და პარამეტრებს
         cursor.execute("DELETE FROM trades WHERE user_id = %s", (user_id,))
         cursor.execute("DELETE FROM user_settings WHERE user_id = %s", (user_id,))
-        # ბოლოს ვშლით თავად იუზერს
         cursor.execute("DELETE FROM users WHERE id = %s", (user_id,))
         
         conn.commit()
