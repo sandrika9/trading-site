@@ -58,7 +58,7 @@
         <div class="bg-grid"></div>
     </div>
 
-    <div class="max-w-5xl mx-auto space-y-6">
+    <div class="max-w-6xl mx-auto space-y-6">
         <!-- ჰედერი -->
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 glass-panel p-6 rounded-2xl shadow-xl">
             <div>
@@ -93,39 +93,42 @@
                     {% for u in users %}
                     <tr class="hover:bg-white/[0.02] transition user-row">
                         <td class="px-6 py-4 font-bold text-white username-text">{{ u.username }}</td>
-                        <td class="px-6 py-4 text-gray-400 text-xs">{{ u.email if u.email else 'მითითებული არ არის' }}</td>
-                        <td class="px-6 py-4">
+                        <td class="px-6 py-4 text-gray-400 text-xs truncate max-w-[200px]">{{ u.email if u.email else 'მითითებული არ არის' }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
                             {% if u.is_paid == 1 %}
-                                <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">აქტიური (ნაყიდი)</span>
+                                <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 inline-block">აქტიური (ნაყიდი)</span>
                             {% else %}
-                                <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20">მოლოდინში</span>
+                                <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20 inline-block">მოლოდინში</span>
                             {% endif %}
                         </td>
-                        <td class="px-6 py-4 text-right space-x-2">
-                            <!-- სტატუსის ტოგლი -->
-                            <form action="{{ url_for('toggle_user', user_id=u.id) }}" method="POST" class="inline">
-                                {% if u.is_paid == 1 %}
-                                    <button type="submit" title="დაბლოკვა / პრემიუმის მოხსნა" class="px-3 py-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 text-xs font-semibold transition border border-rose-500/20 inline-flex items-center gap-1">
-                                        <i data-lucide="x-circle" class="w-3.5 h-3.5"></i> დაბლოკვა
-                                    </button>
-                                {% else %}
-                                    <button type="submit" title="აქტიურზე შეცვლა" class="px-3 py-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 text-xs font-semibold transition border border-emerald-500/20 inline-flex items-center gap-1">
-                                        <i data-lucide="check-circle" class="w-3.5 h-3.5"></i> მიცემა
-                                    </button>
-                                {% endif %}
-                            </form>
+                        <td class="px-6 py-4 text-right">
+                            <!-- ღილაკების მოწესრიგებული ბლოკი (Grid/Flex) -->
+                            <div class="flex items-center justify-end gap-1.5 flex-wrap">
+                                <!-- სტატუსის ტოგლი -->
+                                <form action="{{ url_for('toggle_user', user_id=u.id) }}" method="POST" class="inline">
+                                    {% if u.is_paid == 1 %}
+                                        <button type="submit" title="დაბლოკვა" class="px-2.5 py-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 text-xs font-semibold transition border border-rose-500/20 inline-flex items-center gap-1">
+                                            <i data-lucide="x-circle" class="w-3.5 h-3.5"></i> დაბლოკვა
+                                        </button>
+                                    {% else %}
+                                        <button type="submit" title="აქტიურზე შეცვლა" class="px-2.5 py-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 text-xs font-semibold transition border border-emerald-500/20 inline-flex items-center gap-1">
+                                            <i data-lucide="check-circle" class="w-3.5 h-3.5"></i> მიცემა
+                                        </button>
+                                    {% endif %}
+                                </form>
 
-                            <!-- რედაქტირების ღილაკი -->
-                            <button onclick="openEditModal('{{ u.id }}', '{{ u.username }}', '{{ u.email }}')" class="px-3 py-1.5 rounded-lg bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 text-xs font-semibold transition border border-blue-500/20 inline-flex items-center gap-1">
-                                <i data-lucide="edit-3" class="w-3.5 h-3.5"></i> შეცვლა
-                            </button>
-
-                            <!-- წაშლის ღილაკი -->
-                            <form action="{{ url_for('delete_user', user_id=u.id) }}" method="POST" class="inline" onsubmit="return confirm('დარწმუნებული ხარ, რომ გინდა ამ მომხმარებლის და მისი ყველა ტრეიდის წაშლა?');">
-                                <button type="submit" class="px-3 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-semibold transition border border-red-500/20 inline-flex items-center gap-1">
-                                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> წაშლა
+                                <!-- რედაქტირების ღილაკი -->
+                                <button onclick="openEditModal('{{ u.id }}', '{{ u.username }}', '{{ u.email }}')" class="px-2.5 py-1.5 rounded-lg bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 text-xs font-semibold transition border border-blue-500/20 inline-flex items-center gap-1">
+                                    <i data-lucide="edit-3" class="w-3.5 h-3.5"></i> შეცვლა
                                 </button>
-                            </form>
+
+                                <!-- წაშლის ღილაკი -->
+                                <form action="{{ url_for('delete_user', user_id=u.id) }}" method="POST" class="inline" onsubmit="return confirm('დარწმუნებული ხარ, რომ გინდა ამ მომხმარებლის და მისი მონაცემების წაშლა?');">
+                                    <button type="submit" class="px-2.5 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-semibold transition border border-red-500/20 inline-flex items-center gap-1">
+                                        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> წაშლა
+                                    </button>
+                                </form>
+                            </div>
                         </td>
                     </tr>
                     {% else %}
