@@ -1,9 +1,9 @@
-import os
-import time
+from datetime import datetime, timedelta
 from functools import wraps
+import os
+import secrets
+import time
 
-import psycopg2
-import psycopg2.extras
 from flask import (
     Flask,
     flash,
@@ -15,24 +15,26 @@ from flask import (
     url_for,
 )
 from flask_mail import Mail, Message
-import secrets
-from datetime import datetime, timedelta
 from openai import OpenAI
+import psycopg2
+import psycopg2.extras
 from werkzeug.security import check_password_hash, generate_password_hash
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "your_secret_key_here")
 
-# გასწორდა DATABASE_URL - მოიხსნა კონფლიქტური სიმბოლოები და პორტის შეცდომა
+# გასწორდა DATABASE_URL - გამოყენებულია სწორი პაროლი სპეციალური სიმბოლოების გარეშე
 DATABASE_URL = "postgresql://postgres.rnktcgfknokfdktfxjkb:Yourstats1231@aws-0-ap-northeast-2.pooler.supabase.com:6543/postgres"
 
 # --- Flask-Mail კონფიგურაცია მეილების გასაგზავნად ---
-app.config['MAIL_SERVER'] = 'smtp.googlemail.com'
-app.config['MAIL_PORT'] = 587
-app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = os.environ.get("MAIL_USERNAME", "your_email@gmail.com")
-app.config['MAIL_PASSWORD'] = os.environ.get("MAIL_PASSWORD", "your_gmail_app_password")
-app.config['MAIL_DEFAULT_SENDER'] = os.environ.get("MAIL_USERNAME", "your_email@gmail.com")
+app.config["MAIL_SERVER"] = "smtp.googlemail.com"
+app.config["MAIL_PORT"] = 587
+app.config["MAIL_USE_TLS"] = True
+app.config["MAIL_USERNAME"] = os.environ.get("MAIL_USERNAME", "your_email@gmail.com")
+app.config["MAIL_PASSWORD"] = os.environ.get("MAIL_PASSWORD", "your_gmail_app_password")
+app.config["MAIL_DEFAULT_SENDER"] = os.environ.get(
+    "MAIL_USERNAME", "your_email@gmail.com"
+)
 
 mail = Mail(app)
 
@@ -65,7 +67,7 @@ def inject_user_status():
         return {"user_is_paid": 0, "is_admin": False}
 
     username = session.get("username")
-    is_admin = (username == "sandrika")
+    is_admin = username == "sandrika"
 
     try:
         conn = get_db_connection()
@@ -78,7 +80,7 @@ def inject_user_status():
         is_paid_val = user["is_paid"] if user else 0
         if is_admin or is_paid_val == 1:
             return {"user_is_paid": 1, "is_admin": is_admin}
-            
+
         return {"user_is_paid": 0, "is_admin": is_admin}
     except Exception:
         return {"user_is_paid": 1 if is_admin else 0, "is_admin": is_admin}
@@ -96,9 +98,7 @@ def paid_required(f):
 
         conn = get_db_connection()
         cursor = conn.cursor()
-        cursor.execute(
-            "SELECT is_paid FROM users WHERE id = %s", (session["user_id"],)
-        )
+        cursor.execute("SELECT is_paid FROM users WHERE id = %s", (session["user_id"],))
         user = cursor.fetchone()
         cursor.close()
         conn.close()
@@ -175,8 +175,11 @@ def register():
         try:
             conn = get_db_connection()
             cursor = conn.cursor()
-            
-            cursor.execute("SELECT id FROM users WHERE username = %s OR email = %s", (username, email))
+
+            cursor.execute(
+                "SELECT id FROM users WHERE username = %s OR email = %s",
+                (username, email),
+            )
             if cursor.fetchone():
                 flash("მომხმარებელი ამ სახელით ან მეილით უკვე არსებობს.", "error")
                 cursor.close()
@@ -190,7 +193,9 @@ def register():
             conn.commit()
             cursor.close()
             conn.close()
-            flash("რეგისტრაცია წარმატებულია! გთხოვთ გაიაროთ ავტორიზაცია.", "success")
+            flash(
+                "რეგისტრაცია წარმატებულია! გთხოვთ გაიაროთ ავტორიზაცია.", "success"
+            )
             return redirect(url_for("login"))
         except Exception as e:
             print(e)
@@ -204,34 +209,37 @@ def register():
 def forgot_password_view():
     if request.method == "POST":
         email = request.form.get("email")
-        
+
         conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute("SELECT id, email FROM users WHERE email = %s", (email,))
         user = cursor.fetchone()
-        
+
         if user:
             token = secrets.token_urlsafe(32)
             expiration = datetime.utcnow() + timedelta(hours=1)
-            
+
             cursor.execute(
                 "UPDATE users SET reset_token = %s, reset_token_expiration = %s WHERE id = %s",
-                (token, expiration, user["id"])
+                (token, expiration, user["id"]),
             )
             conn.commit()
             cursor.close()
             conn.close()
-            
+
             reset_url = url_for("reset_password", token=token, _external=True)
             msg = Message("პაროლის აღდგენა - YourStats", recipients=[email])
             msg.body = f"""პაროლის აღსადგენად მიჰყევით ამ ბმულს:
 {reset_url}
 
 თუ ეს მოთხოვნა თქვენ არ გეკუთვნით, უბრალოდ უგულებელყავით ეს წერილი. ბმული ძალაშია 1 საათის განმავლობაში."""
-            
+
             try:
                 mail.send(msg)
-                flash("პაროლის აღდგენის ინსტრუქცია გამოგზავნილია თქვენს მეილზე.", "info")
+                flash(
+                    "პაროლის აღდგენის ინსტრუქცია გამოგზავნილია თქვენს მეილზე.",
+                    "info",
+                )
             except Exception as e:
                 print(e)
                 flash("მეილის გაგზავნა ვერ მოხერხდა. სცადეთ მოგვიანებით.", "error")
@@ -239,9 +247,9 @@ def forgot_password_view():
             cursor.close()
             conn.close()
             flash("მომხმარებელი ამ მეილით ვერ მოიძებნა.", "error")
-            
+
         return redirect(url_for("forgot_password"))
-        
+
     return render_template("reset_password.html")
 
 
@@ -250,33 +258,37 @@ def forgot_password_view():
 def reset_password(token):
     conn = get_db_connection()
     cursor = conn.cursor()
-    
+
     cursor.execute(
-        "SELECT id, reset_token_expiration FROM users WHERE reset_token = %s", (token,)
+        "SELECT id, reset_token_expiration FROM users WHERE reset_token = %s",
+        (token,),
     )
     user = cursor.fetchone()
-    
+
     if not user or user["reset_token_expiration"] < datetime.utcnow():
         cursor.close()
         conn.close()
         flash("აღდგენის ბმული არასწორია ან ვადა გაუვიდა.", "error")
         return redirect(url_for("forgot_password"))
-        
+
     if request.method == "POST":
         new_password = request.form.get("password")
         hashed_password = generate_password_hash(new_password)
-        
+
         cursor.execute(
             "UPDATE users SET password = %s, reset_token = NULL, reset_token_expiration = NULL WHERE id = %s",
-            (hashed_password, user["id"])
+            (hashed_password, user["id"]),
         )
         conn.commit()
         cursor.close()
         conn.close()
-        
-        flash("პაროლი წარმატებით შეიცვალა! ახლა შეგიძლიათ შეხვიდეთ სისტემაში.", "success")
+
+        flash(
+            "პაროლი წარმატებით შეიცვალა! ახლა შეგიძლიათ შეხვიდეთ სისტემაში.",
+            "success",
+        )
         return redirect(url_for("login"))
-        
+
     cursor.close()
     conn.close()
     return render_template("reset_password.html", token=token)
@@ -476,19 +488,24 @@ def add_trade():
 
     conn = get_db_connection()
     cursor = conn.cursor()
-    
+
     cursor.execute("SELECT is_paid FROM users WHERE id = %s", (session["user_id"],))
     user = cursor.fetchone()
     is_paid = user["is_paid"] if user else 0
-    is_admin = (session.get("username") == "sandrika")
+    is_admin = session.get("username") == "sandrika"
 
-    cursor.execute("SELECT COUNT(*) FROM trades WHERE user_id = %s", (session["user_id"],))
+    cursor.execute(
+        "SELECT COUNT(*) FROM trades WHERE user_id = %s", (session["user_id"],)
+    )
     trade_count = cursor.fetchone()[0]
     cursor.close()
     conn.close()
 
     if not is_admin and is_paid != 1 and trade_count >= 3:
-        flash("უფასო ვერსიით შეგიძლია დაამატო მაქსიმუმ 3 ტრეიდი. შეიძინე პრემიუმი შეუზღუდავად სარგებლობისთვის.", "error")
+        flash(
+            "უფასო ვერსიით შეგიძლია დაამატო მაქსიმუმ 3 ტრეიდი. შეიძინე პრემიუმი შეუზღუდავად სარგებლობისთვის.",
+            "error",
+        )
         return redirect(url_for("pricing"))
 
     if request.method == "POST":
@@ -658,7 +675,9 @@ def analytics():
 @paid_required
 def ai_insights():
     if not openai_client:
-        return jsonify({"advice": "OpenAI API გასაღები არ არის კონფიგურირებული სერვერზე."})
+        return jsonify(
+            {"advice": "OpenAI API გასაღები არ არის კონფიგურირებული სერვერზე."}
+        )
 
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -671,7 +690,9 @@ def ai_insights():
     conn.close()
 
     if not trades:
-        return jsonify({"advice": "ჯერ არ გაქვს დამატებული ტრეიდები AI ანალიზისთვის."})
+        return jsonify(
+            {"advice": "ჯერ არ გაქვს დამატებული ტრეიდები AI ანალიზისთვის."}
+        )
 
     trades_summary = "\n".join(
         [
@@ -695,7 +716,11 @@ def ai_insights():
         advice = response.choices[0].message.content
         return jsonify({"advice": advice})
     except Exception as e:
-        return jsonify({"advice": f"ვერ მოხერხდა AI ანალიზის გენერაცია. (შეცდომა: {str(e)})"})
+        return jsonify(
+            {
+                "advice": f"ვერ მოხერხდა AI ანალიზის გენერაცია. (შეცდომა: {str(e)})"
+            }
+        )
 
 
 @app.route("/update_settings", methods=["POST"])
@@ -783,6 +808,26 @@ def toggle_user(user_id):
     cursor.close()
     conn.close()
     flash("სტატუსი განახლდა!", "success")
+    return redirect(url_for("admin_users"))
+
+
+@app.route("/admin/delete_user/<int:user_id>", methods=["POST"])
+@admin_required
+def delete_user(user_id):
+    if session.get("user_id") == user_id:
+        flash("საკუთარ თავს ვერ წაიშლი!", "error")
+        return redirect(url_for("admin_users"))
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM trades WHERE user_id = %s", (user_id,))
+    cursor.execute("DELETE FROM user_settings WHERE user_id = %s", (user_id,))
+    cursor.execute("DELETE FROM users WHERE id = %s", (user_id,))
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+    flash("მომხმარებელი და მისი მონაცემები წარმატებით წაიშალა!", "success")
     return redirect(url_for("admin_users"))
 
 
