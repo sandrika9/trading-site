@@ -521,7 +521,7 @@ def add_trade():
         exit_price = float(request.form.get("exit_price", 0) or 0)
         pnl = float(request.form.get("pnl", 0) or 0)
         emotion = request.form.get("emotion", "ნეიტრალური")
-        comment = request.form.get("comment", "")  # <--- კომენტარის მიღება ფორმიდან
+        comment = request.form.get("comment", "")
         screenshot_base64 = request.form.get("screenshot")
 
         conn = get_db_connection()
@@ -550,7 +550,6 @@ def add_trade():
         except Exception as e:
             conn.rollback()
             print("Error saving trade with comment:", e)
-            # ფოლბექ ვარიანტი, თუ კომენტარის სვეტი ჯერ არ არის ბაზაში დამატებული
             cursor.execute(
                 """
                     INSERT INTO trades (user_id, date, pair, direction, entry_price, exit_price, pnl)
