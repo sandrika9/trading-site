@@ -831,6 +831,39 @@ def delete_user(user_id):
     return redirect(url_for("admin_users"))
 
 
+@app.route("/admin/edit_user/<int:user_id>", methods=["GET", "POST"])
+@admin_required
+def edit_user(user_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    if request.method == "POST":
+        new_is_paid = int(request.form.get("is_paid", 0))
+        cursor.execute(
+            "UPDATE users SET is_paid = %s WHERE id = %s", (new_is_paid, user_id)
+        )
+        conn.commit()
+        cursor.close()
+        conn.close()
+        flash("მომხმარებლის მონაცემები განახლდა!", "success")
+        return redirect(url_for("admin_users"))
+
+    cursor.execute(
+        "SELECT id, username, email, is_paid FROM users WHERE id = %s", (user_id,)
+    )
+    edit_target_user = cursor.fetchone()
+    cursor.close()
+    conn.close()
+
+    if not edit_target_user:
+        flash("მომხმარებელი ვერ მოიძებნა.", "error")
+        return redirect(url_for("admin_users"))
+
+    return render_template(
+        "edit_user.html", edit_target_user=edit_target_user
+    )
+
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=True)
