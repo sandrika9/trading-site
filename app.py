@@ -547,30 +547,15 @@ def add_trade():
                 ),
             )
             conn.commit()
+            flash("ტრეიდი წარმატებით დაემატა!", "success")
         except Exception as e:
             conn.rollback()
-            print("Error saving trade with comment:", e)
-            cursor.execute(
-                """
-                    INSERT INTO trades (user_id, date, pair, direction, entry_price, exit_price, pnl)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s)
-                """,
-                (
-                    session["user_id"],
-                    date,
-                    pair,
-                    direction,
-                    entry_price,
-                    exit_price,
-                    pnl,
-                ),
-            )
-            conn.commit()
+            print("Error saving trade with comment/screenshot:", e)
+            flash(f"შეცდომა ტრეიდის შენახვისას: {str(e)}", "error")
         finally:
             cursor.close()
             conn.close()
 
-        flash("ტრეიდი წარმატებით დაემატა!", "success")
         return redirect(url_for("index"))
 
     return render_template("add_trade.html")
@@ -865,9 +850,10 @@ def edit_user(user_id):
         flash("მომხმარებელი ვერ მოიძებნა.", "error")
         return redirect(url_for("admin_users"))
 
-    return render_template(
+    render_target = render_template(
         "edit_user.html", edit_target_user=edit_target_user
     )
+    return render_target
 
 
 if __name__ == "__main__":
