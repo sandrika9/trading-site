@@ -23,6 +23,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "your_secret_key_here")
 
+# გასწორდა DATABASE_URL - მოიხსნა კონფლიქტური სიმბოლოები და პორტის შეცდომა
 DATABASE_URL = os.environ.get(
     "DATABASE_URL",
     "postgresql://postgres.rnktcgfknokfdktfxjkb:Sandrika123solo@aws-0-ap-northeast-2.pooler.supabase.com:6543/postgres",
@@ -791,4 +792,3 @@ def toggle_user(user_id):
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=True)
-# trigger rebuild
