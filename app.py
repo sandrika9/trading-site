@@ -521,6 +521,7 @@ def add_trade():
         exit_price = float(request.form.get("exit_price", 0) or 0)
         pnl = float(request.form.get("pnl", 0) or 0)
         emotion = request.form.get("emotion", "ნეიტრალური")
+        comment = request.form.get("comment", "")  # <--- კომენტარის მიღება ფორმიდან
         screenshot_base64 = request.form.get("screenshot")
 
         conn = get_db_connection()
@@ -529,8 +530,8 @@ def add_trade():
         try:
             cursor.execute(
                 """
-                    INSERT INTO trades (user_id, date, pair, direction, entry_price, exit_price, pnl, emotion, screenshot)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    INSERT INTO trades (user_id, date, pair, direction, entry_price, exit_price, pnl, emotion, comment, screenshot)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 """,
                 (
                     session["user_id"],
@@ -541,12 +542,15 @@ def add_trade():
                     exit_price,
                     pnl,
                     emotion,
+                    comment,
                     screenshot_base64,
                 ),
             )
             conn.commit()
-        except Exception:
+        except Exception as e:
             conn.rollback()
+            print("Error saving trade with comment:", e)
+            # ფოლბექ ვარიანტი, თუ კომენტარის სვეტი ჯერ არ არის ბაზაში დამატებული
             cursor.execute(
                 """
                     INSERT INTO trades (user_id, date, pair, direction, entry_price, exit_price, pnl)
@@ -682,7 +686,7 @@ def ai_insights():
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute(
-        "SELECT pair, direction, pnl, emotion, date FROM trades WHERE user_id = %s ORDER BY id DESC LIMIT 20",
+        "SELECT pair, direction, pnl, emotion, comment, date FROM trades WHERE user_id = %s ORDER BY id DESC LIMIT 20",
         (session["user_id"],),
     )
     trades = cursor.fetchall()
@@ -696,7 +700,7 @@ def ai_insights():
 
     trades_summary = "\n".join(
         [
-            f"Pair: {t['pair']}, Direction: {t['direction']}, PnL: {t['pnl']}, Emotion: {t.get('emotion', 'N/A')}, Date: {t['date']}"
+            f"Pair: {t['pair']}, Direction: {t['direction']}, PnL: {t['pnl']}, Emotion: {t.get('emotion', 'N/A')}, Comment: {t.get('comment', 'N/A')}, Date: {t['date']}"
             for t in trades
         ]
     )
@@ -780,7 +784,6 @@ def update_settings():
 def admin_users():
     conn = get_db_connection()
     cursor = conn.cursor()
-    # წამოიღებს email-საც, რომ სიაში ჩანდეს
     cursor.execute("SELECT id, username, email, is_paid FROM users ORDER BY id ASC")
     all_users = cursor.fetchall()
     cursor.close()
@@ -842,7 +845,6 @@ def edit_user(user_id):
         new_email = request.form.get("email")
         new_is_paid = int(request.form.get("is_paid", 0))
 
-        # განვაახლოთ როგორც მეილი, ისე სტატუსი
         cursor.execute(
             "UPDATE users SET email = %s, is_paid = %s WHERE id = %s",
             (new_email, new_is_paid, user_id),
