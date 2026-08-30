@@ -147,11 +147,61 @@
         {% endif %}
     </main>
 
-    <!-- Scripts -->
+    <!-- Scripts & Translations -->
     <script>
         lucide.createIcons();
+
+        // ენების ლექსიკონი პირდაპირ აქ არის, რომ კონფლიქტი არ მოუვიდეს ფაილებთან
+        const translations = {
+            ka: {
+                trade_details_title: "ტრეიდის დეტალები",
+                pnl_label: "წმინდა მოგება/ზარალი (P&L)",
+                entry_price: "შესვლის ფასი",
+                exit_price: "გასვლის ფასი",
+                lots: "ლოტის ზომა",
+                open_date: "გახსნის დრო",
+                close_date: "დახურვის დრო",
+                strategy: "სტრატეგია",
+                notes_title: "ტრეიდის შენიშვნები და ფსიქოლოგია",
+                screenshot_title: "გრაფიკის სკრინშოტი",
+                no_screenshot: "სკრინშოტი არ არის ატვირთული",
+                trade_not_found: "ტრეიდი ვერ მოიძებნა",
+                trade_not_found_desc: "მოთხოვნილი ტრეიდი არ არსებობს ან წაშლილია.",
+                back_to_dashboard: "დაბრუნება მთავარ გვერდზე"
+            },
+            en: {
+                trade_details_title: "Trade Details",
+                pnl_label: "Net P&L",
+                entry_price: "Entry Price",
+                exit_price: "Exit Price",
+                lots: "Lot Size",
+                open_date: "Open Time",
+                close_date: "Close Time",
+                strategy: "Strategy",
+                notes_title: "Trade Notes & Psychology",
+                screenshot_title: "Chart Screenshot",
+                no_screenshot: "No screenshot attached",
+                trade_not_found: "Trade Not Found",
+                trade_not_found_desc: "The requested trade does not exist or has been deleted.",
+                back_to_dashboard: "Back to Dashboard"
+            }
+        };
+
+        function changeLanguage(lang) {
+            localStorage.setItem('preferred_language', lang);
+            document.querySelectorAll('[data-i18n]').forEach(element => {
+                const key = element.getAttribute('data-i18n');
+                if (translations[lang] && translations[lang][key]) {
+                    element.textContent = translations[lang][key];
+                }
+            });
+        }
+
+        // გვერდის ჩატვირთვისას შემოწმება
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedLang = localStorage.getItem('preferred_language') || 'ka';
+            changeLanguage(savedLang);
+        });
     </script>
-    <!-- მხოლოდ ცალკეული i18n.js ფაილის მიმაგრება, საიდანაც იმართება ენები -->
-    <script src="{{ url_for('static', filename='js/i18n.js') }}"></script>
 </body>
 </html>
