@@ -179,12 +179,18 @@
                 </div>
             </div>
 
+            <!-- კომენტარის ბლოკი -->
+            <div class="bg-black/40 p-4 rounded-xl border border-white/5">
+                <span class="text-gray-400 block text-xs mb-1" data-i18n="field_comment">კომენტარი / სტრატეგია</span>
+                <p class="text-sm text-gray-200 whitespace-pre-wrap">{{ trade.comment if trade.comment else ('კომენტარი არ არის მითითებული' if get_current_lang() == 'ka' else 'No comment provided') }}</p>
+            </div>
+
             <!-- სურათის ბლოკი -->
             <div class="mt-4 pt-4 border-t border-white/5">
                 <span class="text-xs text-gray-400 block mb-2" data-i18n="screenshot_label">ატვირთული სქრინი:</span>
                 {% if trade.screenshot %}
                     <div class="border border-white/10 rounded-xl overflow-hidden bg-black/50 p-2 flex justify-center shadow-lg">
-                        <img src="{{ trade.screenshot }}" alt="Trade Screenshot" class="max-h-96 object-contain rounded-lg">
+                        <img src="{{ trade.screenshot }}" alt="Trade Screenshot" class="max-h-96 object-contain rounded-lg cursor-pointer" onclick="window.open(this.src)">
                     </div>
                 {% else %}
                     <div class="bg-black/40 border border-white/5 rounded-xl p-6 text-center text-gray-500 text-xs" data-i18n="no_screenshot">
@@ -213,6 +219,7 @@
                 field_entry_exit: "Entry / Exit",
                 field_pnl: "PnL (Profit/Loss)",
                 field_emotion: "Emotion",
+                field_comment: "Comment / Strategy",
                 screenshot_label: "Uploaded Screenshot:",
                 no_screenshot: "This trade has no screenshot"
             },
@@ -229,6 +236,7 @@
                 field_entry_exit: "შესვლა / გასვლა",
                 field_pnl: "PnL (მოგება/ზარალი)",
                 field_emotion: "ემოცია",
+                field_comment: "კომენტარი / სტრატეგია",
                 screenshot_label: "ატვირთული სქრინი:",
                 no_screenshot: "ამ ტრეიდს სურათი არ მოჰყვება"
             },
@@ -245,6 +253,7 @@
                 field_entry_exit: "Вход / Выход",
                 field_pnl: "PnL (Прибыль/Убыток)",
                 field_emotion: "Эмоция",
+                field_comment: "Комментарий / Стратегия",
                 screenshot_label: "Загруженный скриншот:",
                 no_screenshot: "У этой сделки нет скриншота"
             },
@@ -261,6 +270,7 @@
                 field_entry_exit: "Entrada / Salida",
                 field_pnl: "PnL (Ganancia/Pérdida)",
                 field_emotion: "Emoción",
+                field_comment: "Comentario / Estrategia",
                 screenshot_label: "Captura subida:",
                 no_screenshot: "Esta operación no tiene captura"
             }
