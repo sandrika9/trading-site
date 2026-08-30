@@ -23,7 +23,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "your_secret_key_here")
 
-# გასწორდა DATABASE_URL - გამოყენებულია სწორი პაროლი სპეციალური სიმბოლოების გარეშე
+# DATABASE_URL - გამოყენებულია სწორი პაროლი სპეციალური სიმბოლოების გარეშე
 DATABASE_URL = "postgresql://postgres.rnktcgfknokfdktfxjkb:Yourstats1231@aws-0-ap-northeast-2.pooler.supabase.com:6543/postgres"
 
 # --- Flask-Mail კონფიგურაცია მეილების გასაგზავნად ---
@@ -780,7 +780,8 @@ def update_settings():
 def admin_users():
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT id, username, is_paid FROM users ORDER BY id ASC")
+    # წამოიღებს email-საც, რომ სიაში ჩანდეს
+    cursor.execute("SELECT id, username, email, is_paid FROM users ORDER BY id ASC")
     all_users = cursor.fetchall()
     cursor.close()
     conn.close()
@@ -838,9 +839,13 @@ def edit_user(user_id):
     cursor = conn.cursor()
 
     if request.method == "POST":
+        new_email = request.form.get("email")
         new_is_paid = int(request.form.get("is_paid", 0))
+
+        # განვაახლოთ როგორც მეილი, ისე სტატუსი
         cursor.execute(
-            "UPDATE users SET is_paid = %s WHERE id = %s", (new_is_paid, user_id)
+            "UPDATE users SET email = %s, is_paid = %s WHERE id = %s",
+            (new_email, new_is_paid, user_id),
         )
         conn.commit()
         cursor.close()
