@@ -1,207 +1,628 @@
 <!DOCTYPE html>
-<html lang="ka" class="dark">
+
+<html lang="en" class="dark">
+
 <head>
+
     <meta charset="UTF-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trade Details</title>
-    <!-- Tailwind CSS CDN -->
+
+    <title data-i18n="page_title">YourStats - Trade Details #{{ trade.id }}</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        darkBg: '#0b0f19',
-                        cardBg: '#131b2e',
-                        borderCol: '#1e293b'
-                    }
-                }
-            }
-        }
-    </script>
-    <!-- Lucide Icons -->
+
     <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script>
+
+        tailwind.config = {
+
+            darkMode: 'class',
+
+            theme: {
+
+                extend: {
+
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+
+                    colors: {
+
+                        appBg: '#05070B',
+
+                        surface: '#11151F',
+
+                        surfaceHover: '#181E2C',
+
+                        primary: '#6366F1',
+
+                        success: '#10B981',
+
+                        danger: '#EF4444',
+
+                    }
+
+                }
+
+            }
+
+        }
+
+    </script>
+
+    <style>
+
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+
+        ::-webkit-scrollbar-track { background: #05070B; }
+
+        ::-webkit-scrollbar-thumb { background: #1F2937; border-radius: 4px; }
+
+        
+
+        @keyframes fadeIn {
+
+            from { opacity: 0; transform: translateY(12px); }
+
+            to { opacity: 1; transform: translateY(0); }
+
+        }
+
+        .animate-fade-in {
+
+            animation: fadeIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+
+        }
+
+        .glass-panel {
+
+            background: rgba(17, 21, 31, 0.7);
+
+            backdrop-filter: blur(12px);
+
+            -webkit-backdrop-filter: blur(12px);
+
+            border: 1px solid rgba(255, 255, 255, 0.05);
+
+            transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+
+        }
+
+        .glass-panel:hover {
+
+            transform: translateY(-2px);
+
+            border-color: rgba(99, 102, 241, 0.2);
+
+            box-shadow: 0 12px 35px -10px rgba(99, 102, 241, 0.15);
+
+        }
+
+        .gradient-text {
+
+            background: linear-gradient(135deg, #818CF8 0%, #C084FC 100%);
+
+            -webkit-background-clip: text;
+
+            -webkit-text-fill-color: transparent;
+
+        }
+
+        .app-background {
+
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+
+            z-index: -1; overflow: hidden; background-color: #05070B;
+
+        }
+
+        .bg-glow-1 {
+
+            position: absolute; top: -10%; left: 20%; width: 600px; height: 600px;
+
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.12) 0%, rgba(139, 92, 246, 0.05) 40%, transparent 70%);
+
+            border-radius: 50%; pointer-events: none; filter: blur(60px);
+
+        }
+
+        .bg-glow-2 {
+
+            position: absolute; bottom: -15%; right: 10%; width: 700px; height: 700px;
+
+            background: radial-gradient(circle, rgba(168, 85, 247, 0.08) 0%, rgba(59, 130, 246, 0.03) 50%, transparent 70%);
+
+            border-radius: 50%; pointer-events: none; filter: blur(80px);
+
+        }
+
+        .bg-grid {
+
+            position: absolute; inset: 0;
+
+            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+
+                              linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+
+            background-size: 32px 32px;
+
+            mask-image: radial-gradient(circle at 50% 20%, black 40%, transparent 80%);
+
+            pointer-events: none;
+
+        }
+
+        .lang-btn {
+
+            transition: all 0.2s ease;
+
+        }
+
+        .lang-btn.active {
+
+            background-color: #6366F1;
+
+            color: #ffffff;
+
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+
+        }
+
+    </style>
+
 </head>
-<body class="bg-darkBg text-slate-100 min-h-screen font-sans antialiased selection:bg-indigo-500 selection:text-white pb-12">
 
-    <!-- Top Navigation / Header -->
-    <header class="border-b border-borderCol bg-cardBg/50 backdrop-blur sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-            <div class="flex items-center space-x-4">
-                <a href="/" class="p-2 rounded-xl bg-slate-800/50 hover:bg-slate-800 text-slate-400 hover:text-white transition">
-                    <i data-lucide="arrow-left" class="w-5 h-5"></i>
+<body class="bg-transparent text-gray-300 min-h-screen font-sans antialiased">
+
+
+
+    <div class="app-background">
+
+        <div class="bg-glow-1"></div>
+
+        <div class="bg-glow-2"></div>
+
+        <div class="bg-grid"></div>
+
+    </div>
+
+
+
+    <!-- Navigation -->
+
+    <nav class="glass-panel sticky top-0 z-50 border-b border-white/5 !transform-none !shadow-none">
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+            <div class="flex justify-between h-16 items-center">
+
+                <a href="{{ url_for('index') }}" class="flex items-center gap-3 group focus:outline-none">
+
+                    <div class="bg-gradient-to-br from-indigo-500 to-purple-600 p-2 rounded-xl shadow-lg shadow-indigo-500/20 group-hover:scale-105 transition duration-300">
+
+                        <i data-lucide="line-chart" class="w-6 h-6 text-white"></i>
+
+                    </div>
+
+                    <div>
+
+                        <span class="font-bold text-xl text-white tracking-tight group-hover:text-indigo-300 transition">Your<span class="gradient-text">Stats</span></span>
+
+                        <p class="text-[10px] text-gray-400 -mt-1 font-medium tracking-wide">Created by Sandrika</p>
+
+                    </div>
+
                 </a>
-                <h1 class="text-lg font-bold tracking-tight text-white" data-i18n="trade_details_title">Trade Details</h1>
-            </div>
 
-            <!-- Language Switcher & Actions -->
-            <div class="flex items-center space-x-3">
-                <div class="flex bg-slate-800/80 p-1 rounded-xl border border-borderCol">
-                    <button onclick="changeLanguage('ka')" class="px-3 py-1.5 text-xs font-medium rounded-lg transition hover:text-white text-slate-400 focus:bg-indigo-600 focus:text-white">KA</button>
-                    <button onclick="changeLanguage('en')" class="px-3 py-1.5 text-xs font-medium rounded-lg transition hover:text-white text-slate-400 focus:bg-indigo-600 focus:text-white">EN</button>
+                
+
+                <div class="hidden md:flex items-center gap-6">
+
+                    <a href="{{ url_for('index') }}" class="text-gray-400 flex items-center gap-2 font-medium transition hover:text-white">
+
+                        <i data-lucide="layout-dashboard" class="w-4 h-4"></i> <span data-i18n="nav_dashboard">Dashboard</span>
+
+                    </a>
+
+                    <a href="{{ url_for('trades_list') }}" class="text-white flex items-center gap-2 font-medium transition hover:text-indigo-400">
+
+                        <i data-lucide="list" class="w-4 h-4"></i> <span data-i18n="nav_history">History</span>
+
+                    </a>
+
+                    <a href="{{ url_for('analytics') }}" class="text-gray-400 flex items-center gap-2 font-medium transition hover:text-white">
+
+                        <i data-lucide="pie-chart" class="w-4 h-4"></i> <span data-i18n="nav_analytics">Analytics</span>
+
+                    </a>
+
                 </div>
-            </div>
-        </div>
-    </header>
 
-    <!-- Main Content Container -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
-        {% if trade %}
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+
+                <div class="flex items-center gap-4">
+
+                    <div class="flex items-center gap-1 bg-[#11151F]/80 border border-indigo-500/20 p-1 rounded-xl backdrop-blur-md shadow-lg">
+
+                        <button onclick="changeLanguage('en')" id="btn-en" class="lang-btn px-2.5 py-1 text-xs font-medium rounded-lg text-gray-400 hover:text-white">EN</button>
+
+                        <button onclick="changeLanguage('ka')" id="btn-ka" class="lang-btn px-2.5 py-1 text-xs font-medium rounded-lg text-gray-400 hover:text-white">KA</button>
+
+                        <button onclick="changeLanguage('ru')" id="btn-ru" class="lang-btn px-2.5 py-1 text-xs font-medium rounded-lg text-gray-400 hover:text-white">RU</button>
+
+                        <button onclick="changeLanguage('es')" id="btn-es" class="lang-btn px-2.5 py-1 text-xs font-medium rounded-lg text-gray-400 hover:text-white">ES</button>
+
+                    </div>
+
+
+
+                    <a href="{{ url_for('add_trade') }}" class="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-300 hidden sm:flex items-center gap-2 shadow-[0_0_15px_rgba(79,70,229,0.3)] hover:scale-[1.02]">
+
+                        <i data-lucide="plus" class="w-4 h-4"></i> <span data-i18n="btn_new_trade">ახალი ტრეიდი</span>
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </nav>
+
+
+
+    <!-- Main Content -->
+
+    <main class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6 animate-fade-in">
+
+        
+
+        <div class="glass-panel rounded-2xl p-6 sm:p-8 shadow-2xl !transform-none space-y-6">
+
             
-            <!-- Left & Middle: Trade Information Cards -->
-            <div class="lg:col-span-2 space-y-6">
-                <!-- Overview Card -->
-                <div class="bg-cardBg border border-borderCol rounded-2xl p-6 shadow-xl">
-                    <div class="flex items-center justify-between pb-6 border-b border-borderCol">
-                        <div>
-                            <span class="text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wider {% if trade.type == 'BUY' %}bg-emerald-500/10 text-emerald-400 border border-emerald-500/20{% else %}bg-rose-500/10 text-rose-400 border border-rose-500/20{% endif %}">
-                                {{ trade.type }}
-                            </span>
-                            <h2 class="text-2xl font-black text-white mt-2">{{ trade.symbol }}</h2>
-                        </div>
-                        <div class="text-right">
-                            <span class="text-sm text-slate-400 block" data-i18n="pnl_label">Net P&L</span>
-                            <span class="text-2xl font-black {% if trade.pnl and trade.pnl >= 0 %}text-emerald-400{% else %}text-rose-400{% endif %}">
-                                {{ trade.pnl | default(0) }} $
-                            </span>
-                        </div>
-                    </div>
 
-                    <!-- Details Grid -->
-                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-6 pt-6">
-                        <div>
-                            <span class="text-xs text-slate-400 block" data-i18n="entry_price">Entry Price</span>
-                            <span class="text-base font-bold text-slate-200 mt-1 block">{{ trade.entry_price | default('-') }}</span>
-                        </div>
-                        <div>
-                            <span class="text-xs text-slate-400 block" data-i18n="exit_price">Exit Price</span>
-                            <span class="text-base font-bold text-slate-200 mt-1 block">{{ trade.exit_price | default('-') }}</span>
-                        </div>
-                        <div>
-                            <span class="text-xs text-slate-400 block" data-i18n="lots">Lot Size</span>
-                            <span class="text-base font-bold text-slate-200 mt-1 block">{{ trade.lots | default('-') }}</span>
-                        </div>
-                        <div>
-                            <span class="text-xs text-slate-400 block" data-i18n="open_date">Open Time</span>
-                            <span class="text-sm font-semibold text-slate-300 mt-1 block">{{ trade.open_time | default('-') }}</span>
-                        </div>
-                        <div>
-                            <span class="text-xs text-slate-400 block" data-i18n="close_date">Close Time</span>
-                            <span class="text-sm font-semibold text-slate-300 mt-1 block">{{ trade.close_time | default('-') }}</span>
-                        </div>
-                        <div>
-                            <span class="text-xs text-slate-400 block" data-i18n="strategy">Strategy</span>
-                            <span class="text-sm font-semibold text-indigo-400 mt-1 block">{{ trade.strategy | default('N/A') }}</span>
-                        </div>
-                    </div>
-                </div>
+            <div class="flex justify-between items-center border-b border-white/5 pb-4">
 
-                <!-- Notes Card -->
-                <div class="bg-cardBg border border-borderCol rounded-2xl p-6 shadow-xl">
-                    <h3 class="text-base font-bold text-white mb-3 flex items-center space-x-2">
-                        <i data-lucide="file-text" class="w-4 h-4 text-indigo-400"></i>
-                        <span data-i18n="notes_title">Trade Notes & Psychology</span>
-                    </h3>
-                    <p class="text-slate-300 text-sm leading-relaxed bg-slate-900/40 p-4 rounded-xl border border-slate-800">
-                        {{ trade.notes | default('No notes provided for this trade.') }}
-                    </p>
-                </div>
+                <h1 class="text-xl font-bold text-white flex items-center gap-2">
+
+                    <span data-i18n="trade_label">ტრეიდი:</span> <span class="gradient-text">{{ trade.pair }}</span>
+
+                </h1>
+
+                <a href="{{ url_for('trades_list') }}" class="text-xs text-indigo-400 hover:text-indigo-300 transition flex items-center gap-1 font-medium">
+
+                    <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i> <span data-i18n="back_to_list">უკან დაბრუნება</span>
+
+                </a>
+
             </div>
 
-            <!-- Right Column: Screenshot / Proof -->
-            <div class="space-y-6">
-                <div class="bg-cardBg border border-borderCol rounded-2xl p-6 shadow-xl">
-                    <h3 class="text-base font-bold text-white mb-4 flex items-center space-x-2">
-                        <i data-lucide="image" class="w-4 h-4 text-indigo-400"></i>
-                        <span data-i18n="screenshot_title">Chart Screenshot</span>
-                    </h3>
-                    
-                    {% if trade.screenshot %}
-                    <div class="overflow-hidden rounded-xl border border-slate-800 bg-slate-900/50">
-                        <a href="{{ url_for('static', filename='uploads/' + trade.screenshot) }}" target="_blank">
-                            <img src="{{ url_for('static', filename='uploads/' + trade.screenshot) }}" alt="Trade Screenshot" class="w-full h-auto object-cover hover:scale-105 transition duration-300">
-                        </a>
-                    </div>
+
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+
+                <div class="bg-black/40 p-4 rounded-xl border border-white/5">
+
+                    <span class="text-gray-400 block text-xs mb-1" data-i18n="field_date">თარიღი</span>
+
+                    <span class="font-medium text-white">{{ trade.date }}</span>
+
+                </div>
+
+                <div class="bg-black/40 p-4 rounded-xl border border-white/5">
+
+                    <span class="text-gray-400 block text-xs mb-1" data-i18n="field_direction">მიმართულება</span>
+
+                    <span class="font-medium {{ 'text-success' if trade.direction == 'LONG' else 'text-danger' }}">
+
+                        {{ trade.direction }}
+
+                    </span>
+
+                </div>
+
+                <div class="bg-black/40 p-4 rounded-xl border border-white/5">
+
+                    <span class="text-gray-400 block text-xs mb-1" data-i18n="field_entry_exit">შესვლა / გასვლა</span>
+
+                    <span class="font-mono text-xs text-gray-200">{{ trade.entry_price }} <span class="text-gray-500 mx-1">&rarr;</span> {{ trade.exit_price }}</span>
+
+                </div>
+
+                <div class="bg-black/40 p-4 rounded-xl border border-white/5">
+
+                    <span class="text-gray-400 block text-xs mb-1" data-i18n="field_pnl">PnL (მოგება/ზარალი)</span>
+
+                    <span class="font-bold {{ 'text-success' if trade.pnl >= 0 else 'text-danger' }}">
+
+                        {% if trade.pnl > 0 %}+{% endif %}{{ trade.pnl }} $
+
+                    </span>
+
+                </div>
+
+                <div class="bg-black/40 p-4 rounded-xl border border-white/5 col-span-1 sm:col-span-2">
+
+                    <span class="text-gray-400 block text-xs mb-1" data-i18n="field_emotion">ემოცია</span>
+
+                    <span class="font-medium text-white">{{ trade.emotion }}</span>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- კომენტარის ბლოკი -->
+
+            <div class="bg-black/40 p-4 rounded-xl border border-white/5">
+
+                <span class="text-gray-400 block text-xs mb-1" data-i18n="field_comment">კომენტარი / სტრატეგია</span>
+
+                <p class="text-sm text-gray-200 whitespace-pre-wrap">
+
+                    {% set comment_text = trade.comment or trade.note or trade.description %}
+
+                    {% if comment_text %}
+
+                        {{ comment_text }}
+
                     {% else %}
-                    <div class="flex flex-col items-center justify-center p-8 border-2 border-dashed border-slate-800 rounded-xl text-center">
-                        <i data-lucide="image-off" class="w-10 h-10 text-slate-600 mb-2"></i>
-                        <span class="text-xs text-slate-500" data-i18n="no_screenshot">No screenshot attached</span>
-                    </div>
+
+                        კომენტარი არ არის მითითებული
+
                     {% endif %}
-                </div>
+
+                </p>
+
             </div>
 
+
+
+            <!-- სურათის ბლოკი -->
+
+            <div class="mt-4 pt-4 border-t border-white/5">
+
+                <span class="text-xs text-gray-400 block mb-2" data-i18n="screenshot_label">ატვირთული სქრინი:</span>
+
+                {% set img = trade.screenshot or trade.image or trade.photo or trade.file %}
+
+                {% if img %}
+
+                    <div class="border border-white/10 rounded-xl overflow-hidden bg-black/50 p-2 flex justify-center shadow-lg">
+
+                        <img src="{{ url_for('static', filename='uploads/' + img) if not img.startswith('http') and not img.startswith('/') else img }}" alt="Trade Screenshot" class="max-h-96 object-contain rounded-lg cursor-pointer" onclick="window.open(this.src)">
+
+                    </div>
+
+                {% else %}
+
+                    <div class="bg-black/40 border border-white/5 rounded-xl p-6 text-center text-gray-500 text-xs" data-i18n="no_screenshot">
+
+                        ამ ტრეიდს სურათი არ მოჰყვება
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+
+
         </div>
-        {% else %}
-        <!-- Empty State if trade is not found -->
-        <div class="text-center py-20 bg-cardBg border border-borderCol rounded-2xl">
-            <i data-lucide="alert-circle" class="w-12 h-12 text-rose-500 mx-auto mb-4"></i>
-            <h2 class="text-xl font-bold text-white" data-i18n="trade_not_found">Trade Not Found</h2>
-            <p class="text-slate-400 text-sm mt-1" data-i18n="trade_not_found_desc">The requested trade does not exist or has been deleted.</p>
-            <a href="/" class="inline-block mt-6 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-sm rounded-xl transition">
-                <span data-i18n="back_to_dashboard">Back to Dashboard</span>
-            </a>
-        </div>
-        {% endif %}
+
     </main>
 
-    <!-- Scripts & Translations -->
+
+
     <script>
+
         lucide.createIcons();
 
-        // ენების ლექსიკონი პირდაპირ აქ არის, რომ კონფლიქტი არ მოუვიდეს ფაილებთან
+
+
         const translations = {
-            ka: {
-                trade_details_title: "ტრეიდის დეტალები",
-                pnl_label: "წმინდა მოგება/ზარალი (P&L)",
-                entry_price: "შესვლის ფასი",
-                exit_price: "გასვლის ფასი",
-                lots: "ლოტის ზომა",
-                open_date: "გახსნის დრო",
-                close_date: "დახურვის დრო",
-                strategy: "სტრატეგია",
-                notes_title: "ტრეიდის შენიშვნები და ფსიქოლოგია",
-                screenshot_title: "გრაფიკის სკრინშოტი",
-                no_screenshot: "სკრინშოტი არ არის ატვირთული",
-                trade_not_found: "ტრეიდი ვერ მოიძებნა",
-                trade_not_found_desc: "მოთხოვნილი ტრეიდი არ არსებობს ან წაშლილია.",
-                back_to_dashboard: "დაბრუნება მთავარ გვერდზე"
-            },
+
             en: {
-                trade_details_title: "Trade Details",
-                pnl_label: "Net P&L",
-                entry_price: "Entry Price",
-                exit_price: "Exit Price",
-                lots: "Lot Size",
-                open_date: "Open Time",
-                close_date: "Close Time",
-                strategy: "Strategy",
-                notes_title: "Trade Notes & Psychology",
-                screenshot_title: "Chart Screenshot",
-                no_screenshot: "No screenshot attached",
-                trade_not_found: "Trade Not Found",
-                trade_not_found_desc: "The requested trade does not exist or has been deleted.",
-                back_to_dashboard: "Back to Dashboard"
+
+                page_title: "YourStats - Trade Details #{{ trade.id }}",
+
+                nav_dashboard: "Dashboard",
+
+                nav_history: "History",
+
+                nav_analytics: "Analytics",
+
+                btn_new_trade: "New Trade",
+
+                trade_label: "Trade:",
+
+                back_to_list: "Back to List",
+
+                field_date: "Date",
+
+                field_direction: "Direction",
+
+                field_entry_exit: "Entry / Exit",
+
+                field_pnl: "PnL (Profit/Loss)",
+
+                field_emotion: "Emotion",
+
+                field_comment: "Comment / Strategy",
+
+                screenshot_label: "Uploaded Screenshot:",
+
+                no_screenshot: "This trade has no screenshot"
+
+            },
+
+            ka: {
+
+                page_title: "YourStats - ტრეიდის დეტალები #{{ trade.id }}",
+
+                nav_dashboard: "Dashboard",
+
+                nav_history: "History",
+
+                nav_analytics: "Analytics",
+
+                btn_new_trade: "ახალი ტრეიდი",
+
+                trade_label: "ტრეიდი:",
+
+                back_to_list: "უკან დაბრუნება",
+
+                field_date: "თარიღი",
+
+                field_direction: "მიმართულება",
+
+                field_entry_exit: "შესვლა / გასვლა",
+
+                field_pnl: "PnL (მოგება/ზარალი)",
+
+                field_emotion: "ემოცია",
+
+                field_comment: "კომენტარი / სტრატეგია",
+
+                screenshot_label: "ატვირთული სქრინი:",
+
+                no_screenshot: "ამ ტრეიდს სურათი არ მოჰყვება"
+
+            },
+
+            ru: {
+
+                page_title: "YourStats - Детали сделки #{{ trade.id }}",
+
+                nav_dashboard: "Dashboard",
+
+                nav_history: "History",
+
+                nav_analytics: "Analytics",
+
+                btn_new_trade: "Новая сделка",
+
+                trade_label: "Сделка:",
+
+                back_to_list: "Назад к списку",
+
+                field_date: "Дата",
+
+                field_direction: "Направление",
+
+                field_entry_exit: "Вход / Выход",
+
+                field_pnl: "PnL (Прибыль/Убыток)",
+
+                field_emotion: "Эмоция",
+
+                field_comment: "Комментарий / Стратегия",
+
+                screenshot_label: "Загруженный скриншот:",
+
+                no_screenshot: "У этой сделки нет скриншота"
+
+            },
+
+            es: {
+
+                page_title: "YourStats - Detalles de operación #{{ trade.id }}",
+
+                nav_dashboard: "Dashboard",
+
+                nav_history: "History",
+
+                nav_analytics: "Analytics",
+
+                btn_new_trade: "Nueva operación",
+
+                trade_label: "Operación:",
+
+                back_to_list: "Volver a la lista",
+
+                field_date: "Fecha",
+
+                field_direction: "Dirección",
+
+                field_entry_exit: "Entrada / Salida",
+
+                field_pnl: "PnL (Ganancia/Pérdida)",
+
+                field_emotion: "Emoción",
+
+                field_comment: "Comentario / Estrategia",
+
+                screenshot_label: "Captura subida:",
+
+                no_screenshot: "Esta operación no tiene captura"
+
             }
+
         };
 
+
+
         function changeLanguage(lang) {
-            localStorage.setItem('preferred_language', lang);
-            document.querySelectorAll('[data-i18n]').forEach(element => {
-                const key = element.getAttribute('data-i18n');
+
+            document.documentElement.lang = lang;
+
+            
+
+            const elements = document.querySelectorAll('[data-i18n]');
+
+            elements.forEach(el => {
+
+                const key = el.getAttribute('data-i18n');
+
                 if (translations[lang] && translations[lang][key]) {
-                    element.textContent = translations[lang][key];
+
+                    el.textContent = translations[lang][key];
+
                 }
+
             });
+
+
+
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+
+                btn.classList.remove('active');
+
+            });
+
+            const activeBtn = document.getElementById(`btn-${lang}`);
+
+            if (activeBtn) {
+
+                activeBtn.classList.add('active');
+
+            }
+
+
+
+            localStorage.setItem('selected_lang', lang);
+
         }
 
-        // გვერდის ჩატვირთვისას შემოწმება
+
+
         window.addEventListener('DOMContentLoaded', () => {
-            const savedLang = localStorage.getItem('preferred_language') || 'ka';
+
+            const savedLang = localStorage.getItem('selected_lang') || 'en';
+
             changeLanguage(savedLang);
+
         });
+
     </script>
+
+    <script src="{{ url_for('static', filename='js/i18n.js') }}"></script>
+
 </body>
-</html>
+
+</html> 
+
